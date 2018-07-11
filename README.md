@@ -1,4 +1,18 @@
-# OCPP-J-CP-Simulator
-A really simple cp simulator, that works with OCPP 1.6
+# OCPP-1.6-Chargebox-Simulator
+A simple chargepoint simulator, working with OCPP 1.6
 
-To start working change the endpoint URL and register the CP
+Based on the old simpler version of the [OCPP-J-CP-Simulator](https://github.com/nenecmrf/OCPP-J-CP-Simulator)
+
+Functionalities:
+- Define the central station to connect with
+- Specify the tag id that will activate the chargebox
+- Send chargebox message events:
+  - Connect
+  - Authorize
+  - Start/Stop transaction
+  - Heartbeat
+  - Meter values
+  - Status Notification
+  - Data Transfer
+
+   
