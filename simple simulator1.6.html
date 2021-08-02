@@ -158,9 +158,11 @@
                         });
                         var TransactionId = (array[0]);
                         sessionStorage.setItem('TransactionId', TransactionId);
-
-                    }
-                    logMsg("Response: " + JSON.stringify(ddata[2]));
+                            logMsg("Response: " + JSON.stringify(ddata));                                
+                        }
+                        else {
+                            logMsg("Response: " + JSON.stringify(ddata[2]));                                
+                        }
                 } else if ((JSON.parse(msg.data))[0] === 4) {
                     logMsg("Data exchange failed - JSON is not accepted!");
                 } else if ((JSON.parse(msg.data))[0] === 2) {
