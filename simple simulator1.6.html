@@ -349,7 +349,6 @@
                   break;
                 case "RemoteStartTransaction":
                   //Need to get idTag, connectorId (map - ddata[3])
-
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
                   startTransaction();
@@ -363,6 +362,22 @@
                   // $('.indicator').hide();
                   //$('#yellow').show();
                   //logMsg("Connector status changed to: "+connector_locked);
+                  break;
+                case "TriggerMessage":
+                  // Called by CPMS asking ChargePoint to execute the instruction
+                  // Implemented for MeterValues
+
+                  switch (ddata[3].requestedMessage) {
+                    case "MeterValues" :
+                      var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
+                      _websocket.send(remStrt);
+                      send_meterValue();
+                    break;
+                    default : 
+                      var error = JSON.stringify([4, id]);
+                      _websocket.send(error);
+                  }
+
                   break;
                 default:
                   var error = JSON.stringify([4, id]);
@@ -508,6 +523,32 @@
         _websocket.send(HB);
       }
 
+      function send_meterValue() {
+        console.log("mv");
+
+        sessionStorage.setItem("LastAction", "MeterValues");
+        var val = $("#metervalue").val();
+        console.log(1);
+        var MV = JSON.stringify([
+          2, 
+          id,
+          "MeterValues",
+          {
+            connectorId: 1,
+            transactionId: Number($("#transactionId").val()),
+            meterValue: [
+              {
+                timestamp: formatDate(new Date()),
+                sampledValue: [{ value: val }],
+              },
+            ],
+          },
+        ]);
+
+        console.log(2, MV);
+        _websocket.send(MV);
+      }
+
       $(document).ready(function () {
         $(".indicator").hide();
         $("#red").show();
@@ -531,29 +572,7 @@
           stopTransaction();
         });
         $("#mv").click(function () {
-          console.log("mv");
-
-          sessionStorage.setItem("LastAction", "MeterValues");
-          var val = $("#metervalue").val();
-          console.log(1);
-          var MV = JSON.stringify([
-            2, 
-            id,
-            "MeterValues",
-            {
-              connectorId: 1,
-              transactionId: Number($("#transactionId").val()),
-              meterValue: [
-                {
-                  timestamp: formatDate(new Date()),
-                  sampledValue: [{ value: val }],
-                },
-              ],
-            },
-          ]);
-
-          console.log(2, MV);
-          _websocket.send(MV);
+          send_meterValue();
         });
         $("#mvp").click(function () {
           var i = Number($("#meterInterval").val());
@@ -565,33 +584,14 @@
             var counter = Number($("#meterSendTimes").val());
             var Myelement = document.getElementById("metervalue");
             console.log(Myelement.value);
-            var newvalue = (val + incrementvalue).toString();
-            Myelement.value = newvalue;
+            Myelement.value = (val + incrementvalue).toString();;
             console.log("mvp", val, incrementvalue, interval, counter);
             if (timesRun === counter) {
               timesRun = 0;
               clearInterval(interval);
             }
             //do whatever here..
-            sessionStorage.setItem("LastAction", "MeterValues");
-            console.log(1);
-            var MV = JSON.stringify([
-              2,
-              id,
-              "MeterValues",
-              {
-                connectorId: 1,
-                transactionId: Number($("#transactionId").val()),
-                meterValue: [
-                  {
-                    timestamp: formatDate(new Date()),
-                    sampledValue: [{ value: newvalue }],
-                  },
-                ],
-              },
-            ]);
-
-            _websocket.send(MV);
+            send_meterValue();
           }, i);
         });
 
