@@ -419,7 +419,7 @@
         var connectorId = parseInt($("#CUID").val());
         console.log("connectorId", connectorId);
         var strtT = JSON.stringify([
-          connectorId,
+          2, 
           id,
           "StartTransaction",
           {
@@ -443,7 +443,7 @@
         logMsg("Connector status changed to: " + connector_locked);
         $("#yellow").show();
         var stpT = JSON.stringify([
-          Number($("#transactionId").val()),
+          2,
           id,
           "StopTransaction",
           {
@@ -537,7 +537,7 @@
           var val = $("#metervalue").val();
           console.log(1);
           var MV = JSON.stringify([
-            Number($("#transactionId").val()),
+            2, 
             id,
             "MeterValues",
             {
@@ -576,7 +576,7 @@
             sessionStorage.setItem("LastAction", "MeterValues");
             console.log(1);
             var MV = JSON.stringify([
-              Number($("#transactionId").val()),
+              2,
               id,
               "MeterValues",
               {
@@ -603,7 +603,7 @@
           sessionStorage.setItem("LastAction", "StatusNotification");
           console.log("sss", $("#ConnectorStatus").val());
           var SN = JSON.stringify([
-            parseInt($("#CUID").val()),
+            2,
             id,
             "StatusNotification",
             {
