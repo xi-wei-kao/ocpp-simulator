@@ -230,45 +230,7 @@
       var _websocket = null;
       var connector_locked = false;
 
-      function formatDate(date) {
-        var day = String(date.getDate());
-        if (day.length < 2) {
-          day = "0" + day.slice(-2);
-        }
-
-        var monthIndex = String(date.getMonth() + 1);
-        if (monthIndex.length < 2) {
-          monthIndex = "0" + monthIndex.slice(-2);
-        }
-        var year = date.getFullYear();
-        var h = date.getHours();
-        var m = String(date.getMinutes());
-        var s = String(date.getSeconds());
-        if (h.length < 2) {
-          h = "0" + h.slice(-2);
-        }
-        if (m.length < 2) {
-          m = "0" + m.slice(-2);
-        }
-        if (s.length < 2) {
-          s = "0" + s.slice(-2);
-        }
-        return (
-          year +
-          "-" +
-          monthIndex +
-          "-" +
-          day +
-          "T" +
-          h +
-          ":" +
-          m +
-          ":" +
-          s +
-          "Z"
-        );
-      }
-
+      
       function randomId() {
         id = "";
         for (var i = 0; i < 36; i++) {
@@ -440,7 +402,7 @@
           {
             connectorId: connectorId,
             idTag: $("#TAG").val(),
-            timestamp: formatDate(new Date()),
+            timestamp: new Date().toISOString(),
             meterStart: 0,
             reservationId: 0,
           },
@@ -464,7 +426,7 @@
           {
             transactionId: Number($("#transactionId").val()),
             idTag: $("#TAG").val(),
-            timestamp: formatDate(new Date()),
+            timestamp: new Date().toISOString(),
             meterStop: 20,
           },
         ]);
@@ -538,7 +500,7 @@
             transactionId: Number($("#transactionId").val()),
             meterValue: [
               {
-                timestamp: formatDate(new Date()),
+                timestamp: new Date().toISOString(),
                 sampledValue: [{ value: val }],
               },
             ],
@@ -611,7 +573,7 @@
               status: $("#ConnectorStatus").val(),
               errorCode: "NoError",
               info: "",
-              timestamp: formatDate(new Date()),
+              timestamp: new Date().toISOString(),
               vendorId: "",
               vendorErrorCode: "",
             },
