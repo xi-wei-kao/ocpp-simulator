@@ -311,6 +311,7 @@
                   break;
                 case "RemoteStartTransaction":
                   //Need to get idTag, connectorId (map - ddata[3])
+                  $("#TAG").val(ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
                   startTransaction();
