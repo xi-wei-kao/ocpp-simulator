@@ -270,15 +270,11 @@
               la = getLastAction();
 
               if (la == "startTransaction") {
-                ddata = ddata[2];
                 logMsg("Data exchange successful!");
-                var array = $.map(ddata, function (value, index) {
-                  return [value];
-                });
-                var TransactionId = array[0];
-                sessionStorage.setItem("TransactionId", TransactionId);
-                logMsg("TransactionId: " + TransactionId);
-                console.log("TransactionId: " + JSON.stringify(TransactionId));
+                var transactionId = ddata[2].transactionId;
+                $("#transactionId").val(transactionId);
+                logMsg("TransactionId: " + transactionId);
+                console.log("TransactionId: " + JSON.stringify(transactionId));
                 document.getElementById("ConnectorStatus").value = "Charging";
               }
               if (la === "stopTransaction") {
@@ -303,14 +299,15 @@
                   var remStp = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStp);
 
-                  var stop_id = JSON.parse(msg.data)[3].transactionId;
-
-                  stopTransaction(stop_id);
+                  $("#transactionId").val(JSON.parse(msg.data)[3].transactionId);
+                  
+                  stopTransaction();
                   $(".indicator").hide();
                   $("#yellow").show();
                   break;
                 case "RemoteStartTransaction":
                   //Need to get idTag, connectorId (map - ddata[3])
+                  $("#TAG").val(ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
                   startTransaction();
@@ -403,18 +400,15 @@
             connectorId: connectorId,
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
-            meterStart: 0,
+            meterStart: parseInt($("#metervalue").val()),
             reservationId: 0,
           },
         ]);
         _websocket.send(strtT);
       }
 
-      function stopTransaction(transaction_id = false) {
+      function stopTransaction() {
         sessionStorage.setItem("LastAction", "stopTransaction");
-        transaction_id == false
-          ? (ssid = sessionStorage.getItem("TransactionId"))
-          : (ssid = transaction_id);
         $(".indicator").hide();
         connector_locked = false;
         logMsg("Connector status changed to: " + connector_locked);
@@ -427,7 +421,7 @@
             transactionId: Number($("#transactionId").val()),
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
-            meterStop: 20,
+            meterStop: parseInt($("#metervalue").val()),
           },
         ]);
         _websocket.send(stpT);
