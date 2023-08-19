@@ -404,7 +404,7 @@
             connectorId: connectorId,
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
-            meterStart: 0,
+            meterStart: parseInt($("#metervalue").val()),
             reservationId: 0,
           },
         ]);
@@ -428,7 +428,7 @@
             transactionId: Number($("#transactionId").val()),
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
-            meterStop: 20,
+            meterStop: parseInt($("#metervalue").val()),
           },
         ]);
         _websocket.send(stpT);
