@@ -121,7 +121,17 @@
       <select style="display: none">
         <option value="">OCPP-J1.6</option>
       </select>
-      <div class="container">
+      <div class="container" style="display: flex; gap: 3rem; margin: 3rem 2rem">
+        <div>
+          <label>Payload</label
+            ><input
+              id="payload"
+              type="text"
+              placeholder=""
+              value=""
+            />
+        </div>
+
         <div class="actions">
           <label>Central Station</label
           ><input
@@ -404,7 +414,11 @@
           2,
           id,
           "Authorize",
+          // hsiwei
+          JSON.parse($("#payload").val()),
+/*
           { idTag: $("#TAG").val() },
+*/
         ]);
         _websocket.send(Auth);
       }
@@ -421,13 +435,16 @@
           2, 
           id,
           "StartTransaction",
+          // hsiwei
+          JSON.parse(("#payload").val())
+          /*
           {
             connectorId: connectorId,
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
             meterStart: parseInt($("#metervalue").val()),
             reservationId: 0,
-          },
+          },*/
         ]);
         _websocket.send(strtT);
       }
@@ -442,12 +459,14 @@
           2,
           id,
           "StopTransaction",
-          {
+          // hsiwei
+          JSON.parse(("#payload").val())
+          /*{
             transactionId: Number($("#transactionId").val()),
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
             meterStop: parseInt($("#metervalue").val()),
-          },
+          },*/
         ]);
         _websocket.send(stpT);
       }
@@ -475,6 +494,9 @@
           2,
           id,
           "BootNotification",
+          // hsiwei
+          JSON.parse($("#payload").val()),
+/*
           {
             chargePointVendor: "AVT-Company",
             chargePointModel: "AVT-Express",
@@ -486,6 +508,7 @@
             meterType: "AVT NQC-ACDC",
             meterSerialNumber: "avt.001.13.1.01",
           },
+*/
         ]);
 
         logMsg("ws connected");
@@ -500,7 +523,12 @@
 
       function send_heartbeat() {
         sessionStorage.setItem("LastAction", "Heartbeat");
-        var HB = JSON.stringify([2, id, "Heartbeat", {}]);
+        var HB = JSON.stringify([
+          2, 
+          id, 
+          "Heartbeat", 
+          {}
+        ]);
         _websocket.send(HB);
       }
 
@@ -517,6 +545,9 @@
           2, 
           id,
           "MeterValues",
+          // hsiwei
+          JSON.parse($("#payload").val()),
+/*
           {
             connectorId: 1,
             transactionId: Number($("#transactionId").val()),
@@ -530,13 +561,8 @@
                 ],
               },
             ],
-            /*meterValue: [
-              {
-                timestamp: new Date().toISOString(),
-                sampledValue: [{ value: val }],
-              },
-            ],*/
           },
+*/
         ]);
 
         console.log(2, MV);
@@ -600,6 +626,9 @@
             2,
             id,
             "StatusNotification",
+            // hsiwei
+            JSON.parse($("#payload").val()),
+/*
             {
               connectorId: parseInt($("#CUID").val()),
               status: $("#ConnectorStatus").val(),
@@ -609,6 +638,7 @@
               vendorId: "",
               vendorErrorCode: "",
             },
+*/
           ]);
           _websocket.send(SN);
         });
@@ -619,11 +649,15 @@
             2,
             id,
             "DataTransfer",
+            // hsiwei
+            JSON.parse($("#payload").val()),
+/*
             {
               vendorId: "rus.avt.cp",
               messageId: "GetChargeInstruction",
               data: "",
             },
+*/
           ]);
           _websocket.send(DT);
         });
