@@ -145,9 +145,34 @@
           <button id="start">Start Transaction</button>
           <button id="stop">Stop Transaction</button>
           <button id="heartbeat">Heartbeat</button>
+          <button id="reset">reset</button>
           <label>Meter value</label>
           <input
             id="metervalue"
+            type="text"
+            placeholder="Meter value"
+            value="1"
+          />
+
+          <label>Meter power</label>
+          <input
+            id="metervaluePower"
+            type="text"
+            placeholder="Meter value"
+            value="1"
+          />
+
+          <label>Meter current</label>
+          <input
+            id="metervalueCurrnet"
+            type="text"
+            placeholder="Meter value"
+            value="1"
+          />
+
+          <label>Meter voltage</label>
+          <input
+            id="metervalueVoltage"
             type="text"
             placeholder="Meter value"
             value="1"
@@ -484,6 +509,9 @@
 
         sessionStorage.setItem("LastAction", "MeterValues");
         var val = $("#metervalue").val();
+        var metervaluePower = $("#metervaluePower").val();
+        var metervalueCurrnet = $("#metervalueCurrnet").val();
+        var metervalueVoltage = $("#metervalueVoltage").val();
         console.log(1);
         var MV = JSON.stringify([
           2, 
@@ -495,9 +523,19 @@
             meterValue: [
               {
                 timestamp: new Date().toISOString(),
-                sampledValue: [{ value: val }],
+                sampledValue: [
+                  { value: metervaluePower, unit: "kW" },
+                  { value: metervalueCurrnet, unit: "A" },
+                  { value: metervalueVoltage, unit: "V" },
+                ],
               },
             ],
+            /*meterValue: [
+              {
+                timestamp: new Date().toISOString(),
+                sampledValue: [{ value: val }],
+              },
+            ],*/
           },
         ]);
 
