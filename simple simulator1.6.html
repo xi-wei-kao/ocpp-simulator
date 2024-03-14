@@ -235,6 +235,16 @@
             <span class="indicator" id="blue">____</span>
             <span class="indicator" id="yellow">____</span>
           </div>
+          <div style="padding: 1rem">
+            <label>message</label>
+            <input
+              id="message-input"
+              type="text"
+              value=""
+            />
+            <button id="cus-send" style="margin-top: 0.75rem">send</button>
+            <pre id="message-preview"></pre>
+          </div>
           <ul id="console"></ul>
         </div>
       </div>
@@ -282,6 +292,7 @@
           };
 
           _websocket.onmessage = function (msg) {
+            console.log("msg = ", msg);
             c++;
             var ddata = JSON.parse(msg.data);
             console.log(ddata);
@@ -627,6 +638,29 @@
           ]);
           _websocket.send(DT);
         });
+
+        // hsiwei{3/14}:新增自定義測試用送出訊息按鈕
+        $("#cus-send").click(function() {
+          var message = $("#message-input").val();
+          console.log("message = ", message);
+
+          // 送出訊息
+          _websocket.send(message);
+          alert("送出訊息");
+        });
+
+        // hsiwei{3/14}:修改input內容連動顯示內容
+        $("#message-input").change(function(e) {
+          var message = $(this).val();
+          console.log("message = ", message);
+          try {
+            var json = JSON.parse(message);
+            $("#message-preview").text(json);
+          } catch (e) {
+            console.error("error = ", e);
+            $("#message-preview").text(message);
+          }
+        })
 
         $("#connect").on("change", function () {
           if (_websocket) {
