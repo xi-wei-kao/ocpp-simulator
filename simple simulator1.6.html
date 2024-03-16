@@ -645,7 +645,7 @@
           console.log("message = ", message);
 
           // 送出訊息
-          _websocket.send(message);
+          _websocket.send(message.trim());
           alert("送出訊息");
         });
 
