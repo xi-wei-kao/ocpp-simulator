@@ -292,7 +292,7 @@
           };
 
           _websocket.onmessage = function (msg) {
-            console.log("msg = ", msg);
+            // console.log("msg = ", msg);
             c++;
             var ddata = JSON.parse(msg.data);
             console.log(ddata);
@@ -322,6 +322,11 @@
             } else if (JSON.parse(msg.data)[0] === 2) {
               logMsg(JSON.parse(msg.data)[2]);
               id = JSON.parse(msg.data)[1];
+              
+              console.group();
+              console.log("message type ", ddata[2]);
+              console.log("message ", ddata);
+              console.groupEnd();
 
               switch (ddata[2]) {
                 case "Reset":
@@ -373,6 +378,14 @@
                       _websocket.send(error);
                   }
 
+                  break;
+                case "SetChargingProfile":
+                  var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
+                  _websocket.send(SCP);
+                  break;
+                case "ClearChargingProfile":
+                  var CCP = JSON.stringify([3, id, { status: "Accepted" }]);
+                  _websocket.send(CCP);
                   break;
                 default:
                   var error = JSON.stringify([4, id]);
