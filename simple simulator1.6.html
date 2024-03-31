@@ -324,6 +324,12 @@
               id = JSON.parse(msg.data)[1];
               
               console.group();
+              const now = new Date();
+              const dateTime = `
+                ${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} 
+                ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}
+              `
+              console.log("時間: ", dateTime);
               console.log("message type ", ddata[2]);
               console.log("message ", ddata);
               console.groupEnd();
