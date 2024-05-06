@@ -486,7 +486,7 @@
         var lastAction = getLastAction();
         if ((lastAction = "BootNotification")) {
           data = data[2];
-          heartbeat_interval = "60";
+          heartbeat_interval = "40";
           return heartbeat_interval;
         } else if ((lastAction = "StartTransaction")) {
           return "StartTransaction";
