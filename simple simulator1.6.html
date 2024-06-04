@@ -4,6 +4,7 @@
       html,
       body {
         margin: 0;
+        margin-left: 0.5rem
       }
       body {
         background: #000;
@@ -11,7 +12,7 @@
         font-family: Arial;
         /* height: 100vh !important; */
       }
-
+      
       button,
       input,
       select {
@@ -139,13 +140,67 @@
           />
           <label>Connector uid</label>
           <input id="CUID" type="text" placeholder="Connector uid" value="1" />
-          <h2>Actions</h2>
+          <h2>Actions(Core Profile)</h2>
           <button id="connect">Connect</button>
           <button id="send">Authorize</button>
           <button id="start">Start Transaction</button>
           <button id="stop">Stop Transaction</button>
           <button id="heartbeat">Heartbeat</button>
-          <button id="reset">reset</button>
+          <label>Connector Status</label>
+          <select name="ConnectorStatus" id="ConnectorStatus">
+            <option value="Available">Available</option>
+            <option value="Preparing">Preparing</option>
+            <option value="Charging">Charging</option>
+            <option value="SuspendedEV">SuspendedEV</option>
+            <option value="SuspendedEVSE">SuspendedEVSE</option>
+            <option value="Finishing">Finishing</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Faulted">Faulted</option>
+            <option value="Unavailable">Unavailable</option>
+          </select>
+
+          <hr/>
+          <h2>Actions(Firmware Management Profile)</h2>
+          <div style="margin-top: 1rem; margin-bottom: 1rem;">
+            <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
+            <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
+            <label>listVersion</label>
+            <input
+              id="listVersion"
+              type="number"
+              placeholder="listVersion"
+              value="0"
+            />
+
+            <label>Send Local List Status(test other status return!)(Default Accepted)</label>
+            <select name="SendLocalListStatus" id="SendLocalListStatus">
+              <option value="Accepted">Accepted</option>
+              <option value="Failed">Failed</option>
+              <option value="NotSupported">NotSupported</option>
+              <option value="VersionMismatch">VersionMismatch</option>
+            </select>
+          </div>
+
+          <label>Diagnostics Status</label>
+          <select name="DiagnosticsStatus" id="DiagnosticsStatus">
+            <option value="Idle">Idle</option>
+            <option value="Uploaded">Uploaded</option>
+            <option value="UploadFailed">UploadFailed</option>
+            <option value="Uploading">Uploading</option>
+          </select>
+
+          <label>Firmware Status</label>
+          <select name="FirmwareStatus" id="FirmwareStatus">
+            <option value="Downloaded">Downloaded</option>
+            <option value="DownloadFailed">DownloadFailed</option>
+            <option value="Downloading">Downloading</option>
+            <option value="Idle">Idle</option>
+            <option value="InstallationFailed">InstallationFailed</option>
+            <option value="Installing">Installing</option>
+            <option value="Installed">Installed</option>
+          </select>
+
+          <hr/>
           <label>Meter value</label>
           <input
             id="metervalue"
@@ -185,7 +240,7 @@
             placeholder="transactionId"
             value="1"
           />
-          <label>Connector Status</label>
+          <!-- <label>Connector Status</label>
 
           <select name="ConnectorStatus" id="ConnectorStatus">
             <option value="Available">Available</option>
@@ -197,7 +252,7 @@
             <option value="Reserved">Reserved</option>
             <option value="Faulted">Faulted</option>
             <option value="Unavailable">Unavailable</option>
-          </select>
+          </select> -->
           <button id="mv">Send Meter Values</button>
           <div class="metervalues">
             <p class="meterTexts">Increment value</p>
@@ -393,6 +448,22 @@
                   var CCP = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(CCP);
                   break;
+                
+                // 新增 Local Auth List Management & Firmware Management 相關 CMS 事件接收後回應
+                // Local Auth List Management
+                case "GetLocalListVersion":
+                  var GLLV = JSON.stringify([3, id, { listVersion: 1 }]);
+                  _websocket.send(GLLV);
+                case "SendLocalList":
+                  var SLL = JSON.stringify([3, id, { status: $("#SendLocalListStatus").val() }]);
+                  _websocket.send(SLL);
+                // Firmware Management
+                case "GetDiagnostics":
+                  var GD = JSON.stringify([3, id, { fileName: "abc.log" }]);
+                  _websocket.send(GD);
+                case "UpdateFireware":
+                  var UF = JSON.stringify([3, id, {  }]);
+                  _websocket.send(UF);
                 default:
                   var error = JSON.stringify([4, id]);
                   _websocket.send(error);
@@ -653,6 +724,34 @@
               vendorId: "rus.avt.cp",
               messageId: "GetChargeInstruction",
               data: "",
+            },
+          ]);
+          _websocket.send(DT);
+        });
+
+        // hsiwei{5/35}:新增韌體相關按鈕監聽事件
+        $("#Diagnostics-Status-Notification").click(function() {
+          sessionStorage.setItem("LastAction", "DiagnosticsStatusNotification");
+          var DT = JSON.stringify([
+            2,
+            id,
+            "DiagnosticsStatusNotification",
+            {
+              status: $("#DiagnosticsStatus").val()
+            },
+          ]);
+          _websocket.send(DT);
+        });
+
+        // hsiwei{5/35}:新增韌體相關按鈕監聽事件
+        $("#Firmware-Status-Notification").click(function() {
+          sessionStorage.setItem("LastAction", "FirmwareStatusNotification");
+          var DT = JSON.stringify([
+            2,
+            id,
+            "FirmwareStatusNotification",
+            {
+              status: $("#FirmwareStatus").val()
             },
           ]);
           _websocket.send(DT);
