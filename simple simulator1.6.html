@@ -24,10 +24,13 @@
 
       button {
         background: #369;
+        margin: 0.25rem;
         color: #fff;
-        padding: 5px 0;
+        padding: 4px 12px;
         border: none;
         height: 2rem;
+        width: fit-content;
+        
       }
 
       ul {
@@ -112,6 +115,20 @@
         flex-basis: 0;
         text-align: left;
       }
+
+      .box-container {
+        padding: 0.5rem 0.5rem;
+        margin: 0.5rem 0.25rem;
+        border: 2px solid #efefef;
+        border-radius: 1.5rem;
+        box-shadow: #efefef50 3px 3px;
+      }
+
+      .form-label-layout {
+        margin-bottom: 0.25rem;
+        border-left: 0.1rem solid #ffffff;
+        padding-left: 0.25rem;
+      }
     </style>
   </head>
 
@@ -124,136 +141,168 @@
       </select>
       <div class="container">
         <div class="actions">
-          <label>Central Station</label
-          ><input
-            id="CP"
-            type="text"
-            placeholder="Id Station"
-            value="ws://localhost:3000/EVB-P20261797"
-          />
-          <label>Tag</label
-          ><input
-            id="TAG"
-            type="text"
-            placeholder="Tag"
-            value="04B0267AE05C87"
-          />
-          <label>Connector uid</label>
-          <input id="CUID" type="text" placeholder="Connector uid" value="1" />
-          <h2>Actions(Core Profile)</h2>
-          <button id="connect">Connect</button>
-          <button id="send">Authorize</button>
-          <button id="start">Start Transaction</button>
-          <button id="stop">Stop Transaction</button>
-          <button id="heartbeat">Heartbeat</button>
-          <label>Connector Status</label>
-          <select name="ConnectorStatus" id="ConnectorStatus">
-            <option value="Available">Available</option>
-            <option value="Preparing">Preparing</option>
-            <option value="Charging">Charging</option>
-            <option value="SuspendedEV">SuspendedEV</option>
-            <option value="SuspendedEVSE">SuspendedEVSE</option>
-            <option value="Finishing">Finishing</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Faulted">Faulted</option>
-            <option value="Unavailable">Unavailable</option>
-          </select>
-
-          <hr/>
-          <h2>Actions(Firmware Management Profile)</h2>
-          <div style="margin-top: 1rem; margin-bottom: 1rem;">
-            <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
-            <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
-            <label>listVersion</label>
+          <div class="box-container">
+            <h4>Metadata Configuration(基本設定)</h4>
+            <hr/>
+            <label class="form-label-layout">
+              Central Station(中心系統ip/port)
+            </label>
             <input
-              id="listVersion"
-              type="number"
-              placeholder="listVersion"
-              value="0"
+              id="CP"
+              type="text"
+              placeholder="Id Station"
+              value="ws://localhost:2020/1001"
             />
-
-            <label>Send Local List Status(test other status return!)(Default Accepted)</label>
-            <select name="SendLocalListStatus" id="SendLocalListStatus">
-              <option value="Accepted">Accepted</option>
-              <option value="Failed">Failed</option>
-              <option value="NotSupported">NotSupported</option>
-              <option value="VersionMismatch">VersionMismatch</option>
-            </select>
+            <hr/>
+            <button id="connect">Connect</button>
           </div>
 
-          <label>Diagnostics Status</label>
-          <select name="DiagnosticsStatus" id="DiagnosticsStatus">
-            <option value="Idle">Idle</option>
-            <option value="Uploaded">Uploaded</option>
-            <option value="UploadFailed">UploadFailed</option>
-            <option value="Uploading">Uploading</option>
-          </select>
+          <div class="box-container">
+            <h4>Actions - Core Profile(事件操作)</h4>
+            <hr/>
 
-          <label>Firmware Status</label>
-          <select name="FirmwareStatus" id="FirmwareStatus">
-            <option value="Downloaded">Downloaded</option>
-            <option value="DownloadFailed">DownloadFailed</option>
-            <option value="Downloading">Downloading</option>
-            <option value="Idle">Idle</option>
-            <option value="InstallationFailed">InstallationFailed</option>
-            <option value="Installing">Installing</option>
-            <option value="Installed">Installed</option>
-          </select>
+            <button id="heartbeat">Heartbeat</button>
+            <hr/>
 
-          <hr/>
-          <label>Meter value</label>
-          <input
-            id="metervalue"
-            type="text"
-            placeholder="Meter value"
-            value="1"
-          />
+            <div style="display: flex; gap: 0.75rem">
+              <label class="form-label-layout">Tag【卡號, 十六進位】</label>
+              <a style="color: yellow" 
+                target="_blank"
+                href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
+                參考轉換網址
+              </a>
+            </div>
+            <input
+              id="TAG"
+              type="text"
+              placeholder="Tag"
+              value="A787A414"
+            />
+            <label>transactionId</label>
+            <input
+              id="transactionId"
+              type="text"
+              placeholder="transactionId"
+              value="1"
+            />
+            <button id="send">Authorize</button>
+            <button id="start">Start Transaction</button>
+            <button id="stop">Stop Transaction</button>
+            <hr/>
 
-          <label>Meter power</label>
-          <input
-            id="metervaluePower"
-            type="text"
-            placeholder="Meter value"
-            value="1"
-          />
+            <!-- Status Notification -->
+            <div style="display: flex; gap: 0.5rem">
+              <div>
+                <label class="form-label-layout">Connector Status(充電樁狀態)</label>
+                <select name="ConnectorStatus" id="ConnectorStatus">
+                  <option value="Available">Available</option>
+                  <option value="Unavailable">Unavailable</option>
+                  <option value="Faulted">Faulted</option>
+                </select>
+                <label class="form-label-layout">Connector uid(0為充電樁)</label>
+                <input id="CUID" type="text" placeholder="Connector uid" value="0" disabled=true />
+                <button id="status">Status Notification(充電樁)</button>
+              </div>
+              <div>
+                <label class="form-label-layout">Connector Status(充電槍狀態)</label>
+                <select name="ConnectorStatus" id="ConnectorStatus-connector">
+                  <option value="Available">Available</option>
+                  <option value="Preparing">Preparing</option>
+                  <option value="Charging">Charging</option>
+                  <option value="SuspendedEV">SuspendedEV</option>
+                  <option value="SuspendedEVSE">SuspendedEVSE</option>
+                  <option value="Finishing">Finishing</option>
+                  <option value="Reserved">Reserved</option>
+                  <option value="Faulted">Faulted</option>
+                  <option value="Unavailable">Unavailable</option>
+                </select>
+                <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
+                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" />
+                <button id="status-connector">Status Notification(充電槍)</button>
+              </div>
+            </div>
+            <hr/>
 
-          <label>Meter current</label>
-          <input
-            id="metervalueCurrnet"
-            type="text"
-            placeholder="Meter value"
-            value="1"
-          />
+            <!-- MeterValues -->
+            <div>
+              <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
+              <input
+                id="metervalue"
+                type="text"
+                placeholder="Meter value"
+                value="15000"
+              />
+              <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+              <input
+                id="metervaluePower"
+                type="text"
+                placeholder="Meter value"
+                value="7000"
+              />
+              <label>Meter value: current【電流(單位: 安培, A)】</label>
+              <input
+                id="metervalueCurrnet"
+                type="text"
+                placeholder="Meter value"
+                value="32"
+              />
+              <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
+              <input
+                id="metervalueVoltage"
+                type="text"
+                placeholder="Meter value"
+                value="220"
+              />
+              <div>
+                <label>傳入格式內容</label>
+                <div style="height: 200px; overflow-y: scroll;">
+                  <pre id="metervalueDisplay"></pre>
+                </div>
+              </div>
+              <button id="mv">Send Meter Values</button>
 
-          <label>Meter voltage</label>
-          <input
-            id="metervalueVoltage"
-            type="text"
-            placeholder="Meter value"
-            value="1"
-          />
+            </div>
+          </div>
 
-          <label>transactionId</label>
-          <input
-            id="transactionId"
-            type="text"
-            placeholder="transactionId"
-            value="1"
-          />
-          <!-- <label>Connector Status</label>
-
-          <select name="ConnectorStatus" id="ConnectorStatus">
-            <option value="Available">Available</option>
-            <option value="Preparing">Preparing</option>
-            <option value="Charging">Charging</option>
-            <option value="SuspendedEV">SuspendedEV</option>
-            <option value="SuspendedEVSE">SuspendedEVSE</option>
-            <option value="Finishing">Finishing</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Faulted">Faulted</option>
-            <option value="Unavailable">Unavailable</option>
-          </select> -->
-          <button id="mv">Send Meter Values</button>
+          <!-- Firmware 操作區塊 -->
+          <div class="box-container">
+            <h2>Actions(Firmware Management Profile)</h2>
+            <div style="margin-top: 1rem; margin-bottom: 1rem;">
+              <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
+              <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
+              <label>listVersion</label>
+              <input
+                id="listVersion"
+                type="number"
+                placeholder="listVersion"
+                value="0"
+              />
+              <label>Send Local List Status(test other status return!)(Default Accepted)</label>
+              <select name="SendLocalListStatus" id="SendLocalListStatus">
+                <option value="Accepted">Accepted</option>
+                <option value="Failed">Failed</option>
+                <option value="NotSupported">NotSupported</option>
+                <option value="VersionMismatch">VersionMismatch</option>
+              </select>
+            </div>
+            <label>Diagnostics Status</label>
+            <select name="DiagnosticsStatus" id="DiagnosticsStatus">
+              <option value="Idle">Idle</option>
+              <option value="Uploaded">Uploaded</option>
+              <option value="UploadFailed">UploadFailed</option>
+              <option value="Uploading">Uploading</option>
+            </select>
+            <label>Firmware Status</label>
+            <select name="FirmwareStatus" id="FirmwareStatus">
+              <option value="Downloaded">Downloaded</option>
+              <option value="DownloadFailed">DownloadFailed</option>
+              <option value="Downloading">Downloading</option>
+              <option value="Idle">Idle</option>
+              <option value="InstallationFailed">InstallationFailed</option>
+              <option value="Installing">Installing</option>
+              <option value="Installed">Installed</option>
+            </select>
+          </div>
           <div class="metervalues">
             <p class="meterTexts">Increment value</p>
             <p class="meterTexts">Time interval</p>
@@ -280,7 +329,6 @@
             />
           </div>
           <button id="mvp">Send Meter Values loop</button>
-          <button id="status">Status Notification</button>
           <button id="data_transfer">Data Tranfer</button>
         </div>
         <div class="console">
@@ -373,7 +421,10 @@
               }
               logMsg("Response: " + JSON.stringify(ddata[2]));
             } else if (JSON.parse(msg.data)[0] === 4) {
-              logMsg("Data exchange failed - JSON is not accepted!");
+              logMsg(`
+                Data exchange failed - JSON is not accepted!
+                eventType = ${JSON.parse(msg.data)[2]}
+              `);
             } else if (JSON.parse(msg.data)[0] === 2) {
               logMsg(JSON.parse(msg.data)[2]);
               id = JSON.parse(msg.data)[1];
@@ -609,42 +660,98 @@
         console.log("mv");
 
         sessionStorage.setItem("LastAction", "MeterValues");
-        var val = $("#metervalue").val();
-        var metervaluePower = $("#metervaluePower").val();
-        var metervalueCurrnet = $("#metervalueCurrnet").val();
-        var metervalueVoltage = $("#metervalueVoltage").val();
-        console.log(1);
         var MV = JSON.stringify([
           2, 
           id,
           "MeterValues",
-          {
-            connectorId: 1,
-            transactionId: Number($("#transactionId").val()),
-            meterValue: [
-              {
-                timestamp: new Date().toISOString(),
-                sampledValue: [
-                  { value: metervaluePower, unit: "kW" },
-                  { value: metervalueCurrnet, unit: "A" },
-                  { value: metervalueVoltage, unit: "V" },
-                ],
-              },
-            ],
-            /*meterValue: [
-              {
-                timestamp: new Date().toISOString(),
-                sampledValue: [{ value: val }],
-              },
-            ],*/
-          },
+          JSON.parse($("#metervalueDisplay").text().trim())
         ]);
 
-        console.log(2, MV);
         _websocket.send(MV);
       }
 
       $(document).ready(function () {
+
+        // 定期更新顯示
+        const meterValueInterval = setInterval(() => {
+          $("#metervalueDisplay").text(`
+            {
+                "connectorId": ${$("#CUID-connector").val()},
+                "transactionId": ${$("#transactionId").val()},
+                "meterValue": [
+                    {
+                        "timestamp":  "${new Date().toISOString()}",
+                        "sampledValue": [
+                            {
+                                "value": "${$("#metervalueVoltage").val()}",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Voltage",
+                                "phase": "L1",
+                                "location": "Outlet",
+                                "unit": "V"
+                            },
+                            {
+                                "value": "${$("#metervalueCurrnet").val()}",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Current.Import",
+                                "phase": "L1",
+                                "location": "Outlet",
+                                "unit": "A"
+                            },
+                            {
+                                "value": "${$("#metervaluePower").val()}",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Power.Active.Import",
+                                "phase": null,
+                                "location": "Outlet",
+                                "unit": "W"
+                            },
+                            {
+                                "value": "38",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Temperature",
+                                "phase": null,
+                                "location": "Body",
+                                "unit": "Celsius"
+                            },
+                            {
+                                "value": "0",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "SoC",
+                                "phase": null,
+                                "location": "EV",
+                                "unit": "Percent"
+                            },
+                            {
+                                "value": "${$("#metervaluePower").val()}",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Power.Offered",
+                                "phase": null,
+                                "location": "Outlet",
+                                "unit": "W"
+                            },
+                            {
+                                "value": "${$("#metervalue").val()}",
+                                "context": "Transaction.Begin",
+                                "format": null,
+                                "measurand": "Energy.Active.Import.Register",
+                                "phase": null,
+                                "location": "Outlet",
+                                "unit": "Wh"
+                            }
+                        ]
+                    }
+                ]
+            }
+          `)
+        }, 2000);
+
         $(".indicator").hide();
         $("#red").show();
 
@@ -696,7 +803,6 @@
 
         $("#status").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
-          console.log("sss", $("#ConnectorStatus").val());
           var SN = JSON.stringify([
             2,
             id,
@@ -711,6 +817,27 @@
               vendorErrorCode: "",
             },
           ]);
+          console.log(`charger status SN = ${SN}`);
+          _websocket.send(SN);
+        });
+
+        $("#status-connector").click(function () {
+          sessionStorage.setItem("LastAction", "StatusNotification");
+          var SN = JSON.stringify([
+            2,
+            id,
+            "StatusNotification",
+            {
+              connectorId: parseInt($("#CUID-connector").val()),
+              status: $("#ConnectorStatus-connector").val(),
+              errorCode: "NoError",
+              info: "",
+              timestamp: new Date().toISOString(),
+              vendorId: "",
+              vendorErrorCode: "",
+            },
+          ]);
+          console.log(`connecotr status SN = ${SN}`);
           _websocket.send(SN);
         });
 
