@@ -106,6 +106,7 @@
       .actions {
         flex-grow: 1;
         flex-basis: 0;
+        margin: 1.5rem 0px;
       }
       .wrapper {
         max-height: 100%;
@@ -128,6 +129,15 @@
         margin-bottom: 0.25rem;
         border-left: 0.1rem solid #ffffff;
         padding-left: 0.25rem;
+      }
+
+      .console-container {
+        border: 2px solid #FFA07A;
+        height: 100%;
+        position: relative;
+      }
+      #console {
+        position: fixed;
       }
     </style>
   </head>
@@ -157,6 +167,7 @@
             <button id="connect">Connect</button>
           </div>
 
+          <!-- Block: Core Profile Operation -->
           <div class="box-container">
             <h4>Actions - Core Profile(事件操作)</h4>
             <hr/>
@@ -178,7 +189,7 @@
               placeholder="Tag"
               value="A787A414"
             />
-            <label>transactionId</label>
+            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
             <input
               id="transactionId"
               type="text"
@@ -188,6 +199,7 @@
             <button id="send">Authorize</button>
             <button id="start">Start Transaction</button>
             <button id="stop">Stop Transaction</button>
+            <button id="data_transfer">Data Tranfer</button>
             <hr/>
 
             <!-- Status Notification -->
@@ -266,18 +278,20 @@
 
           <!-- Firmware 操作區塊 -->
           <div class="box-container">
-            <h2>Actions(Firmware Management Profile)</h2>
+            <h4>Actions - Firmware Management Profile(事件操作)</h4>
+            <hr/>
+
             <div style="margin-top: 1rem; margin-bottom: 1rem;">
-              <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
-              <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
-              <label>listVersion</label>
+              <div>
+                <label class="form-label-layout">listVersion</label>
+              </div>
               <input
                 id="listVersion"
                 type="number"
                 placeholder="listVersion"
                 value="0"
               />
-              <label>Send Local List Status(test other status return!)(Default Accepted)</label>
+              <label class="form-label-layout">Send Local List Status【test other status return!(Default Accepted)】</label>
               <select name="SendLocalListStatus" id="SendLocalListStatus">
                 <option value="Accepted">Accepted</option>
                 <option value="Failed">Failed</option>
@@ -285,51 +299,34 @@
                 <option value="VersionMismatch">VersionMismatch</option>
               </select>
             </div>
-            <label>Diagnostics Status</label>
-            <select name="DiagnosticsStatus" id="DiagnosticsStatus">
-              <option value="Idle">Idle</option>
-              <option value="Uploaded">Uploaded</option>
-              <option value="UploadFailed">UploadFailed</option>
-              <option value="Uploading">Uploading</option>
-            </select>
-            <label>Firmware Status</label>
-            <select name="FirmwareStatus" id="FirmwareStatus">
-              <option value="Downloaded">Downloaded</option>
-              <option value="DownloadFailed">DownloadFailed</option>
-              <option value="Downloading">Downloading</option>
-              <option value="Idle">Idle</option>
-              <option value="InstallationFailed">InstallationFailed</option>
-              <option value="Installing">Installing</option>
-              <option value="Installed">Installed</option>
-            </select>
+            <hr/>
+
+            <div>
+              <label>Diagnostics Status【診斷報告狀態回報】</label>
+              <select name="DiagnosticsStatus" id="DiagnosticsStatus">
+                <option value="Idle">Idle</option>
+                <option value="Uploaded">Uploaded</option>
+                <option value="UploadFailed">UploadFailed</option>
+                <option value="Uploading">Uploading</option>
+              </select>
+              <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
+            </div>
+            <hr/>
+
+            <div>
+              <label>Firmware Status【韌體更新狀態回報】</label>
+              <select name="FirmwareStatus" id="FirmwareStatus">
+                <option value="Downloaded">Downloaded</option>
+                <option value="DownloadFailed">DownloadFailed</option>
+                <option value="Downloading">Downloading</option>
+                <option value="Idle">Idle</option>
+                <option value="InstallationFailed">InstallationFailed</option>
+                <option value="Installing">Installing</option>
+                <option value="Installed">Installed</option>
+              </select>
+              <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
+            </div>
           </div>
-          <div class="metervalues">
-            <p class="meterTexts">Increment value</p>
-            <p class="meterTexts">Time interval</p>
-            <p class="meterTexts">Counter</p>
-          </div>
-          <div class="metervalues">
-            <input
-              id="meterIncrement"
-              type="text"
-              placeholder="meterIncrement"
-              value="1"
-            />
-            <input
-              id="meterInterval"
-              type="text"
-              placeholder="meterInterval"
-              value="1000"
-            />
-            <input
-              id="meterSendTimes"
-              type="text"
-              placeholder="meterSendTimes"
-              value="60"
-            />
-          </div>
-          <button id="mvp">Send Meter Values loop</button>
-          <button id="data_transfer">Data Tranfer</button>
         </div>
         <div class="console">
           <div>
@@ -338,7 +335,8 @@
             <span class="indicator" id="blue">____</span>
             <span class="indicator" id="yellow">____</span>
           </div>
-          <div style="padding: 1rem">
+          <!-- 註解區塊, 自定義訊息 -->
+          <!-- <div style="padding: 1rem">
             <label>message</label>
             <input
               id="message-input"
@@ -347,8 +345,10 @@
             />
             <button id="cus-send" style="margin-top: 0.75rem">send</button>
             <pre id="message-preview"></pre>
+          </div> -->
+          <div class="console-container">
+            <ul id="console"></ul>
           </div>
-          <ul id="console"></ul>
         </div>
       </div>
     </div>
