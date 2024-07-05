@@ -161,7 +161,7 @@
               id="CP"
               type="text"
               placeholder="Id Station"
-              value="ws://localhost:2020/1001"
+              value="ws://localhost:3000/1001"
             />
             <hr/>
             <button id="connect">Connect</button>
@@ -196,6 +196,8 @@
               placeholder="transactionId"
               value="1"
             />
+            <label class="form-label-layout">Charging ConnectorId(本次充電, 充電槍號【>=1】)</label>
+            <input id="charging-cuid" type="number" placeholder="Connector uid" value="1" />
             <button id="send">Authorize</button>
             <button id="start">Start Transaction</button>
             <button id="stop">Stop Transaction</button>
@@ -204,9 +206,9 @@
 
             <!-- Status Notification -->
             <div style="display: flex; gap: 0.5rem">
-              <div>
+              <div style="max-width: 50%;">
                 <label class="form-label-layout">Connector Status(充電樁狀態)</label>
-                <select name="ConnectorStatus" id="ConnectorStatus">
+                <select name="ConnectorStatus" id="ConnectorStatus" value="Available">
                   <option value="Available">Available</option>
                   <option value="Unavailable">Unavailable</option>
                   <option value="Faulted">Faulted</option>
@@ -228,8 +230,8 @@
                   <option value="Faulted">Faulted</option>
                   <option value="Unavailable">Unavailable</option>
                 </select>
-                <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
-                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" />
+                <!-- <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
+                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" /> -->
                 <button id="status-connector">Status Notification(充電槍)</button>
               </div>
             </div>
@@ -556,9 +558,11 @@
           2,
           id,
           "Authorize",
-          { idTag: $("#TAG").val() },
+          { idTagx: $("#TAG").val() },
         ]);
         _websocket.send(Auth);
+        // 開啟調整充電槍號
+        $("#charging-cuid").attr("disabled", false);
       }
 
       function startTransaction() {
@@ -567,7 +571,7 @@
         $("#green").show();
         connector_locked = true;
         logMsg("Connector status changed to: " + connector_locked);
-        var connectorId = parseInt($("#CUID").val());
+        var connectorId = parseInt($("#charging-cuid").val());
         console.log("connectorId", connectorId);
         var strtT = JSON.stringify([
           2, 
@@ -578,10 +582,13 @@
             idTag: $("#TAG").val(),
             timestamp: new Date().toISOString(),
             meterStart: parseInt($("#metervalue").val()),
-            reservationId: 0,
+            // reservationId: 0,
           },
         ]);
+        console.log("start strtT = ", strtT);
         _websocket.send(strtT);
+        // 鎖住調整充電槍號
+        $("#charging-cuid").attr("disabled", true);
       }
 
       function stopTransaction() {
@@ -602,6 +609,8 @@
           },
         ]);
         _websocket.send(stpT);
+        // 開啟調整充電槍號
+        $("#charging-cuid").attr("disabled", false);
       }
 
       function handleData(data, request = false) {
@@ -828,7 +837,7 @@
             id,
             "StatusNotification",
             {
-              connectorId: parseInt($("#CUID-connector").val()),
+              connectorId: parseInt($("#charging-cuid").val()),
               status: $("#ConnectorStatus-connector").val(),
               errorCode: "NoError",
               info: "",
