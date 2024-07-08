@@ -98,9 +98,8 @@
       .console {
         flex-grow: 1;
         flex-basis: 0;
-        overflow: scroll;
+        /* overflow: scroll; */
         max-height: 100%;
-        height: 750px;
         /* background-color: cyan; */
       }
       .actions {
@@ -133,11 +132,9 @@
 
       .console-container {
         border: 2px solid #FFA07A;
-        height: 100%;
-        position: relative;
-      }
-      #console {
-        position: fixed;
+        height: 60%;
+        overflow: scroll;
+        /* position: relative; */
       }
     </style>
   </head>
@@ -175,35 +172,6 @@
             <button id="heartbeat">Heartbeat</button>
             <hr/>
 
-            <div style="display: flex; gap: 0.75rem">
-              <label class="form-label-layout">Tag【卡號, 十六進位】</label>
-              <a style="color: yellow" 
-                target="_blank"
-                href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
-                參考轉換網址
-              </a>
-            </div>
-            <input
-              id="TAG"
-              type="text"
-              placeholder="Tag"
-              value="A787A414"
-            />
-            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
-            <input
-              id="transactionId"
-              type="text"
-              placeholder="transactionId"
-              value="1"
-            />
-            <label class="form-label-layout">Charging ConnectorId(本次充電, 充電槍號【>=1】)</label>
-            <input id="charging-cuid" type="number" placeholder="Connector uid" value="1" />
-            <button id="send">Authorize</button>
-            <button id="start">Start Transaction</button>
-            <button id="stop">Stop Transaction</button>
-            <button id="data_transfer">Data Tranfer</button>
-            <hr/>
-
             <!-- Status Notification -->
             <div style="display: flex; gap: 0.5rem">
               <div style="max-width: 50%;">
@@ -235,6 +203,35 @@
                 <button id="status-connector">Status Notification(充電槍)</button>
               </div>
             </div>
+            <hr/>
+
+            <div style="display: flex; gap: 0.75rem">
+              <label class="form-label-layout">Tag【卡號, 十六進位】</label>
+              <a style="color: yellow" 
+                target="_blank"
+                href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
+                參考轉換網址
+              </a>
+            </div>
+            <input
+              id="TAG"
+              type="text"
+              placeholder="Tag"
+              value="A787A414"
+            />
+            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
+            <input
+              id="transactionId"
+              type="text"
+              placeholder="transactionId"
+              value="1"
+            />
+            <label class="form-label-layout">Charging ConnectorId(本次充電, 充電槍號【>=1】)</label>
+            <input id="charging-cuid" type="number" placeholder="Connector uid" value="1" />
+            <button id="send">Authorize</button>
+            <button id="start">Start Transaction</button>
+            <button id="stop">Stop Transaction</button>
+            <button id="data_transfer">Data Tranfer</button>
             <hr/>
 
             <!-- MeterValues -->
@@ -558,7 +555,7 @@
           2,
           id,
           "Authorize",
-          { idTagx: $("#TAG").val() },
+          { idTag: $("#TAG").val() },
         ]);
         _websocket.send(Auth);
         // 開啟調整充電槍號
@@ -685,7 +682,7 @@
         const meterValueInterval = setInterval(() => {
           $("#metervalueDisplay").text(`
             {
-                "connectorId": ${$("#CUID-connector").val()},
+                "connectorId": ${$("#charging-cuid").val()},
                 "transactionId": ${$("#transactionId").val()},
                 "meterValue": [
                     {
