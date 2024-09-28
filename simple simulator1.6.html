@@ -217,7 +217,7 @@
               id="TAG"
               type="text"
               placeholder="Tag"
-              value="A787A414"
+              value="A787A3F2"
             />
             <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
             <input
@@ -406,17 +406,24 @@
 
             if (ddata[0] === 3) {
               la = getLastAction();
-
               if (la == "startTransaction") {
                 logMsg("Data exchange successful!");
                 var transactionId = ddata[2].transactionId;
                 $("#transactionId").val(transactionId);
                 logMsg("TransactionId: " + transactionId);
                 console.log("TransactionId: " + JSON.stringify(transactionId));
-                document.getElementById("ConnectorStatus").value = "Charging";
+                /*  FIXME: 不需要可刪除
+                document.getElementById("ConnectorStatus-connector").value = "Charging";
+                // 觸發按鈕事件
+                document.getElementById("status-connector").dispatchEvent(new Event("click"));
+                */
               }
               if (la === "stopTransaction") {
-                document.getElementById("ConnectorStatus").value = "Charging";
+                /*  FIXME: 不需要可刪除
+                // 調整狀態為結束充電, 觸發按鈕事件
+                document.getElementById("ConnectorStatus-connector").value = "Finishing";
+                document.getElementById("status-connector").dispatchEvent(new Event("click"));
+                */
               }
               logMsg("Response: " + JSON.stringify(ddata[2]));
             } else if (JSON.parse(msg.data)[0] === 4) {
@@ -773,10 +780,16 @@
         });
 
         $("#start").click(function () {
+          // 調整狀態為充電中, 觸發按鈕事件
+          document.getElementById("ConnectorStatus-connector").value = "Charging";
+          document.getElementById("status-connector").dispatchEvent(new Event("click"));
           startTransaction();
         });
 
         $("#stop").click(function () {
+          // 調整狀態為結束充電, 觸發按鈕事件
+          document.getElementById("ConnectorStatus-connector").value = "Finishing";
+          document.getElementById("status-connector").dispatchEvent(new Event("click"));
           stopTransaction();
         });
         $("#mv").click(function () {
