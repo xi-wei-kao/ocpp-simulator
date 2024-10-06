@@ -230,6 +230,14 @@
             <input id="charging-cuid" type="number" placeholder="Connector uid" value="1" />
             <button id="send">Authorize</button>
             <button id="start">Start Transaction</button>
+            <label>充幾分鐘</label>
+            <input
+              id="duration"
+              type="number"
+              placeholder="duration"
+              value="0"
+              style="max-width: 100px;"
+            />
             <button id="stop">Stop Transaction</button>
             <button id="data_transfer">Data Tranfer</button>
             <hr/>
@@ -601,6 +609,15 @@
         connector_locked = false;
         logMsg("Connector status changed to: " + connector_locked);
         $("#yellow").show();
+
+        // 新增功能: 調整充電時間
+        let now = new Date();
+        const duraionMin = $("#duration").val();
+        console.log("duraionMin = ", duraionMin);
+        let duration = parseInt(duraionMin, 10) * 60 * 1000;
+        let stopTime = new Date(now.getTime() + duration);
+        console.log("stopTime = ", stopTime);
+
         var stpT = JSON.stringify([
           2,
           id,
@@ -608,7 +625,7 @@
           {
             transactionId: Number($("#transactionId").val()),
             idTag: $("#TAG").val(),
-            timestamp: new Date().toISOString(),
+            timestamp: stopTime.toISOString(),
             meterStop: parseInt($("#metervalue").val()),
           },
         ]);
