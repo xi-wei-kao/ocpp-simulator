@@ -468,7 +468,10 @@
 
                   $("#transactionId").val(JSON.parse(msg.data)[3].transactionId);
                   
+                  // 調整狀態為結束充電, 觸發按鈕事件
+                  triggerStatus("Finishing");
                   stopTransaction();
+                  
                   $(".indicator").hide();
                   $("#yellow").show();
                   break;
@@ -477,6 +480,8 @@
                   $("#TAG").val(ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
+                  // 調整狀態為充電中, 觸發按鈕事件
+                  triggerStatus("Charging");
                   startTransaction();
 
                   break;
@@ -563,6 +568,12 @@
         console.log(err);
         $("#console").append("<li>" + err + "</li>");
       }
+
+      function triggerStatus(status) { 
+          // 調整狀態, 並觸發按鈕事件
+          document.getElementById("ConnectorStatus-connector").value = status;
+          document.getElementById("status-connector").dispatchEvent(new Event("click"));
+       }
 
       function Authorize() {
         sessionStorage.setItem("LastAction", "Authorize");
@@ -798,15 +809,13 @@
 
         $("#start").click(function () {
           // 調整狀態為充電中, 觸發按鈕事件
-          document.getElementById("ConnectorStatus-connector").value = "Charging";
-          document.getElementById("status-connector").dispatchEvent(new Event("click"));
+          triggerStatus("Charging");
           startTransaction();
         });
 
         $("#stop").click(function () {
           // 調整狀態為結束充電, 觸發按鈕事件
-          document.getElementById("ConnectorStatus-connector").value = "Finishing";
-          document.getElementById("status-connector").dispatchEvent(new Event("click"));
+          triggerStatus("Finishing");
           stopTransaction();
         });
         $("#mv").click(function () {
