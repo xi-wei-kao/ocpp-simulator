@@ -154,11 +154,13 @@
             <label class="form-label-layout">
               Central Station【中心系統連線資訊：http://主機ip:埠號/充電樁編號】
             </label>
+            <!-- value="ws://localhost:2020/1076875101" -->
+            <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
             <input
               id="CP"
               type="text"
               placeholder="Id Station"
-              value="ws://localhost:3000/1076875101"
+              value="wss://yds-japan.beseye.com:443/ocpp/1076875101"
             />
             <hr/>
             <button id="connect">Connect</button>
@@ -272,13 +274,55 @@
                 placeholder="Meter value"
                 value="220"
               />
-              <div>
+              <div style="display: inline-flex; gap: 1rem; align-items: center">
                 <label>傳入格式內容</label>
-                <div style="height: 200px; overflow-y: scroll;">
-                  <pre id="metervalueDisplay"></pre>
+                <label>斷線了幾分鐘傳入?</label>
+                <input
+                  id="disconnectMins"
+                  type="number"
+                  placeholder="disconnectMins"
+                  value="0"
+                  style="max-width: 120px"
+                />
+              </div>
+              <div style="height: 200px; overflow-y: scroll;">
+                <pre id="metervalueDisplay"></pre>
+              </div>
+              <div style="display: flex; margin-top: 0.5rem">
+                <button id="mv" style="min-width: 160px;">Send Meter Values</button>
+                <div style="display: inline-flex; align-items: center">
+                  <input 
+                    type="checkbox"
+                    id="isPeriodSend" />
+                  <label style="min-width: 120px;">是否定期發送?</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.25rem">
+                  <input 
+                    type="number"
+                    id="meterValuesInterval"
+                    value="10"
+                    style="max-width: 120px;" />
+                    <label style="min-width: 100px;">發送間隔(秒)</label>
+                  <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+                      id="meterInterInfo"
+                      style="width: 36px; height: 36px;">
+                      <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
+                      </path>
+                    </svg>
+                    <div style="position: absolute; z-index: 999; margin-top: 4px">
+                      <div 
+                        id="meterValueInfoContainer"
+                        style="background-color: 
+                              #ffffff; border-radius: 0.5rem;
+                              padding: 8 12;
+                              display: none">
+                        <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button id="mv">Send Meter Values</button>
 
             </div>
           </div>
@@ -392,7 +436,12 @@
           $("#red").show();
           _websocket.close(3001);
         } else {
-          _websocket = new WebSocket(wsurl + "" + CP, ["ocpp1.6", "ocpp1.5"]);
+          console.log("connect ==>", wsurl + "" + CP);
+          const connectorHeaders = {
+            "Authorization": "StarChargerAdmin",
+          }
+
+          _websocket = new WebSocket(wsurl + "" + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
           _websocket.onopen = function (authorizationData) {
             sessionStorage.setItem("LastAction", "BootNotification");
             $("#yellow").show();
@@ -458,6 +507,7 @@
                 case "Reset":
                   //Reset type SOFT, HARD
                   var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
+                  console.log("Reset 即將送出");
                   _websocket.send(ResetS);
                   location.reload();
                   break;
@@ -478,6 +528,7 @@
                 case "RemoteStartTransaction":
                   //Need to get idTag, connectorId (map - ddata[3])
                   $("#TAG").val(ddata[3].idTag);
+                  console.log("RemostartTransaction ddata[3].idTag = ", ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
                   // 調整狀態為充電中, 觸發按鈕事件
@@ -488,6 +539,7 @@
                 case "UnlockConnector": /////////ERROR!!!!!!!!
                   //connectorId
                   var UC = JSON.stringify([3, id, { status: "Accepted" }]);
+                  console.log("解鎖即將送出");
                   _websocket.send(UC);
                   // connector_locked = false;
                   // $('.indicator').hide();
@@ -512,6 +564,7 @@
                   break;
                 case "SetChargingProfile":
                   var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
+                  console.log("修改充電設定即將送出");
                   _websocket.send(SCP);
                   break;
                 case "ClearChargingProfile":
@@ -715,13 +768,17 @@
 
         // 定期更新顯示
         const meterValueInterval = setInterval(() => {
+          const disconnectMins = Number($(`#disconnectMins`).val())
+
+          const sendDate = new Date();
+          sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
           $("#metervalueDisplay").text(`
             {
                 "connectorId": ${$("#charging-cuid").val()},
                 "transactionId": ${$("#transactionId").val()},
                 "meterValue": [
                     {
-                        "timestamp":  "${new Date().toISOString()}",
+                        "timestamp":  "${sendDate.toISOString()}",
                         "sampledValue": [
                             {
                                 "value": "${$("#metervalueVoltage").val()}",
@@ -795,6 +852,36 @@
 
         $(".indicator").hide();
         $("#red").show();
+
+        // 是否定期發送?
+        let periodSendHandler = null;
+        $(`#isPeriodSend`).on("change", function() {
+          const meterValuesInterval = Number($(`#meterValuesInterval`).val());
+          if ($(this).is(":checked")) {
+            console.log(`定期發送`);
+            periodSendHandler = setInterval(() => {
+              const incrementMeter = Number($("#metervalue").val()) + 50;
+              console.log(`incrementMeter ==> ${incrementMeter}`);
+              $("#metervalue").val(incrementMeter);
+              setTimeout(() => {
+                send_meterValue();
+              }, 500)
+            }, meterValuesInterval * 1000);
+          } else {
+            console.log(`無勾選`);
+            if (!!periodSendHandler) {
+              clearInterval(periodSendHandler);
+            }
+          }
+        })
+
+        // 定期發送提示框顯示
+        $("#meterInterInfo").on("mouseover", function() {
+          $(`#meterValueInfoContainer`).css("display", "block");
+        })
+        $("#meterInterInfo").on("mouseout", function() {
+          $(`#meterValueInfoContainer`).css("display", "none");
+        })
 
         //bind controls
         $("#connect").click(function () {
