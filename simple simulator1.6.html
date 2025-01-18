@@ -274,6 +274,13 @@
                 placeholder="Meter value"
                 value="220"
               />
+              <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
+              <input
+                id="metervalueSoC"
+                type="text"
+                placeholder="Meter value"
+                value="0"
+              />
               <div style="display: inline-flex; gap: 1rem; align-items: center">
                 <label>傳入格式內容</label>
                 <label>斷線了幾分鐘傳入?</label>
@@ -817,7 +824,7 @@
                                 "unit": "Celsius"
                             },
                             {
-                                "value": "0",
+                                "value": "${$("#metervalueSoC").val()}",
                                 "context": "Transaction.Begin",
                                 "format": null,
                                 "measurand": "SoC",
