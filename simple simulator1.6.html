@@ -156,11 +156,13 @@
             </label>
             <!-- value="ws://localhost:2020/1076875101" -->
             <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
+            <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
+            <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
             <input
               id="CP"
               type="text"
+              value="wss://yds-dev.beseye.com:443/ocpp/1076875101"
               placeholder="Id Station"
-              value="wss://yds-japan.beseye.com:443/ocpp/1076875101"
             />
             <hr/>
             <button id="connect">Connect</button>
@@ -171,7 +173,15 @@
             <h4>Actions - Core Profile(事件操作)</h4>
             <hr/>
 
-            <button id="heartbeat">Heartbeat</button>
+            <div style="display: flex; gap: 1rem; align-items: center">
+                <button id="heartbeat">Heartbeat</button>
+                <label>充電樁時間慢幾秒?</label>
+                <input 
+                  type="number" 
+                  id="latency-second" 
+                  value="0"
+                  style="max-width: 80px;" />
+            </div>
             <hr/>
 
             <!-- Status Notification -->
@@ -444,12 +454,26 @@
           _websocket.close(3001);
         } else {
           console.log("connect ==>", wsurl + "" + CP);
+          /*
           const connectorHeaders = {
             "Authorization": "StarChargerAdmin",
+          }
+          */
+          const connectorHeaders = {
+            "username": CP,
+            "password": "StarChargerAdmin"
           }
 
           _websocket = new WebSocket(wsurl + "" + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
           _websocket.onopen = function (authorizationData) {
+            /*
+            // 握手成功後主動送出認證資訊
+            const username = CP;
+            const password = "StarChargerAdmin";
+            ws.send(username);                         // 對應 server 的 String s
+            ws.send(new TextEncoder().encode(password)); // 對應 server 的 byte[] bytes
+            */
+
             sessionStorage.setItem("LastAction", "BootNotification");
             $("#yellow").show();
             BootNotification();
@@ -500,7 +524,10 @@
               id = JSON.parse(msg.data)[1];
               
               console.group();
-              const now = new Date();
+              // 抓延遲時間
+              const latencySecond = $("#latency-second").val()
+              const now = new Date()
+              now.setSeconds(now.getSeconds() - Number(latencySecond));
               const dateTime = `
                 ${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} 
                 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}
@@ -556,6 +583,7 @@
                 case "TriggerMessage":
                   // Called by CPMS asking ChargePoint to execute the instruction
                   // Implemented for MeterValues
+                  logMsg(`Trigger Message Type: ${ddata[3].requestedMessage}`);
 
                   switch (ddata[3].requestedMessage) {
                     case "MeterValues" :
@@ -656,6 +684,11 @@
         logMsg("Connector status changed to: " + connector_locked);
         var connectorId = parseInt($("#charging-cuid").val());
         console.log("connectorId", connectorId);
+        
+        // 抓延遲時間
+        const latencySecond = $("#latency-second").val()
+        const now = new Date()
+        now.setSeconds(now.getSeconds() - Number(latencySecond));
         var strtT = JSON.stringify([
           2, 
           id,
@@ -663,7 +696,7 @@
           {
             connectorId: connectorId,
             idTag: $("#TAG").val(),
-            timestamp: new Date().toISOString(),
+            timestamp: now.toISOString(),
             meterStart: parseInt($("#metervalue").val()),
             // reservationId: 0,
           },
@@ -682,7 +715,10 @@
         $("#yellow").show();
 
         // 新增功能: 調整充電時間
-        let now = new Date();
+        // 抓延遲時間
+        const latencySecond = $("#latency-second").val()
+        const now = new Date()
+        now.setSeconds(now.getSeconds() - Number(latencySecond));
         const duraionMin = $("#duration").val();
         console.log("duraionMin = ", duraionMin);
         let duration = parseInt(duraionMin, 10) * 60 * 1000;
@@ -777,7 +813,10 @@
         const meterValueInterval = setInterval(() => {
           const disconnectMins = Number($(`#disconnectMins`).val())
 
-          const sendDate = new Date();
+          // 抓延遲時間
+          const latencySecond = $("#latency-second").val()
+          const sendDate = new Date()
+          sendDate.setSeconds(sendDate.getSeconds() - Number(latencySecond));
           sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
           $("#metervalueDisplay").text(`
             {
@@ -903,14 +942,20 @@
 
         $("#start").click(function () {
           // 調整狀態為充電中, 觸發按鈕事件
-          triggerStatus("Charging");
           startTransaction();
+          setTimeout(() => {
+            console.log("晚個五秒");
+            triggerStatus("Charging");
+          }, 5000);
         });
 
         $("#stop").click(function () {
           // 調整狀態為結束充電, 觸發按鈕事件
-          triggerStatus("Finishing");
           stopTransaction();
+          setTimeout(() => {
+            console.log("晚個五秒");
+            triggerStatus("Finishing");
+          }, 5000);
         });
         $("#mv").click(function () {
           send_meterValue();
@@ -942,6 +987,11 @@
 
         $("#status").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
+
+          // 抓延遲時間
+          const latencySecond = $("#latency-second").val()
+          const now = new Date()
+          now.setSeconds(now.getSeconds() - Number(latencySecond));
           var SN = JSON.stringify([
             2,
             id,
@@ -951,7 +1001,7 @@
               status: $("#ConnectorStatus").val(),
               errorCode: "NoError",
               info: "",
-              timestamp: new Date().toISOString(),
+              timestamp: now.toISOString(),
               vendorId: "",
               vendorErrorCode: "",
             },
@@ -962,6 +1012,11 @@
 
         $("#status-connector").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
+
+          // 抓延遲時間
+          const latencySecond = $("#latency-second").val()
+          const now = new Date()
+          now.setSeconds(now.getSeconds() - Number(latencySecond));
           var SN = JSON.stringify([
             2,
             id,
@@ -971,7 +1026,7 @@
               status: $("#ConnectorStatus-connector").val(),
               errorCode: "NoError",
               info: "",
-              timestamp: new Date().toISOString(),
+              timestamp: now.toISOString(),
               vendorId: "",
               vendorErrorCode: "",
             },
