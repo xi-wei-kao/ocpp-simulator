@@ -158,6 +158,8 @@
             <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
             <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
             <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
+            <!-- value="wss://starcharger-yds.beseye.com:443/ocpp/10725101" -->
+             <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
             <input
               id="CP"
               type="text"
@@ -397,11 +399,16 @@
           </div>
         </div>
         <div class="console">
-          <div>
-            <span class="indicator" id="red">____</span>
-            <span class="indicator" id="green">____</span>
-            <span class="indicator" id="blue">____</span>
-            <span class="indicator" id="yellow">____</span>
+          <div style="display: flex; align-items: center">
+            <div>
+              <span class="indicator" id="red">____</span>
+              <span class="indicator" id="green">____</span>
+              <span class="indicator" id="blue">____</span>
+              <span class="indicator" id="yellow">____</span>
+            </div>
+            <div>
+              <button id="clear-console-btn">清除主控台</button>
+            </div>
           </div>
           <!-- 註解區塊, 自定義訊息 -->
           <!-- <div style="padding: 1rem">
@@ -435,6 +442,11 @@
       var id = randomId();
       var _websocket = null;
       var connector_locked = false;
+
+      // 清除主控台
+      $("#clear-console-btn").on("click", () => {
+        $("#console").html("");
+      })
 
       
       function randomId() {
@@ -522,7 +534,7 @@
             } else if (JSON.parse(msg.data)[0] === 2) {
               logMsg(JSON.parse(msg.data)[2]);
               id = JSON.parse(msg.data)[1];
-              
+              /*
               console.group();
               // 抓延遲時間
               const latencySecond = $("#latency-second").val()
@@ -536,8 +548,17 @@
               console.log("message type ", ddata[2]);
               console.log("message ", ddata);
               console.groupEnd();
+              */
 
               switch (ddata[2]) {
+                case "ChangeConfiguration":
+                  var ChangeConf = JSON.stringify([3, id, { status: "Accepted" }]);
+                  logMsg("接收ChangeConfig");
+                  setTimeout(() => {
+                    _websocket.send(ChangeConf);
+                  }, 4000)
+                  break;
+
                 case "Reset":
                   //Reset type SOFT, HARD
                   var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
@@ -553,8 +574,8 @@
                   $("#transactionId").val(JSON.parse(msg.data)[3].transactionId);
                   
                   // 調整狀態為結束充電, 觸發按鈕事件
-                  triggerStatus("Finishing");
                   stopTransaction();
+                  triggerStatus("Finishing");
                   
                   $(".indicator").hide();
                   $("#yellow").show();
@@ -565,9 +586,15 @@
                   console.log("RemostartTransaction ddata[3].idTag = ", ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
+                  // 測試 etreego Auto-Charge 問題(是不是在Remote後才收到Auth)
+                  setTimeout(() => {
+                    Authorize()
+                  }, 2000);
                   // 調整狀態為充電中, 觸發按鈕事件
-                  triggerStatus("Charging");
-                  startTransaction();
+                  setTimeout(() => {
+                    startTransaction();
+                    triggerStatus("Charging");
+                  }, 4000);
 
                   break;
                 case "UnlockConnector": /////////ERROR!!!!!!!!
@@ -669,7 +696,8 @@
           2,
           id,
           "Authorize",
-          { idTag: $("#TAG").val() },
+          // { idTag: $("#TAG").val() },
+          { idTag: "F0FDDD00C14A0000" },
         ]);
         _websocket.send(Auth);
         // 開啟調整充電槍號
@@ -907,8 +935,11 @@
             console.log(`定期發送`);
             periodSendHandler = setInterval(() => {
               const incrementMeter = Number($("#metervalue").val()) + 50;
+              const incrementSoC = Number($("#metervalueSoC").val()) + 1;
               console.log(`incrementMeter ==> ${incrementMeter}`);
+              console.log(`incrementSoC ==> ${incrementSoC}`);
               $("#metervalue").val(incrementMeter);
+              $("#metervalueSoC").val(incrementSoC);
               setTimeout(() => {
                 send_meterValue();
               }, 500)
