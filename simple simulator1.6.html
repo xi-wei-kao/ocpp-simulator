@@ -231,7 +231,7 @@
               id="TAG"
               type="text"
               placeholder="Tag"
-              value="A787A3F2"
+              value="F0FDDD00C14A0000"
             />
             <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
             <input
@@ -554,9 +554,9 @@
                 case "ChangeConfiguration":
                   var ChangeConf = JSON.stringify([3, id, { status: "Accepted" }]);
                   logMsg("接收ChangeConfig");
-                  setTimeout(() => {
-                    _websocket.send(ChangeConf);
-                  }, 4000)
+                  _websocket.send(ChangeConf);
+                  // setTimeout(() => {
+                  // }, 4000)
                   break;
 
                 case "Reset":
@@ -696,8 +696,8 @@
           2,
           id,
           "Authorize",
-          // { idTag: $("#TAG").val() },
-          { idTag: "F0FDDD00C14A0000" },
+          { idTag: $("#TAG").val() },
+          // { idTag: "F0FDDD00C14A0000" },
         ]);
         _websocket.send(Auth);
         // 開啟調整充電槍號
