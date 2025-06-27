@@ -639,16 +639,34 @@
                 case "GetLocalListVersion":
                   var GLLV = JSON.stringify([3, id, { listVersion: 1 }]);
                   _websocket.send(GLLV);
+                  break;
                 case "SendLocalList":
                   var SLL = JSON.stringify([3, id, { status: $("#SendLocalListStatus").val() }]);
                   _websocket.send(SLL);
+                  break;
                 // Firmware Management
                 case "GetDiagnostics":
                   var GD = JSON.stringify([3, id, { fileName: "abc.log" }]);
                   _websocket.send(GD);
+                  break;
                 case "UpdateFireware":
                   var UF = JSON.stringify([3, id, {  }]);
                   _websocket.send(UF);
+                  break;
+
+                // Reservation
+                case "ReserveNow":
+                  var RN = JSON.stringify([3, id, { status: "Accepted" }]);
+                  _websocket.send(RN);
+                  // 發送預約狀態
+                  triggerStatus("Reserved");
+                  break;
+                case "CancelReservation":
+                  var CR = JSON.stringify([3, id, { status: "Accepted" }]);
+                  _websocket.send(CR);
+                  logMsg("預約取消");
+                  break;
+
                 default:
                   var error = JSON.stringify([4, id]);
                   _websocket.send(error);
