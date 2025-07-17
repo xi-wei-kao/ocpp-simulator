@@ -159,7 +159,8 @@
             <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
             <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
             <!-- value="wss://starcharger-yds.beseye.com:443/ocpp/10725101" -->
-             <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
+            <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
+            <!-- value="wss://yds-jp-stage.beseye.com:443/ocpp/1076875101" -->
             <input
               id="CP"
               type="text"
@@ -590,7 +591,16 @@
                   setTimeout(() => {
                     Authorize()
                   }, 2000);
-                  // 調整狀態為充電中, 觸發按鈕事件
+                  
+                  // 若為拔槍狀態('Available'), 則先進入準備('Preparing'), 過之後才會進充
+                  const currentStatus = $("#ConnectorStatus-connector").val();
+                  if (currentStatus === "Available") {
+                    setTimeout(() => {
+                      triggerStatus("Preparing");
+                    }, 500);
+                  }
+                  
+                  // 最後進充
                   setTimeout(() => {
                     startTransaction();
                     triggerStatus("Charging");
