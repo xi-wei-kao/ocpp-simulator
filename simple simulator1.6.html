@@ -979,6 +979,29 @@
             }
           }
         })
+        // 新增為 Inputbox 修改也更新 Interval 事件
+        $("#meterValuesInterval").on("change", () => {
+          const meterValuesInterval = Number($(`#meterValuesInterval`).val());
+          if ($('##isPeriodSend').is(":checked")) {
+            console.log(`定期發送`);
+            periodSendHandler = setInterval(() => {
+              const incrementMeter = Number($("#metervalue").val()) + 50;
+              const incrementSoC = Number($("#metervalueSoC").val()) + 1;
+              console.log(`incrementMeter ==> ${incrementMeter}`);
+              console.log(`incrementSoC ==> ${incrementSoC}`);
+              $("#metervalue").val(incrementMeter);
+              $("#metervalueSoC").val(incrementSoC);
+              setTimeout(() => {
+                send_meterValue();
+              }, 500)
+            }, meterValuesInterval * 1000);
+          } else {
+            console.log(`無勾選`);
+            if (!!periodSendHandler) {
+              clearInterval(periodSendHandler);
+            }
+          }
+        })
 
         // 定期發送提示框顯示
         $("#meterInterInfo").on("mouseover", function() {
