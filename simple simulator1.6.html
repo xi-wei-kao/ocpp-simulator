@@ -164,7 +164,7 @@
             <input
               id="CP"
               type="text"
-              value="wss://yds-dev.beseye.com:443/ocpp/1076875101"
+              value="wss://yds-dev.beseye.com:443/ocpp/SN2410191439"
               placeholder="Id Station"
             />
             <hr/>
@@ -184,6 +184,7 @@
                   id="latency-second" 
                   value="0"
                   style="max-width: 80px;" />
+                <button id="test-flow-btn">測試情境流程</button>
             </div>
             <hr/>
 
@@ -196,6 +197,8 @@
                   <option value="Unavailable">Unavailable</option>
                   <option value="Faulted">Faulted</option>
                 </select>
+                <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電樁)</label>
+                <input id="cp-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
                 <label class="form-label-layout">Connector uid(0為充電樁)</label>
                 <input id="CUID" type="text" placeholder="Connector uid" value="0" disabled=true />
                 <button id="status">Status Notification(充電樁)</button>
@@ -213,8 +216,10 @@
                   <option value="Faulted">Faulted</option>
                   <option value="Unavailable">Unavailable</option>
                 </select>
-                <!-- <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
-                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" /> -->
+                <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電槍)</label>
+                <input id="connector-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
+                <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
+                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" />
                 <button id="status-connector">Status Notification(充電槍)</button>
               </div>
             </div>
@@ -575,8 +580,18 @@
                   $("#transactionId").val(JSON.parse(msg.data)[3].transactionId);
                   
                   // 調整狀態為結束充電, 觸發按鈕事件
+                  // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+                  
+                  // 2. 結束交易前, 最後一筆 MeterValues
+                  send_meterValue();
+                  
+                  // 4. 結束交易後拔槍(Available)
                   stopTransaction();
+                  
+                  $("#connector-vendorErrorCode").val("0x200008");
                   triggerStatus("Finishing");
+                  $("#connector-vendorErrorCode").val("");
+                  triggerStatus("Available");
                   
                   $(".indicator").hide();
                   $("#yellow").show();
@@ -1022,6 +1037,77 @@
           Authorize();
         });
 
+        // 測試特殊流程
+        $("#test-flow-btn").click(function () {
+/**
+1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+    2025-07-23 15:01:23.060 StatusNotification['Finishing']
+    <- 2025-07-23 15:01:23.061 回應
+(相隔約0.2秒)
+2. 結束交易前, 最後一筆 MeterValues
+    2025-07-23 15:01:23.217 MeterValues
+    <- 2025-07-23 15:01:23.218 回應
+(相隔約0.15秒)
+3. 結束交易處理
+    2025-07-23 15:01:23.355
+    <- 2025-07-23 15:01:23.356 回應
+(相隔約1.5秒)
+4. 結束交易後拔槍(Available)
+    2025-07-23 15:01:24.850 StatusNotification['Available']
+    <- 2025-07-23 15:01:27.296 回應
+(相隔約6秒)
+5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
+    2025-07-23 15:02:33.777
+    <- 2025-07-23 15:02:33.778 回應
+(相隔約5秒)
+6. 故障後狀態都回來空閑(Available): ConnectorId是2的, 0跟1也有一起傳
+    2025-07-23 15:02:38.077
+    <- ??? 回應
+*/
+          // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+          $("#connector-vendorErrorCode").val("0x200205");
+          triggerStatus("Finishing");
+
+          // 2. 結束交易前, 最後一筆 MeterValues
+          send_meterValue();
+
+          // 4. 結束交易後拔槍(Available)
+          $("#connector-vendorErrorCode").val("");
+          triggerStatus("Available");
+
+          // 3. 結束交易處理
+          // stopTransaction();
+
+          // 5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
+          /*
+          setTimeout(() => {
+            // 三筆陸續傳入故障
+            [0, 1, 2].forEach(connectorId => {
+              $("#CUID-connector").val(connectorId);
+              setTimeout(() => {
+                $("#connector-vendorErrorCode").val("0x10020c");
+                triggerStatus("Faulted");
+              }, 150)
+            });
+          }, 1500 + 6000);
+          */
+
+          /*
+          // 6. 故障後狀態都回來空閑(Available)
+          setTimeout(() => {    
+            // 三筆陸續傳入故障
+            [0, 1, 2].forEach(connectorId => {
+              setTimeout(() => {
+                $("#CUID-connector").val(connectorId);
+                $("#connector-vendorErrorCode").val("");
+                triggerStatus("Available");
+              }, 150)
+            });
+          }, 1500 + 6000 + 5000); 
+          */
+
+        });
+
         $("#start").click(function () {
           // 調整狀態為充電中, 觸發按鈕事件
           startTransaction();
@@ -1085,7 +1171,8 @@
               info: "",
               timestamp: now.toISOString(),
               vendorId: "",
-              vendorErrorCode: "",
+              // 取得特定VendorErrorCode
+              vendorErrorCode: $("#cp-vendorErrorCode").val(),
             },
           ]);
           console.log(`charger status SN = ${SN}`);
@@ -1110,7 +1197,8 @@
               info: "",
               timestamp: now.toISOString(),
               vendorId: "",
-              vendorErrorCode: "",
+              // 取得特定VendorErrorCode
+              vendorErrorCode: $("#connector-vendorErrorCode").val(),
             },
           ]);
           console.log(`connecotr status SN = ${SN}`);
