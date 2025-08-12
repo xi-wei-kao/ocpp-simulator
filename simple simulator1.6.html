@@ -583,15 +583,15 @@
                   // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
                   
                   // 2. 結束交易前, 最後一筆 MeterValues
-                  send_meterValue();
+                  // send_meterValue();
                   
                   // 4. 結束交易後拔槍(Available)
                   stopTransaction();
                   
-                  $("#connector-vendorErrorCode").val("0x200008");
+                  // $("#connector-vendorErrorCode").val("0x200008");
                   triggerStatus("Finishing");
-                  $("#connector-vendorErrorCode").val("");
-                  triggerStatus("Available");
+                  // $("#connector-vendorErrorCode").val("");
+                  // triggerStatus("Available");
                   
                   $(".indicator").hide();
                   $("#yellow").show();
