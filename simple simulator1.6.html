@@ -157,14 +157,18 @@
             <!-- value="ws://localhost:2020/1076875101" -->
             <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
             <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
+            <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
             <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
-            <!-- value="wss://starcharger-yds.beseye.com:443/ocpp/10725101" -->
+            <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
             <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
             <!-- value="wss://yds-jp-stage.beseye.com:443/ocpp/1076875101" -->
+            <!-- value="wss://yds-dev.beseye.com:443/ocpp/SN2410191439" -->
+            <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
+            <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
             <input
               id="CP"
               type="text"
-              value="wss://yds-dev.beseye.com:443/ocpp/SN2410191439"
+              value="wss://yds-dev.beseye.com:443/ocpp/1076875101"
               placeholder="Id Station"
             />
             <hr/>
@@ -237,7 +241,7 @@
               id="TAG"
               type="text"
               placeholder="Tag"
-              value="F0FDDD00C14A0000"
+              value="32372EB1C92E0000"
             />
             <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
             <input
@@ -511,26 +515,9 @@
             }
 
             if (ddata[0] === 3) {
-              la = getLastAction();
-              if (la == "startTransaction") {
-                logMsg("Data exchange successful!");
-                var transactionId = ddata[2].transactionId;
-                $("#transactionId").val(transactionId);
-                logMsg("TransactionId: " + transactionId);
-                console.log("TransactionId: " + JSON.stringify(transactionId));
-                /*  FIXME: 不需要可刪除
-                document.getElementById("ConnectorStatus-connector").value = "Charging";
-                // 觸發按鈕事件
-                document.getElementById("status-connector").dispatchEvent(new Event("click"));
-                */
-              }
-              if (la === "stopTransaction") {
-                /*  FIXME: 不需要可刪除
-                // 調整狀態為結束充電, 觸發按鈕事件
-                document.getElementById("ConnectorStatus-connector").value = "Finishing";
-                document.getElementById("status-connector").dispatchEvent(new Event("click"));
-                */
-              }
+              logMsg("Data exchange successful!");
+              var transactionId = ddata[2].transactionId;
+              $("#transactionId").val(!!transactionId ? transactionId : 0);
               logMsg("Response: " + JSON.stringify(ddata[2]));
             } else if (JSON.parse(msg.data)[0] === 4) {
               logMsg(`
@@ -540,21 +527,6 @@
             } else if (JSON.parse(msg.data)[0] === 2) {
               logMsg(JSON.parse(msg.data)[2]);
               id = JSON.parse(msg.data)[1];
-              /*
-              console.group();
-              // 抓延遲時間
-              const latencySecond = $("#latency-second").val()
-              const now = new Date()
-              now.setSeconds(now.getSeconds() - Number(latencySecond));
-              const dateTime = `
-                ${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} 
-                ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}
-              `
-              console.log("時間: ", dateTime);
-              console.log("message type ", ddata[2]);
-              console.log("message ", ddata);
-              console.groupEnd();
-              */
 
               switch (ddata[2]) {
                 case "ChangeConfiguration":
@@ -602,6 +574,7 @@
                   console.log("RemostartTransaction ddata[3].idTag = ", ddata[3].idTag);
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
+
                   // 測試 etreego Auto-Charge 問題(是不是在Remote後才收到Auth)
                   setTimeout(() => {
                     Authorize()
@@ -675,12 +648,13 @@
                   _websocket.send(GD);
                   break;
                 case "UpdateFireware":
-                  var UF = JSON.stringify([3, id, {  }]);
+                  var UF = JSON.stringify([3, id, {}]);
                   _websocket.send(UF);
                   break;
 
                 // Reservation
                 case "ReserveNow":
+                  logMsg("ReserveNow");
                   var RN = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(RN);
                   // 發送預約狀態
@@ -690,8 +664,9 @@
                   var CR = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(CR);
                   logMsg("預約取消");
+                  // 回到可用狀態
+                  triggerStatus("Available");
                   break;
-
                 default:
                   var error = JSON.stringify([4, id]);
                   _websocket.send(error);
@@ -767,6 +742,7 @@
           {
             connectorId: connectorId,
             idTag: $("#TAG").val(),
+            // idTag: "",
             timestamp: now.toISOString(),
             meterStart: parseInt($("#metervalue").val()),
             // reservationId: 0,
@@ -1028,6 +1004,7 @@
 
         //bind controls
         $("#connect").click(function () {
+          console.log("連線按鈕被點擊");
           $(".indicator").hide();
           $("#console").html("");
           wsConnect();
