@@ -170,7 +170,7 @@
             <input
               id="CP"
               type="text"
-              value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004"
+              value="wss://yds-dev.beseye.com:443/ocpp/1076875101"
               placeholder="Id Station"
             />
             <hr/>
@@ -191,6 +191,40 @@
                   value="0"
                   style="max-width: 80px;" />
                 <!-- <button id="test-flow-btn">測試情境流程</button> -->
+            </div>
+            <hr/>
+            
+            <!-- 自訂時間基準設定 -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; background-color: #1a1a1a; border-radius: 0.5rem;">
+              <label class="form-label-layout" style="color: #27a3ac;">時間基準設定（所有timestamp將從此時間開始計算）</label>
+              
+              <!-- 自動同步選項 -->
+              <div style="display: flex; gap: 0.5rem; align-items: center; padding: 0.5rem; background-color: #2a2a2a; border-radius: 0.25rem;">
+                <input 
+                  type="checkbox"
+                  id="auto-sync-time" 
+                  style="width: auto; margin: 0;"
+                />
+                <label style="margin: 0; cursor: pointer; color: #27a3ac;" for="auto-sync-time">
+                  🔄 自動同步系統時間（從 Heartbeat 回應）
+                </label>
+                <span id="last-sync-time" style="font-size: 0.85rem; color: #999; margin-left: auto;"></span>
+              </div>
+
+              <!-- 手動設定選項 -->
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input 
+                  type="datetime-local" 
+                  id="base-timestamp" 
+                  style="max-width: 220px;"
+                />
+                <button id="apply-base-time" style="background-color: #27a3ac;">手動套用基準時間</button>
+                <button id="reset-base-time" style="background-color: #666;">恢復實際時間</button>
+                <span id="time-mode-indicator" style="color: #999; font-weight: bold;">模式: 實際時間</span>
+              </div>
+              <div style="font-size: 0.85rem; color: #999;">
+                說明: 啟用自動同步後，每次 Heartbeat 回應都會更新基準時間；或可手動設定基準時間
+              </div>
             </div>
             <hr/>
 
@@ -452,12 +486,63 @@
       var id = randomId();
       var _websocket = null;
       var connector_locked = false;
+      
+      // 時間基準相關變數
+      var baseTimestamp = null;  // 用戶設定的基準時間
+      var baseRealTime = null;   // 按下套用按鈕時的實際時間
+      var useCustomTime = false; // 是否使用自訂時間模式
+      
+      // 請求追蹤：記錄每個 messageId 對應的 action 和 payload
+      var requestTracker = {};
 
       // 清除主控台
       $("#clear-console-btn").on("click", () => {
         $("#console").html("");
       })
 
+      /**
+       * 統一的時間取得函數
+       * 如果啟用自訂時間模式，則返回【基準時間 + 從啟用後經過的時間 - 延遲秒數】
+       * 否則返回【當前實際時間 - 延遲秒數】
+       */
+      function getCurrentTimestamp() {
+        const latencySecond = Number($("#latency-second").val()) || 0;
+        
+        if (useCustomTime && baseTimestamp && baseRealTime) {
+          // 計算從啟用自訂時間後經過了多少毫秒
+          const elapsedMs = Date.now() - baseRealTime;
+          // 基準時間 + 經過時間 - 延遲秒數
+          const resultTime = new Date(baseTimestamp.getTime() + elapsedMs);
+          resultTime.setSeconds(resultTime.getSeconds() - latencySecond);
+          return resultTime;
+        } else {
+          // 使用實際時間
+          const now = new Date();
+          now.setSeconds(now.getSeconds() - latencySecond);
+          return now;
+        }
+      }
+      
+      /**
+       * 發送 OCPP 請求並追蹤
+       */
+      function sendOcppRequest(action, payload) {
+        const message = [2, id, action, payload];
+        const messageJson = JSON.stringify(message);
+        
+        // 記錄請求以便追蹤錯誤
+        requestTracker[id] = {
+          action: action,
+          payload: payload,
+          fullJson: messageJson,
+          sentTime: new Date().toISOString()
+        };
+        
+        // 發送
+        _websocket.send(messageJson);
+        
+        return messageJson;
+      }
       
       function randomId() {
         id = "";
@@ -516,16 +601,81 @@
 
             if (ddata[0] === 3) {
               logMsg(`Data exchange successful! payload: ${JSON.stringify(ddata)}`);
+              
+              // 檢查是否為 Heartbeat 回應，並處理自動同步時間
+              var lastAction = sessionStorage.getItem("LastAction");
+              if (lastAction === "Heartbeat" && ddata[2].currentTime) {
+                const systemTime = ddata[2].currentTime;
+                logMsg(`📡 收到系統時間: ${systemTime}`);
+                
+                // 如果啟用自動同步，則自動設定基準時間
+                if ($("#auto-sync-time").is(":checked")) {
+                  const systemDate = new Date(systemTime);
+                  baseTimestamp = systemDate;
+                  baseRealTime = Date.now();
+                  useCustomTime = true;
+                  
+                  const localTimeStr = systemDate.toLocaleString('zh-TW', { 
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                  });
+                  
+                  $("#time-mode-indicator").text("模式: 自動同步").css("color", "#27a3ac");
+                  $("#last-sync-time").text(`上次同步: ${localTimeStr}`);
+                  logMsg(`🔄 已自動同步系統時間為基準`);
+                  console.log("自動同步時間:", systemDate.toISOString());
+                }
+              }
+              
               var transactionId = ddata[2].transactionId;
               if (transactionId) {
                 $("#transactionId").val(transactionId);
               }
               logMsg("Response: " + JSON.stringify(ddata[2]));
-            } else if (JSON.parse(msg.data)[0] === 4) {
-              logMsg(`
-                Data exchange failed - JSON is not accepted!
-                eventType = ${JSON.parse(msg.data)[2]}
-              `);
+            } else if (ddata[0] === 4) {
+              // CALLERROR: [4, messageId, errorCode, errorDescription, errorDetails]
+              const messageId = ddata[1];
+              const errorCode = ddata[2];
+              const errorDesc = ddata[3] || '(無描述)';
+              const errorDetails = ddata[4];
+              
+              // 從追蹤器中找出原始請求
+              const originalRequest = requestTracker[messageId];
+              
+              let errorMsg = `
+❌ CALLERROR - 後端拒絕請求！
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【錯誤資訊】
+  ErrorCode: ${errorCode}
+  ErrorDescription: ${errorDesc}
+  ErrorDetails: ${JSON.stringify(errorDetails)}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+              if (originalRequest) {
+                errorMsg += `
+【原始請求】
+  Action: ${originalRequest.action}
+  MessageId: ${messageId}
+  發送時間: ${originalRequest.sentTime}
+  Payload: ${JSON.stringify(originalRequest.payload, null, 2)}
+  完整JSON: ${originalRequest.fullJson}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                
+                // 清理追蹤記錄
+                delete requestTracker[messageId];
+              } else {
+                errorMsg += `
+【原始請求】(追蹤記錄未找到)
+  MessageId: ${messageId}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+              }
+              
+              logMsg(errorMsg);
+              console.error("❌ CALLERROR 完整資訊:", {
+                error: ddata,
+                originalRequest: originalRequest
+              });
             } else if (JSON.parse(msg.data)[0] === 2) {
               logMsg(JSON.parse(msg.data)[2]);
               id = JSON.parse(msg.data)[1];
@@ -595,8 +745,7 @@
                   // 最後進充
                   setTimeout(() => {
                     startTransaction();
-                    triggerStatus("Charging");
-                  }, 4000);
+                  }, 3000);
 
                   break;
                 case "UnlockConnector": /////////ERROR!!!!!!!!
@@ -701,6 +850,14 @@
         }
       }
 
+
+      function checkResrvedStart() {
+        const currentStatus = $("#ConnectorStatus-connector").val();
+        if (currentStatus !== "Reserved") {
+          triggerStatus("Charging");
+        }
+      }
+
       function logMsg(err) {
         console.log(err);
         $("#console").append("<li>" + err + "</li>");
@@ -735,10 +892,8 @@
         var connectorId = parseInt($("#CUID-connector").val());
         console.log("connectorId", connectorId);
         
-        // 抓延遲時間
-        const latencySecond = $("#latency-second").val()
-        const now = new Date()
-        now.setSeconds(now.getSeconds() - Number(latencySecond));
+        // 使用統一的時間取得函數
+        const timestamp = getCurrentTimestamp();
         var strtT = JSON.stringify([
           2, 
           id,
@@ -747,7 +902,7 @@
             connectorId: connectorId,
             idTag: $("#TAG").val(),
             // idTag: "",
-            timestamp: now.toISOString(),
+            timestamp: timestamp.toISOString(),
             meterStart: parseInt($("#metervalue").val()),
             // reservationId: 0,
           },
@@ -756,6 +911,12 @@
         _websocket.send(strtT);
         // 鎖住調整充電槍號
         $("#CUID-connector").attr("disabled", true);
+
+
+        setTimeout(() => {
+          console.log("晚個五秒");
+          checkResrvedStart();
+        }, 5000);
       }
 
       function stopTransaction() {
@@ -766,14 +927,12 @@
         $("#yellow").show();
 
         // 新增功能: 調整充電時間
-        // 抓延遲時間
-        const latencySecond = $("#latency-second").val()
-        const now = new Date()
-        now.setSeconds(now.getSeconds() - Number(latencySecond));
+        // 使用統一的時間取得函數
+        const timestamp = getCurrentTimestamp();
         const duraionMin = $("#duration").val();
         console.log("duraionMin = ", duraionMin);
         let duration = parseInt(duraionMin, 10) * 60 * 1000;
-        let stopTime = new Date(now.getTime() + duration);
+        let stopTime = new Date(timestamp.getTime() + duration);
         console.log("stopTime = ", stopTime);
 
         var stpT = JSON.stringify([
@@ -864,10 +1023,8 @@
         const meterValueInterval = setInterval(() => {
           const disconnectMins = Number($(`#disconnectMins`).val())
 
-          // 抓延遲時間
-          const latencySecond = $("#latency-second").val()
-          const sendDate = new Date()
-          sendDate.setSeconds(sendDate.getSeconds() - Number(latencySecond));
+          // 使用統一的時間取得函數
+          const sendDate = getCurrentTimestamp();
           sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
           $("#metervalueDisplay").text(`
             {
@@ -949,6 +1106,62 @@
 
         $(".indicator").hide();
         $("#red").show();
+
+        // 自動同步時間開關
+        $("#auto-sync-time").on("change", function() {
+          if ($(this).is(":checked")) {
+            logMsg("🔄 已啟用自動同步系統時間，將在下次 Heartbeat 回應時同步");
+            $("#time-mode-indicator").text("模式: 等待同步...").css("color", "#f39c12");
+          } else {
+            // 取消自動同步時，如果當前是自動同步模式，則恢復實際時間
+            if ($("#time-mode-indicator").text().includes("自動同步")) {
+              useCustomTime = false;
+              baseTimestamp = null;
+              baseRealTime = null;
+              $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
+              $("#last-sync-time").text("");
+              logMsg("已取消自動同步，恢復使用實際時間");
+            }
+          }
+        });
+
+        // 手動套用基準時間按鈕
+        $("#apply-base-time").click(function() {
+          const inputValue = $("#base-timestamp").val();
+          if (!inputValue) {
+            alert("請先選擇時間！");
+            return;
+          }
+          
+          // 如果啟用了自動同步，先取消它
+          if ($("#auto-sync-time").is(":checked")) {
+            $("#auto-sync-time").prop("checked", false);
+            $("#last-sync-time").text("");
+          }
+          
+          // 將 datetime-local 的值轉換為 Date 物件（本地時間）
+          baseTimestamp = new Date(inputValue);
+          // 記錄按下按鈕時的實際時間
+          baseRealTime = Date.now();
+          // 啟用自訂時間模式
+          useCustomTime = true;
+          
+          $("#time-mode-indicator").text("模式: 手動設定").css("color", "#27a3ac");
+          logMsg(`已手動套用基準時間: ${baseTimestamp.toISOString()} (UTC)`);
+          console.log("baseTimestamp:", baseTimestamp);
+          console.log("baseRealTime:", new Date(baseRealTime));
+        });
+
+        // 恢復實際時間按鈕
+        $("#reset-base-time").click(function() {
+          useCustomTime = false;
+          baseTimestamp = null;
+          baseRealTime = null;
+          $("#auto-sync-time").prop("checked", false);
+          $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
+          $("#last-sync-time").text("");
+          logMsg("已恢復使用實際時間模式");
+        });
 
         // 是否定期發送?
         let periodSendHandler = null;
@@ -1092,10 +1305,6 @@
         $("#start").click(function () {
           // 調整狀態為充電中, 觸發按鈕事件
           startTransaction();
-          setTimeout(() => {
-            console.log("晚個五秒");
-            triggerStatus("Charging");
-          }, 5000);
         });
 
         $("#stop").click(function () {
@@ -1137,53 +1346,61 @@
         $("#status").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
 
-          // 抓延遲時間
-          const latencySecond = $("#latency-second").val()
-          const now = new Date()
-          now.setSeconds(now.getSeconds() - Number(latencySecond));
-          var SN = JSON.stringify([
-            2,
-            id,
-            "StatusNotification",
-            {
-              connectorId: parseInt($("#CUID").val()),
-              status: $("#ConnectorStatus").val(),
-              errorCode: "NoError",
-              info: "",
-              timestamp: now.toISOString(),
-              vendorId: "",
-              // 取得特定VendorErrorCode
-              vendorErrorCode: $("#cp-vendorErrorCode").val(),
-            },
-          ]);
-          console.log(`charger status SN = ${SN}`);
-          _websocket.send(SN);
+          // 使用統一的時間取得函數
+          const timestamp = getCurrentTimestamp();
+          
+          // 建構 StatusNotification payload，只包含有值的欄位
+          const payload = {
+            connectorId: parseInt($("#CUID").val()),
+            status: $("#ConnectorStatus").val(),
+            errorCode: "NoError",
+            timestamp: timestamp.toISOString()
+          };
+          
+          // 只有當 vendorErrorCode 有值時才加入
+          const vendorErrorCode = $("#cp-vendorErrorCode").val();
+          if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+            payload.vendorErrorCode = vendorErrorCode;
+          }
+          
+          // 使用追蹤函數發送
+          const sentJson = sendOcppRequest("StatusNotification", payload);
+          
+          console.log(`📤 [充電樁] 發送 StatusNotification:`);
+          console.log(`   MessageId: ${id}`);
+          console.log(`   Payload:`, payload);
+          console.log(`   完整JSON: ${sentJson}`);
+          logMsg(`📤 發送 StatusNotification (充電樁): connectorId=${payload.connectorId}, status=${payload.status}`);
         });
 
         $("#status-connector").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
 
-          // 抓延遲時間
-          const latencySecond = $("#latency-second").val()
-          const now = new Date()
-          now.setSeconds(now.getSeconds() - Number(latencySecond));
-          var SN = JSON.stringify([
-            2,
-            id,
-            "StatusNotification",
-            {
-              connectorId: parseInt($("#CUID-connector").val()),
-              status: $("#ConnectorStatus-connector").val(),
-              errorCode: "NoError",
-              info: "",
-              timestamp: now.toISOString(),
-              vendorId: "",
-              // 取得特定VendorErrorCode
-              vendorErrorCode: $("#connector-vendorErrorCode").val(),
-            },
-          ]);
-          console.log(`connecotr status SN = ${SN}`);
-          _websocket.send(SN);
+          // 使用統一的時間取得函數
+          const timestamp = getCurrentTimestamp();
+          
+          // 建構 StatusNotification payload，只包含有值的欄位
+          const payload = {
+            connectorId: parseInt($("#CUID-connector").val()),
+            status: $("#ConnectorStatus-connector").val(),
+            errorCode: "NoError",
+            timestamp: timestamp.toISOString()
+          };
+          
+          // 只有當 vendorErrorCode 有值時才加入
+          const vendorErrorCode = $("#connector-vendorErrorCode").val();
+          if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+            payload.vendorErrorCode = vendorErrorCode;
+          }
+          
+          // 使用追蹤函數發送
+          const sentJson = sendOcppRequest("StatusNotification", payload);
+          
+          console.log(`📤 [充電槍] 發送 StatusNotification:`);
+          console.log(`   MessageId: ${id}`);
+          console.log(`   Payload:`, payload);
+          console.log(`   完整JSON: ${sentJson}`);
+          logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${payload.connectorId}, status=${payload.status}`);
         });
 
         $("#data_transfer").click(function () {
