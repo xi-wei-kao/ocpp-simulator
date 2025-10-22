@@ -167,10 +167,11 @@
             <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
             <!-- value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004" -->
             <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
+            <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
             <input
               id="CP"
               type="text"
-              value="wss://yds-dev.beseye.com:443/ocpp/1076875101"
+              value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327"
               placeholder="Id Station"
             />
             <hr/>
@@ -486,6 +487,23 @@
       var id = randomId();
       var _websocket = null;
       var connector_locked = false;
+
+      const chargingStatus = [
+        "Charging", "SuspendedEVSE", "SuspendedEV"
+      ]
+
+      window.onload = () => {
+        sessionStorage.setItem("LastAction", "");
+      }
+
+      // 定期檢查重啟
+      setInterval(() => {
+        const lastAction = sessionStorage.getItem("LastAction");
+        if (lastAction === "Reset") {
+          $("#connect").click();
+          sessionStorage.setItem("LastAction", "");
+        }
+      }, 1000);
       
       // 時間基準相關變數
       var baseTimestamp = null;  // 用戶設定的基準時間
@@ -694,7 +712,17 @@
                   var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
                   console.log("Reset 即將送出");
                   _websocket.send(ResetS);
-                  location.reload();
+                  // 重新載入後, 重試連線
+                  setTimeout(() => {
+                    console.log("--- 重啟重試 ---");
+                    if (_websocket) {
+                      $("#connect").click();
+                      $("#connect").text("Disconnect").css("background", "#00186D");
+                      sessionStorage.setItem("LastAction", "Reset");
+                      console.log("重啟成功!");
+                      logMsg("重啟成功!");
+                    }
+                  }, 2000);
                   break;
                 case "RemoteStopTransaction":
                   //TransactionID
@@ -805,6 +833,24 @@
                   _websocket.send(UF);
                   break;
 
+                // 禁用/解除禁用
+                case "ChangeAvailability":
+                  const isCharging = chargingStatus.includes($("#ConnectorStatus-connector").val());
+                  var CA = JSON.stringify([3, id, { status: isCharging ? "Rejected" : "Accepted"  }]);
+                  // 充電中暫時阻擋禁用(實際為進入"Scheduled")
+                  if (isCharging) {
+                    _websocket.send(CA);
+                    break;
+                  }
+                  // 若為樁(ConnectorId="0")禁用, 則廣播狀態事件
+                  const isOperative = ddata[3].type === "Operative";
+                  if (ddata[3].connectorId === 1) {
+                    triggerStatusEVSE(isOperative ? "Available" : "Unavailable");
+                  }
+                  triggerStatus(isOperative ? "Available" : "Unavailable");
+                  _websocket.send(CA);
+                  break;
+
                 // Reservation
                 case "ReserveNow":
                   logMsg("ReserveNow");
@@ -863,10 +909,25 @@
         $("#console").append("<li>" + err + "</li>");
       }
 
+      function triggerStatusEVSE(status) {
+        const statusCheck = [
+          "Available", "Unavailable", "Faulted"
+        ]
+        if (statusCheck.includes(status)) {
+          document.getElementById("ConnectorStatus").value = status;
+          setTimeout(() => {
+            document.getElementById("status-connector").dispatchEvent(new Event("click"));
+          }, 300);
+          logMsg(`樁狀態切換: ${status}`);
+        }
+      }
+
       function triggerStatus(status) { 
           // 調整狀態, 並觸發按鈕事件
           document.getElementById("ConnectorStatus-connector").value = status;
-          document.getElementById("status-connector").dispatchEvent(new Event("click"));
+          setTimeout(() => {
+            document.getElementById("status-connector").dispatchEvent(new Event("click"));
+          }, 300);
        }
 
       function Authorize() {
@@ -1224,7 +1285,13 @@
           console.log("連線按鈕被點擊");
           $(".indicator").hide();
           $("#console").html("");
-          wsConnect();
+          if (!_websocket) {
+            wsConnect();
+          } else {
+            _websocket.close(3001);
+            _websocket = null;
+            $("#connect").text("Connect").css("background", "#369");
+          }
         });
 
         $("#send").click(function () {
