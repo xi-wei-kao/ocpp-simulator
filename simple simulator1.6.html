@@ -171,7 +171,7 @@
             <input
               id="CP"
               type="text"
-              value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327"
+              value="ws://localhost:2020/002"
               placeholder="Id Station"
             />
             <hr/>
@@ -496,14 +496,7 @@
         sessionStorage.setItem("LastAction", "");
       }
 
-      // 定期檢查重啟
-      setInterval(() => {
-        const lastAction = sessionStorage.getItem("LastAction");
-        if (lastAction === "Reset") {
-          $("#connect").click();
-          sessionStorage.setItem("LastAction", "");
-        }
-      }, 1000);
+      // 定期檢查重啟 (已移除，改為直接在 Reset 處理中處理)
       
       // 時間基準相關變數
       var baseTimestamp = null;  // 用戶設定的基準時間
@@ -512,6 +505,16 @@
       
       // 請求追蹤：記錄每個 messageId 對應的 action 和 payload
       var requestTracker = {};
+      
+      // 重啟前狀態保存：記錄重啟前的充電樁和充電槍狀態
+      var savedStatusBeforeReset = {
+        chargePointStatus: null,    // 充電樁狀態 (connectorId=0)
+        connectorStatus: null,       // 充電槍狀態 (connectorId=1)
+        connector2Status: null       // 第二隻充電槍狀態 (connectorId=2)
+      };
+      
+      // 充電槍數量配置 (1 或 2)
+      var connectorCount = 2;  // 設定為 2 隻槍
 
       // 清除主控台
       $("#clear-console-btn").on("click", () => {
@@ -599,11 +602,28 @@
             ws.send(new TextEncoder().encode(password)); // 對應 server 的 byte[] bytes
             */
 
-            sessionStorage.setItem("LastAction", "BootNotification");
+            // 檢查是否為重啟後的連線
+            const lastAction = sessionStorage.getItem("LastAction");
+            const isResetReconnect = lastAction === "Reset";
+            
+            if (!isResetReconnect) {
+              // 非重啟連線，設定為 BootNotification
+              sessionStorage.setItem("LastAction", "BootNotification");
+            }
+            
             $("#yellow").show();
             BootNotification();
-
             $("#connect").text("Disconnect").css("background", "green");
+            
+            // 如果是重啟後的連線，發送狀態通知
+            if (isResetReconnect) {
+              setTimeout(() => {
+                logMsg("🔄 重啟後發送線上狀態通知");
+                sendOnlineStatusNotifications();
+                sessionStorage.setItem("LastAction", ""); // 清除重啟標記
+                logMsg("✅ 重啟流程完成！");
+              }, 3000); // 等待 BootNotification 完成後再發送狀態
+            }
           };
 
           _websocket.onmessage = function (msg) {
@@ -712,17 +732,29 @@
                   var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
                   console.log("Reset 即將送出");
                   _websocket.send(ResetS);
-                  // 重新載入後, 重試連線
+                  
+                  // 重啟前：保存當前狀態
+                  logMsg("🔄 重啟前保存當前狀態");
+                  saveStatusBeforeReset();
+                  
+                  // 設定重啟標記
+                  sessionStorage.setItem("LastAction", "Reset");
+                  
+                  // 模擬重啟：關閉 WebSocket 連線
+                  logMsg("🔄 模擬重啟：關閉連線");
+                  setTimeout(() => {
+                    if (_websocket) {
+                      _websocket.close(3001); // 關閉連線模擬重啟
+                      _websocket = null;
+                    }
+                  }, 1000); // 1秒後關閉連線
+                  
+                  // 重新連線
                   setTimeout(() => {
                     console.log("--- 重啟重試 ---");
-                    if (_websocket) {
-                      $("#connect").click();
-                      $("#connect").text("Disconnect").css("background", "#00186D");
-                      sessionStorage.setItem("LastAction", "Reset");
-                      console.log("重啟成功!");
-                      logMsg("重啟成功!");
-                    }
-                  }, 2000);
+                    logMsg("🔄 重啟後重新連線");
+                    wsConnect();
+                  }, 3000); // 3秒後重新連線
                   break;
                 case "RemoteStopTransaction":
                   //TransactionID
@@ -929,6 +961,108 @@
             document.getElementById("status-connector").dispatchEvent(new Event("click"));
           }, 300);
        }
+
+      /**
+       * 重啟前保存當前狀態
+       * 從 UI 元素中讀取當前的充電樁和充電槍狀態
+       */
+      function saveStatusBeforeReset() {
+        // 保存充電樁狀態 (connectorId=0)
+        savedStatusBeforeReset.chargePointStatus = $("#ConnectorStatus").val();
+        
+        // 根據 CUID-connector 的值來判斷是哪一隻充電槍
+        const currentConnectorId = parseInt($("#CUID-connector").val());
+        const currentConnectorStatus = $("#ConnectorStatus-connector").val();
+        
+        // 保存當前設定的充電槍狀態
+        if (currentConnectorId === 1) {
+          savedStatusBeforeReset.connectorStatus = currentConnectorStatus;
+        } else if (currentConnectorId === 2) {
+          savedStatusBeforeReset.connector2Status = currentConnectorStatus;
+        }
+        
+        // 為了支援兩隻充電槍，我們需要設定預設狀態
+        // 如果沒有設定第二隻充電槍的狀態，使用預設值
+        if (!savedStatusBeforeReset.connectorStatus) {
+          savedStatusBeforeReset.connectorStatus = "Available"; // 預設第一隻槍為 Available
+        }
+        if (!savedStatusBeforeReset.connector2Status) {
+          savedStatusBeforeReset.connector2Status = "Preparing"; // 預設第二隻槍為 Preparing
+        }
+        
+        logMsg(`💾 已保存重啟前狀態:`);
+        logMsg(`   充電樁 (connectorId=0): ${savedStatusBeforeReset.chargePointStatus}`);
+        logMsg(`   充電槍1 (connectorId=1): ${savedStatusBeforeReset.connectorStatus}`);
+        logMsg(`   充電槍2 (connectorId=2): ${savedStatusBeforeReset.connector2Status}`);
+        
+        // 將狀態保存到 sessionStorage 以防頁面刷新
+        sessionStorage.setItem("savedStatusBeforeReset", JSON.stringify(savedStatusBeforeReset));
+      }
+
+
+      /**
+       * 重啟後發送線上狀態通知
+       * 恢復重啟前保存的充電樁和充電槍狀態
+       */
+      function sendOnlineStatusNotifications() {
+        const timestamp = getCurrentTimestamp();
+        
+        // 從 sessionStorage 讀取保存的狀態
+        const savedStatus = sessionStorage.getItem("savedStatusBeforeReset");
+        let statusToRestore = savedStatusBeforeReset;
+        
+        if (savedStatus) {
+          try {
+            statusToRestore = JSON.parse(savedStatus);
+            logMsg(`📖 從 sessionStorage 讀取保存的狀態: ` + statusToRestore);
+          } catch (e) {
+            logMsg(`⚠️ 讀取保存狀態失敗，使用預設狀態`);
+          }
+        }
+        
+        // 發送充電樁狀態 (connectorId=0)
+        const cpStatus = statusToRestore.chargePointStatus || "Available";
+        const cpPayload = {
+          connectorId: 0,
+          status: cpStatus,
+          errorCode: "NoError", 
+          timestamp: timestamp.toISOString()
+        };
+        sendOcppRequest("StatusNotification", cpPayload);
+        logMsg(`📤 發送充電樁狀態: connectorId=0, status=${cpStatus}`);
+        
+        // 發送第一隻充電槍狀態 (connectorId=1)
+        const connector1Status = statusToRestore.connectorStatus || "Available";
+        const connector1Payload = {
+          connectorId: 1,
+          status: connector1Status,
+          errorCode: "NoError",
+          timestamp: timestamp.toISOString()
+        };
+        sendOcppRequest("StatusNotification", connector1Payload);
+        logMsg(`📤 發送充電槍1狀態: connectorId=1, status=${connector1Status}`);
+        
+        // 發送第二隻充電槍狀態 (connectorId=2) - 如果充電樁有兩隻槍
+        if (connectorCount >= 2) {
+          const connector2Status = statusToRestore.connector2Status || "Preparing";
+          const connector2Payload = {
+            connectorId: 2,
+            status: connector2Status,
+            errorCode: "NoError",
+            timestamp: timestamp.toISOString()
+          };
+          sendOcppRequest("StatusNotification", connector2Payload);
+          logMsg(`📤 發送充電槍2狀態: connectorId=2, status=${connector2Status}`);
+        }
+        
+        // 清除保存的狀態
+        savedStatusBeforeReset = {
+          chargePointStatus: null,
+          connectorStatus: null,
+          connector2Status: null
+        };
+        sessionStorage.removeItem("savedStatusBeforeReset");
+      }
 
       function Authorize() {
         sessionStorage.setItem("LastAction", "Authorize");
