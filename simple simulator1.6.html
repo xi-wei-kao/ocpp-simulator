@@ -168,10 +168,11 @@
             <!-- value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004" -->
             <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
             <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
+            <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
             <input
               id="CP"
               type="text"
-              value="ws://localhost:2020/002"
+              value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327"
               placeholder="Id Station"
             />
             <hr/>
@@ -836,6 +837,18 @@
 
                   break;
                 case "SetChargingProfile":
+                  console.log("SetChargingProfile ddata = ", ddata);
+                  const setChargingProfile = JSON.parse(msg.data)[3];
+                  const profile = setChargingProfile.csChargingProfiles;
+                  logMsg("--- 充電設定 ------------------------------------------------------------");
+                  const splitCP = $("#CP").val().toString().split("/");
+                  logMsg(`樁體號: ${splitCP[splitCP.length - 1]}`);
+                  logMsg(`connectorId(分配槍號 0為Load-Balancing模式): ${setChargingProfile.connectorId}`);
+                  logMsg(`chargingProfileKind(分配規則): ${profile.chargingProfileKind}`);
+                  logMsg(`chargingProfilePurpose(分配類型): ${profile.chargingProfilePurpose}`);
+                  logMsg(`chargingRateUnit(單位): ${profile.chargingSchedule.chargingRateUnit}`);
+                  logMsg(`chargingSchedulePeriod(套用): ${profile.chargingSchedule.chargingSchedulePeriod[0].limit}`);
+                  logMsg("--- 充電設定 ------------------------------------------------------------");
                   var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
                   console.log("修改充電設定即將送出");
                   _websocket.send(SCP);
