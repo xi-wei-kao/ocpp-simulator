@@ -169,12 +169,26 @@
             <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
             <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
             <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
-            <input
-              id="CP"
-              type="text"
-              value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327"
-              placeholder="Id Station"
-            />
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="server-select" style="max-width: 30%;">
+                <option value="wss://yds-dev.beseye.com:443/ocpp/">台灣(dev):yds-dev.beseye.com</option>
+                <option value="wss://yds-stage.beseye.com:443/ocpp/">台灣(stage):yds-stage.beseye.com</option>
+                <option value="wss://yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com</option>
+                <option value="wss://10.2.67.160:443/ocpp/">台灣(RT):10.2.67.160</option>
+                <option value="/">---</option>
+                <option value="wss://yds-jp-dev.beseye.com:443/ocpp/">日本(dev):yds-jp-dev.beseye.com</option>
+                <option value="wss://yds-jp-stage.beseye.com:443/ocpp/">日本(stage):yds-jp-stage.beseye.com</option>
+                <option value="/">---</option>
+                <option value="wss://localhost:2020/">台灣(地端local):localhost</option>
+                <option value="wss://10.2.67.109:2020/">台灣(地端109):10.2.67.109</option>
+              </select>
+              <input
+                id="CP"
+                type="text"
+                value="1076875101"
+                placeholder="Id Station"
+              />
+            </div>
             <hr/>
             <button id="connect">Connect</button>
           </div>
@@ -575,14 +589,14 @@
       }
 
       function wsConnect() {
-        var wsurl = $("select").val();
+        var wsurl = $("#server-select").val();
         var CP = $("#CP").val();
 
         if (_websocket) {
           $("#red").show();
           _websocket.close(3001);
         } else {
-          console.log("connect ==>", wsurl + "" + CP);
+          console.log("connect ==>", wsurl + CP);
           /*
           const connectorHeaders = {
             "Authorization": "StarChargerAdmin",
@@ -593,7 +607,7 @@
             "password": "StarChargerAdmin"
           }
 
-          _websocket = new WebSocket(wsurl + "" + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
+          _websocket = new WebSocket(wsurl + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
           _websocket.onopen = function (authorizationData) {
             /*
             // 握手成功後主動送出認證資訊
@@ -840,15 +854,17 @@
                   console.log("SetChargingProfile ddata = ", ddata);
                   const setChargingProfile = JSON.parse(msg.data)[3];
                   const profile = setChargingProfile.csChargingProfiles;
+                  logMsg("================================================");
                   logMsg("--- 充電設定 ------------------------------------------------------------");
-                  const splitCP = $("#CP").val().toString().split("/");
-                  logMsg(`樁體號: ${splitCP[splitCP.length - 1]}`);
+                  const cpId = $("#CP").val().toString();
+                  logMsg(`樁體號: ${cpId}`);
                   logMsg(`connectorId(分配槍號 0為Load-Balancing模式): ${setChargingProfile.connectorId}`);
                   logMsg(`chargingProfileKind(分配規則): ${profile.chargingProfileKind}`);
                   logMsg(`chargingProfilePurpose(分配類型): ${profile.chargingProfilePurpose}`);
                   logMsg(`chargingRateUnit(單位): ${profile.chargingSchedule.chargingRateUnit}`);
                   logMsg(`chargingSchedulePeriod(套用): ${profile.chargingSchedule.chargingSchedulePeriod[0].limit}`);
                   logMsg("--- 充電設定 ------------------------------------------------------------");
+                  logMsg("================================================");
                   var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
                   console.log("修改充電設定即將送出");
                   _websocket.send(SCP);
