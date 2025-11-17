@@ -300,131 +300,128 @@
             </div>
             <hr/>
 
-            <div style="display: flex; gap: 0.75rem">
-              <label class="form-label-layout">Tag【卡號, 十六進位】</label>
-              <a style="color: yellow" 
-                target="_blank"
-                href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
-                參考轉換網址
-              </a>
-            </div>
-            <input
-              id="TAG"
-              type="text"
-              placeholder="Tag"
-              value="32372EB1C92E0000"
-            />
-            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】(Connector 1)</label>
-            <input
-              id="transactionId-1"
-              type="text"
-              placeholder="transactionId"
-              value="1"
-            />
-            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】(Connector 2)</label>
-            <input
-              id="transactionId-2"
-              type="text"
-              placeholder="transactionId"
-              value="2"
-            />
-            <button id="send">Authorize</button>
-            <button id="start">Start Transaction</button>
-            <label>充幾分鐘</label>
-            <input
-              id="duration"
-              type="number"
-              placeholder="duration"
-              value="0"
-              style="max-width: 100px;"
-            />
-            <button id="stop">Stop Transaction</button>
-            <button id="data_transfer">Data Tranfer</button>
-            <hr/>
-
-            <!-- MeterValues Connector 1 -->
-            <div id="meter-values-connector-1">
-              <h5>Connector 1 Meter Values</h5>
-              <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
+            <!-- Connector 1 Controls -->
+            <div class="box-container">
+              <h5>Connector 1 Controls</h5>
+              <hr/>
+              <div style="display: flex; gap: 0.75rem">
+                <label class="form-label-layout">Tag【卡號, 十六進位】</label>
+                <a style="color: yellow" 
+                  target="_blank"
+                  href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
+                  參考轉換網址
+                </a>
+              </div>
               <input
-                id="metervalue-1"
+                id="TAG-1"
                 type="text"
-                placeholder="Meter value"
-                value="15000"
+                placeholder="Tag"
+                value="32372EB1C92E0000"
               />
-              <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+              <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
               <input
-                id="metervaluePower-1"
+                id="transactionId-1"
                 type="text"
-                placeholder="Meter value"
-                value="7000"
+                placeholder="transactionId"
+                value="1"
               />
-              <label>Meter value: current【電流(單位: 安培, A)】</label>
+              <button id="send-1">Authorize</button>
+              <button id="start-1">Start Transaction</button>
+              <label>充幾分鐘</label>
               <input
-                id="metervalueCurrnet-1"
-                type="text"
-                placeholder="Meter value"
-                value="32"
-              />
-              <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
-              <input
-                id="metervalueVoltage-1"
-                type="text"
-                placeholder="Meter value"
-                value="220"
-              />
-              <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
-              <input
-                id="metervalueSoC-1"
-                type="text"
-                placeholder="Meter value"
+                id="duration-1"
+                type="number"
+                placeholder="duration"
                 value="0"
+                style="max-width: 100px;"
               />
-              <div style="display: inline-flex; gap: 1rem; align-items: center">
-                <label>傳入格式內容</label>
-                <label>斷線了幾分鐘傳入?</label>
+              <button id="stop-1">Stop Transaction</button>
+              <button id="data_transfer-1">Data Tranfer</button>
+              <hr/>
+              <!-- MeterValues Connector 1 -->
+              <div id="meter-values-connector-1">
+                <h5>Connector 1 Meter Values</h5>
+                <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
                 <input
-                  id="disconnectMins-1"
-                  type="number"
-                  placeholder="disconnectMins"
-                  value="0"
-                  style="max-width: 120px"
+                  id="metervalue-1"
+                  type="text"
+                  placeholder="Meter value"
+                  value="15000"
                 />
-              </div>
-              <div style="height: 200px; overflow-y: scroll;">
-                <pre id="metervalueDisplay-1"></pre>
-              </div>
-              <div style="display: flex; margin-top: 0.5rem">
-                <button id="mv-1" style="min-width: 160px;">Send Meter Values</button>
-                <button id="mvp-1" style="min-width: 160px;">Send Meter Values Periodically</button>
-                <div style="display: inline-flex; align-items: center">
-                  <input 
-                    type="checkbox"
-                    id="isPeriodSend-1" />
-                  <label style="min-width: 120px;">是否定期發送?</label>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.25rem">
-                  <input 
+                <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+                <input
+                  id="metervaluePower-1"
+                  type="text"
+                  placeholder="Meter value"
+                  value="7000"
+                />
+                <label>Meter value: current【電流(單位: 安培, A)】</label>
+                <input
+                  id="metervalueCurrnet-1"
+                  type="text"
+                  placeholder="Meter value"
+                  value="32"
+                />
+                <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
+                <input
+                  id="metervalueVoltage-1"
+                  type="text"
+                  placeholder="Meter value"
+                  value="220"
+                />
+                <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
+                <input
+                  id="metervalueSoC-1"
+                  type="text"
+                  placeholder="Meter value"
+                  value="0"
+                />
+                <div style="display: inline-flex; gap: 1rem; align-items: center">
+                  <label>傳入格式內容</label>
+                  <label>斷線了幾分鐘傳入?</label>
+                  <input
+                    id="disconnectMins-1"
                     type="number"
-                    id="meterValuesInterval-1"
-                    value="10"
-                    style="max-width: 120px;" />
-                    <label style="min-width: 100px;">發送間隔(秒)</label>
-                  <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
-                      id="meterInterInfo-1"
-                      style="width: 36px; height: 36px;">
-                      <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
-                      </path>
-                    </svg>
-                    <div style="position: absolute; z-index: 999; margin-top: 4px">
-                      <div 
-                        id="meterValueInfoContainer-1"
-                        style="background-color: 
-                              #ffffff; border-radius: 0.5rem;
-                              padding: 8 12;
-                              display: none">
-                        <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
+                    placeholder="disconnectMins"
+                    value="0"
+                    style="max-width: 120px"
+                  />
+                </div>
+                <div style="height: 200px; overflow-y: scroll;">
+                  <pre id="metervalueDisplay-1"></pre>
+                </div>
+                <div style="display: flex; margin-top: 0.5rem">
+                  <button id="mv-1" style="min-width: 160px;">Send Meter Values</button>
+                  <button id="mvp-1" style="min-width: 160px;">Send Meter Values Periodically</button>
+                  <div style="display: inline-flex; align-items: center">
+                    <input 
+                      type="checkbox"
+                      id="isPeriodSend-1" />
+                    <label style="min-width: 120px;">是否定期發送?</label>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.25rem">
+                    <input 
+                      type="number"
+                      id="meterValuesInterval-1"
+                      value="10"
+                      style="max-width: 120px;" />
+                      <label style="min-width: 100px;">發送間隔(秒)</label>
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+                        id="meterInterInfo-1"
+                        style="width: 36px; height: 36px;">
+                        <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
+                        </path>
+                      </svg>
+                      <div style="position: absolute; z-index: 999; margin-top: 4px">
+                        <div 
+                          id="meterValueInfoContainer-1"
+                          style="background-color: 
+                                #ffffff; border-radius: 0.5rem;
+                                padding: 8 12;
+                                display: none">
+                          <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -432,89 +429,128 @@
               </div>
             </div>
 
-            <!-- MeterValues Connector 2 -->
-            <div id="meter-values-connector-2">
-              <h5>Connector 2 Meter Values</h5>
-              <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
+            <!-- Connector 2 Controls -->
+            <div class="box-container">
+              <h5>Connector 2 Controls</h5>
+              <hr/>
+              <div style="display: flex; gap: 0.75rem">
+                <label class="form-label-layout">Tag【卡號, 十六進位】</label>
+                <a style="color: yellow" 
+                  target="_blank"
+                  href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
+                  參考轉換網址
+                </a>
+              </div>
               <input
-                id="metervalue-2"
+                id="TAG-2"
                 type="text"
-                placeholder="Meter value"
-                value="15000"
+                placeholder="Tag"
+                value="32372EB1C92E0000"
               />
-              <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+              <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
               <input
-                id="metervaluePower-2"
+                id="transactionId-2"
                 type="text"
-                placeholder="Meter value"
-                value="7000"
+                placeholder="transactionId"
+                value="2"
               />
-              <label>Meter value: current【電流(單位: 安培, A)】</label>
+              <button id="send-2">Authorize</button>
+              <button id="start-2">Start Transaction</button>
+              <label>充幾分鐘</label>
               <input
-                id="metervalueCurrnet-2"
-                type="text"
-                placeholder="Meter value"
-                value="32"
-              />
-              <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
-              <input
-                id="metervalueVoltage-2"
-                type="text"
-                placeholder="Meter value"
-                value="220"
-              />
-              <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
-              <input
-                id="metervalueSoC-2"
-                type="text"
-                placeholder="Meter value"
+                id="duration-2"
+                type="number"
+                placeholder="duration"
                 value="0"
+                style="max-width: 100px;"
               />
-              <div style="display: inline-flex; gap: 1rem; align-items: center">
-                <label>傳入格式內容</label>
-                <label>斷線了幾分鐘傳入?</label>
+              <button id="stop-2">Stop Transaction</button>
+              <button id="data_transfer-2">Data Tranfer</button>
+              <hr/>
+              <!-- MeterValues Connector 2 -->
+              <div id="meter-values-connector-2">
+                <h5>Connector 2 Meter Values</h5>
+                <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
                 <input
-                  id="disconnectMins-2"
-                  type="number"
-                  placeholder="disconnectMins"
-                  value="0"
-                  style="max-width: 120px"
+                  id="metervalue-2"
+                  type="text"
+                  placeholder="Meter value"
+                  value="15000"
                 />
-              </div>
-              <div style="height: 200px; overflow-y: scroll;">
-                <pre id="metervalueDisplay-2"></pre>
-              </div>
-              <div style="display: flex; margin-top: 0.5rem">
-                <button id="mv-2" style="min-width: 160px;">Send Meter Values</button>
-                <button id="mvp-2" style="min-width: 160px;">Send Meter Values Periodically</button>
-                <div style="display: inline-flex; align-items: center">
-                  <input 
-                    type="checkbox"
-                    id="isPeriodSend-2" />
-                  <label style="min-width: 120px;">是否定期發送?</label>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.25rem">
-                  <input 
+                <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+                <input
+                  id="metervaluePower-2"
+                  type="text"
+                  placeholder="Meter value"
+                  value="7000"
+                />
+                <label>Meter value: current【電流(單位: 安培, A)】</label>
+                <input
+                  id="metervalueCurrnet-2"
+                  type="text"
+                  placeholder="Meter value"
+                  value="32"
+                />
+                <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
+                <input
+                  id="metervalueVoltage-2"
+                  type="text"
+                  placeholder="Meter value"
+                  value="220"
+                />
+                <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
+                <input
+                  id="metervalueSoC-2"
+                  type="text"
+                  placeholder="Meter value"
+                  value="0"
+                />
+                <div style="display: inline-flex; gap: 1rem; align-items: center">
+                  <label>傳入格式內容</label>
+                  <label>斷線了幾分鐘傳入?</label>
+                  <input
+                    id="disconnectMins-2"
                     type="number"
-                    id="meterValuesInterval-2"
-                    value="10"
-                    style="max-width: 120px;" />
-                    <label style="min-width: 100px;">發送間隔(秒)</label>
-                  <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
-                      id="meterInterInfo-2"
-                      style="width: 36px; height: 36px;">
-                      <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
-                      </path>
-                    </svg>
-                    <div style="position: absolute; z-index: 999; margin-top: 4px">
-                      <div 
-                        id="meterValueInfoContainer-2"
-                        style="background-color: 
-                              #ffffff; border-radius: 0.5rem;
-                              padding: 8 12;
-                              display: none">
-                        <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
+                    placeholder="disconnectMins"
+                    value="0"
+                    style="max-width: 120px"
+                  />
+                </div>
+                <div style="height: 200px; overflow-y: scroll;">
+                  <pre id="metervalueDisplay-2"></pre>
+                </div>
+                <div style="display: flex; margin-top: 0.5rem">
+                  <button id="mv-2" style="min-width: 160px;">Send Meter Values</button>
+                  <button id="mvp-2" style="min-width: 160px;">Send Meter Values Periodically</button>
+                  <div style="display: inline-flex; align-items: center">
+                    <input 
+                      type="checkbox"
+                      id="isPeriodSend-2" />
+                    <label style="min-width: 120px;">是否定期發送?</label>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.25rem">
+                    <input 
+                      type="number"
+                      id="meterValuesInterval-2"
+                      value="10"
+                      style="max-width: 120px;" />
+                      <label style="min-width: 100px;">發送間隔(秒)</label>
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+                        id="meterInterInfo-2"
+                        style="width: 36px; height: 36px;">
+                        <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
+                        </path>
+                      </svg>
+                      <div style="position: absolute; z-index: 999; margin-top: 4px">
+                        <div 
+                          id="meterValueInfoContainer-2"
+                          style="background-color: 
+                                #ffffff; border-radius: 0.5rem;
+                                padding: 8 12;
+                                display: none">
+                          <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -683,6 +719,9 @@
       function sendOcppRequest(action, payload) {
         const message = [2, id, action, payload];
         const messageJson = JSON.stringify(message);
+        
+        // Log the message before sending for debugging
+        console.log("DEBUG: Sending OCPP Request:", messageJson); 
         
         // 記錄請求以便追蹤錯誤
         requestTracker[id] = {
@@ -974,7 +1013,7 @@
                     case "MeterValues" :
                       var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                       _websocket.send(remStrt);
-                      send_meterValue();
+                      send_meterValue(1); // Assuming this should be for connector 1
                     break;
                     default : 
                       var error = JSON.stringify([4, id]);
@@ -1231,7 +1270,7 @@
           2,
           id,
           "Authorize",
-          { idTag: $("#TAG").val() },
+          { idTag: $("#TAG-" + connectorId).val() }, // Use connector-specific TAG
           // { idTag: "F0FDDD00C14A0000" },
         ]);
         _websocket.send(Auth);
@@ -1250,13 +1289,16 @@
         
         // 使用統一的時間取得函數
         const timestamp = getCurrentTimestamp();
+        const idTagValue = $("#TAG-" + connectorId).val(); // Get the value explicitly
+        console.log("DEBUG: idTagValue for connector " + connectorId + ":", idTagValue); // Log it
+        
         var strtT = JSON.stringify([
           2, 
           id,
           "StartTransaction",
           {
             connectorId: connectorId,
-            idTag: $("#TAG").val(),
+            idTag: idTagValue, // Use the explicitly retrieved value
             // idTag: "",
             timestamp: timestamp.toISOString(),
             meterStart: parseInt($("#metervalue-" + connectorId).val()),
@@ -1285,7 +1327,7 @@
         // 新增功能: 調整充電時間
         // 使用統一的時間取得函數
         const timestamp = getCurrentTimestamp();
-        const duraionMin = $("#duration-" + connectorId).val();
+        const duraionMin = $("#duration-" + connectorId).val(); // Use connector-specific duration
         console.log("duraionMin = ", duraionMin);
         let duration = parseInt(duraionMin, 10) * 60 * 1000;
         let stopTime = new Date(timestamp.getTime() + duration);
@@ -1297,7 +1339,8 @@
           "StopTransaction",
           {
             transactionId: Number($("#transactionId-" + connectorId).val()),
-            idTag: $("#TAG").val(),
+            idTag: $("#TAG-" + connectorId).val(), // Use connector-specific TAG
+
             timestamp: stopTime.toISOString(),
             meterStop: parseInt($("#metervalue-" + connectorId).val()),
           },
@@ -1730,88 +1773,16 @@
           }
         });
 
-        $("#send").click(function () {
+        // Connector 1 Controls
+        $("#send-1").click(function () {
           Authorize(1);
         });
 
-        // 測試特殊流程
-        $("#test-flow-btn").click(function () {
-/**
-1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
-    2025-07-23 15:01:23.060 StatusNotification['Finishing']
-    <- 2025-07-23 15:01:23.061 回應
-(相隔約0.2秒)
-2. 結束交易前, 最後一筆 MeterValues
-    2025-07-23 15:01:23.217 MeterValues
-    <- 2025-07-23 15:01:23.218 回應
-(相隔約0.15秒)
-3. 結束交易處理
-    2025-07-23 15:01:23.355
-    <- 2025-07-23 15:01:23.356 回應
-(相隔約1.5秒)
-4. 結束交易後拔槍(Available)
-    2025-07-23 15:01:24.850 StatusNotification['Available']
-    <- 2025-07-23 15:01:27.296 回應
-(相隔約6秒)
-5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
-    2025-07-23 15:02:33.777
-    <- 2025-07-23 15:02:33.778 回應
-(相隔約5秒)
-6. 故障後狀態都回來空閑(Available): ConnectorId是2的, 0跟1也有一起傳
-    2025-07-23 15:02:38.077
-    <- ??? 回應
-*/
-          // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
-          $("#connector-vendorErrorCode-1").val("0x200205");
-          triggerStatus(1, "Finishing");
-
-          // 2. 結束交易前, 最後一筆 MeterValues
-          send_meterValue();
-
-          // 4. 結束交易後拔槍(Available)
-          $("#connector-vendorErrorCode-1").val("");
-          triggerStatus(1, "Available");
-
-          // 3. 結束交易處理
-          // stopTransaction();
-
-          // 5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
-          /*
-          setTimeout(() => {
-            // 三筆陸續傳入故障
-            [0, 1, 2].forEach(connectorId => {
-              $("#CUID-connector-1").val(connectorId);
-              setTimeout(() => {
-                $("#connector-vendorErrorCode-1").val("0x10020c");
-                triggerStatus("Faulted");
-              }, 150)
-            });
-          }, 1500 + 6000);
-          */
-
-          /*
-          // 6. 故障後狀態都回來空閑(Available)
-          setTimeout(() => {    
-            // 三筆陸續傳入故障
-            [0, 1, 2].forEach(connectorId => {
-              setTimeout(() => {
-                $("#CUID-connector-1").val(connectorId);
-                $("#connector-vendorErrorCode-1").val("");
-                triggerStatus("Available");
-              }, 150)
-            });
-          }, 1500 + 6000 + 5000); 
-          */
-
-        });
-
-        $("#start").click(function () {
-          // 調整狀態為充電中, 觸發按鈕事件
+        $("#start-1").click(function () {
           startTransaction(1);
         });
 
-        $("#stop").click(function () {
-          // 調整狀態為結束充電, 觸發按鈕事件
+        $("#stop-1").click(function () {
           stopTransaction(1);
           setTimeout(() => {
             console.log("晚個五秒");
@@ -1819,23 +1790,51 @@
           }, 5000);
         });
 
+        $("#data_transfer-1").click(function () {
+          dataTransfer(1);
+        });
+
+        // Connector 2 Controls
         $("#send-2").click(function () {
           Authorize(2);
         });
 
         $("#start-2").click(function () {
-          // 調整狀態為充電中, 觸發按鈕事件
           startTransaction(2);
         });
 
         $("#stop-2").click(function () {
-          // 調整狀態為結束充電, 觸發按鈕事件
           stopTransaction(2);
           setTimeout(() => {
             console.log("晚個五秒");
             triggerStatus(2, "Finishing");
           }, 5000);
         });
+
+        $("#data_transfer-2").click(function () {
+          dataTransfer(2);
+        });
+
+        // Test special flow (remains unchanged, but ensure it uses connector-specific IDs if applicable)
+        $("#test-flow-btn").click(function () {
+          // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+          $("#connector-vendorErrorCode-1").val("0x200205");
+          triggerStatus(1, "Finishing");
+
+          // 2. 結束交易前, 最後一筆 MeterValues
+          send_meterValue(1); // Assuming this should be for connector 1
+
+          // 4. 結束交易後拔槍(Available)
+          $("#connector-vendorErrorCode-1").val("");
+          triggerStatus(1, "Available");
+
+          // 3. 結束交易處理
+          // stopTransaction(); // This needs to be called with a connectorId if used
+
+          // The commented out sections for Faulted and Available status for connector 2 and 0, 1, 2
+          // will remain commented out as they were before.
+        });
+
         $("#mv-1").click(function () {
           send_meterValue(1);
         });
@@ -1942,7 +1941,8 @@
           const payload = {
             connectorId: parseInt($("#CUID-connector-1").val()),
             status: $("#ConnectorStatus-connector-1").val(),
-            errorCode: "NoError"
+            errorCode: "NoError",
+            timestamp: timestamp.toISOString()
           };
           
           // 只有當 vendorErrorCode 有值時才加入
@@ -1975,7 +1975,8 @@
           const payload = {
             connectorId: parseInt($("#CUID-connector-2").val()),
             status: $("#ConnectorStatus-connector-2").val(),
-            errorCode: "NoError"
+            errorCode: "NoError",
+            timestamp: timestamp.toISOString()
           };
           
           // 只有當 vendorErrorCode 有值時才加入
@@ -1994,7 +1995,7 @@
           logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${payload.connectorId}, status=${payload.status}`);
         });
 
-        $("#data_transfer").click(function () {
+        function dataTransfer(connectorId) {
           sessionStorage.setItem("LastAction", "DataTransfer");
           var DT = JSON.stringify([
             2,
@@ -2007,7 +2008,7 @@
             },
           ]);
           _websocket.send(DT);
-        });
+        }
 
         // hsiwei{5/35}:新增韌體相關按鈕監聽事件
         $("#Diagnostics-Status-Notification").click(function() {
