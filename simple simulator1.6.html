@@ -1573,6 +1573,10 @@
           send_heartbeat();
         });
 
+        $("#ConnectorStatus").on("change", function() {
+          $("#status").click();
+        });
+
         $("#status").click(function () {
           sessionStorage.setItem("LastAction", "StatusNotification");
 
@@ -1601,6 +1605,10 @@
           console.log(`   Payload:`, payload);
           console.log(`   完整JSON: ${sentJson}`);
           logMsg(`📤 發送 StatusNotification (充電樁): connectorId=${payload.connectorId}, status=${payload.status}`);
+        });
+
+        $("#ConnectorStatus-connector").on("change", function() {
+          $("#status-connector").click();
         });
 
         $("#status-connector").click(function () {
