@@ -859,6 +859,8 @@
                   const cpId = $("#CP").val().toString();
                   logMsg(`樁體號: ${cpId}`);
                   logMsg(`connectorId(分配槍號 0為Load-Balancing模式): ${setChargingProfile.connectorId}`);
+                  logMsg(`chargingProfileId(分配id): ${profile.chargingProfileId}`);
+                  logMsg(`stackLevel(分配優先層級): ${profile.stackLevel}`);
                   logMsg(`chargingProfileKind(分配規則): ${profile.chargingProfileKind}`);
                   logMsg(`chargingProfilePurpose(分配類型): ${profile.chargingProfilePurpose}`);
                   logMsg(`chargingRateUnit(單位): ${profile.chargingSchedule.chargingRateUnit}`);
@@ -871,6 +873,18 @@
                   break;
                 case "ClearChargingProfile":
                   var CCP = JSON.stringify([3, id, { status: "Accepted" }]);
+
+                  const clearChargingProfile = JSON.parse(msg.data)[3];
+                  logMsg("================================================");
+                  logMsg("--- 清除 充電設定 ------------------------------------------------------------");
+                  cpId2 = $("#CP").val().toString();
+                  logMsg(`樁體號: ${cpId2}`);
+                  logMsg(`id(分配id): ${clearChargingProfile.id}`);
+                  logMsg(`connectorId(清除槍號:0=樁): ${clearChargingProfile.connectorId}`);
+                  logMsg(`chargingProfilePurpose(清除類型): ${clearChargingProfile.chargingProfilePurpose ?? "未定義"}`);
+                  logMsg(`stackLevel(套用層級): ${clearChargingProfile.stackLevel}`);
+                  logMsg("--- 清除 充電設定 ------------------------------------------------------------");
+                  logMsg("================================================");
                   _websocket.send(CCP);
                   break;
                 
