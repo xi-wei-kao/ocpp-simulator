@@ -141,8 +141,8 @@
 
   <body>
     <div class="wrapper">
-      <h1 class="title">INFINITY</h1>
-      <p class="subTitle">Simple OCPP 1.6 Chargebox Simulator</p>
+      <h1 class="title">Hello</h1>
+      <p class="subTitle">充電樁模擬器</p>
       <select style="display: none">
         <option value="">OCPP-J1.6</option>
       </select>
@@ -171,9 +171,10 @@
             <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
             <div style="display: flex; gap: 0.5rem; align-items: center;">
               <select id="server-select" style="max-width: 30%;">
+                <option value="wss://int-alb.yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com</option>
                 <option value="wss://yds-dev.beseye.com:443/ocpp/">台灣(dev):yds-dev.beseye.com</option>
                 <option value="wss://yds-stage.beseye.com:443/ocpp/">台灣(stage):yds-stage.beseye.com</option>
-                <option value="wss://int-alb.yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com</option>
+                <option value="wss://starcharger-yds.beseye.com:443/ocpp/">台灣(ms):starcharger-yds.beseye.com</option>
                 <option value="wss://10.2.67.160:443/ocpp/">台灣(RT):10.2.67.160</option>
                 <option value="/">---</option>
                 <option value="wss://yds-jp-dev.beseye.com:443/ocpp/">日本(dev):yds-jp-dev.beseye.com</option>
@@ -379,7 +380,7 @@
                   <input 
                     type="number"
                     id="meterValuesInterval"
-                    value="10"
+                    value="3"
                     style="max-width: 120px;" />
                     <label style="min-width: 100px;">發送間隔(秒)</label>
                   <div>
