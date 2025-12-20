@@ -136,6 +136,68 @@
         overflow: scroll;
         /* position: relative; */
       }
+
+      /* Toggle Switch Styles */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 22px;
+        margin: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        margin: 0;
+        position: absolute;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #666;
+        transition: 0.3s;
+        border-radius: 22px;
+        border: 1px solid #444;
+      }
+
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background-color: #27a3ac;
+        border-color: #27a3ac;
+      }
+
+      .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(22px);
+      }
+
+      .toggle-switch:hover .toggle-slider {
+        box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
+      }
+
+      .toggle-switch input:focus + .toggle-slider {
+        box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
+      }
     </style>
   </head>
 
@@ -370,19 +432,26 @@
               <div style="height: 200px; overflow-y: scroll;">
                 <pre id="metervalueDisplay"></pre>
               </div>
-              <div style="display: flex; margin-top: 0.5rem">
+              <div style="display: flex; margin-top: 0.5rem; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <button id="mv" style="min-width: 160px;">Send Meter Values</button>
-                <div style="display: inline-flex; align-items: center">
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
                   <input 
                     type="checkbox"
                     id="isPeriodSend" />
-                  <label style="min-width: 120px;">是否定期發送?</label>
+                  <label style="min-width: 120px; margin: 0;">是否定期發送?</label>
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+                  <label class="toggle-switch" style="flex-shrink: 0;">
+                    <input type="checkbox" id="autoPeriodSendToggle" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <label for="autoPeriodSendToggle" style="margin: 0; cursor: pointer; white-space: nowrap; font-size: 0.9rem; color: #27a3ac;">自動勾選</label>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.25rem">
                   <input 
                     type="number"
                     id="meterValuesInterval"
-                    value="3"
+                    value="10"
                     style="max-width: 120px;" />
                     <label style="min-width: 100px;">發送間隔(秒)</label>
                   <div>
@@ -1003,9 +1072,8 @@
       function triggerStatus(status) { 
           // 調整狀態, 並觸發按鈕事件
           document.getElementById("ConnectorStatus-connector").value = status;
-          setTimeout(() => {
-            document.getElementById("status-connector").dispatchEvent(new Event("click"));
-          }, 300);
+          // 觸發 change 事件以觸發自動勾選邏輯和狀態通知
+          $("#ConnectorStatus-connector").trigger("change");
        }
 
       /**
@@ -1428,6 +1496,30 @@
             }
           }
         })
+
+        // 自動勾選定期發送 toggle switch 的處理
+        $("#autoPeriodSendToggle").on("change", function() {
+          if ($(this).is(":checked")) {
+            // 當 toggle switch 開啟時，根據當前狀態自動設置 checkbox
+            const currentStatus = $("#ConnectorStatus-connector").val();
+            if (currentStatus === "Charging") {
+              $("#isPeriodSend").prop("checked", true).trigger("change");
+            } else {
+              $("#isPeriodSend").prop("checked", false).trigger("change");
+            }
+          }
+          // 當 toggle switch 關閉時，不自動修改 checkbox，保持用戶的選擇
+        })
+
+        // 頁面載入時，如果 toggle 預設開啟，根據當前狀態初始化 checkbox
+        if ($("#autoPeriodSendToggle").is(":checked")) {
+          const currentStatus = $("#ConnectorStatus-connector").val();
+          if (currentStatus === "Charging") {
+            $("#isPeriodSend").prop("checked", true);
+          } else {
+            $("#isPeriodSend").prop("checked", false);
+          }
+        }
         // 新增為 Inputbox 修改也更新 Interval 事件
         $("#meterValuesInterval").on("change", () => {
           const meterValuesInterval = Number($(`#meterValuesInterval`).val());
@@ -1625,6 +1717,18 @@
         });
 
         $("#ConnectorStatus-connector").on("change", function() {
+          // 自動勾選/取消勾選「是否定期發送?」的邏輯
+          const autoToggleEnabled = $("#autoPeriodSendToggle").is(":checked");
+          if (autoToggleEnabled) {
+            const currentStatus = $(this).val();
+            if (currentStatus === "Charging") {
+              // 狀態轉換為 Charging 時，自動勾選「是否定期發送?」
+              $("#isPeriodSend").prop("checked", true).trigger("change");
+            } else {
+              // 狀態轉換為 Finishing 或非 Charging 狀態時，自動取消勾選「是否定期發送?」
+              $("#isPeriodSend").prop("checked", false).trigger("change");
+            }
+          }
           $("#status-connector").click();
         });
 
