@@ -203,7 +203,7 @@
 
   <body>
     <div class="wrapper">
-      <h1 class="title">Hello</h1>
+      <h1 class="title">Hello22</h1>
       <p class="subTitle">充電樁模擬器</p>
       <select style="display: none">
         <option value="">OCPP-J1.6</option>
@@ -573,7 +573,34 @@
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       var id = randomId();
       var _websocket = null;
-      var connector_locked = false;
+      // 多充電槍狀態追蹤：追蹤每隻槍的鎖定狀態
+      var connectorLocked = {
+        1: false,  // 第一隻槍的鎖定狀態
+        2: false   // 第二隻槍的鎖定狀態
+      };
+      // 多充電槍交易ID追蹤：追蹤每隻槍的 transactionId
+      var transactionIds = {
+        1: null,   // 第一隻槍的 transactionId
+        2: null    // 第二隻槍的 transactionId
+      };
+      
+      // 多充電槍定期發送 handler 追蹤：追蹤每隻槍的定期發送 interval
+      var periodSendHandlers = {
+        1: null,  // 第一隻槍的定期發送 handler
+        2: null   // 第二隻槍的定期發送 handler
+      };
+      
+      // 多充電槍 MeterValues 數值追蹤：追蹤每隻槍的數值（獨立累加）
+      var meterValues = {
+        1: { energy: 15000, soc: 0 },  // 第一隻槍的數值
+        2: { energy: 15000, soc: 0 }   // 第二隻槍的數值
+      };
+      
+      // 追蹤每個 connectorId 的實際狀態
+      var connectorStatuses = {
+        1: "Available",  // 第一隻槍的狀態
+        2: "Available"    // 第二隻槍的狀態
+      };
 
       const chargingStatus = [
         "Charging", "SuspendedEVSE", "SuspendedEV"
@@ -753,9 +780,44 @@
                 }
               }
               
+              // 處理 StartTransaction 回應：根據 connectorId 儲存對應的 transactionId
               var transactionId = ddata[2].transactionId;
               if (transactionId) {
-                $("#transactionId").val(transactionId);
+                // 從 requestTracker 取得原始請求的 connectorId
+                const messageId = ddata[1];
+                const originalRequest = requestTracker[messageId];
+                if (originalRequest && originalRequest.action === "StartTransaction" && originalRequest.payload.connectorId) {
+                  const connectorId = originalRequest.payload.connectorId;
+                  // 根據 connectorId 將 transactionId 儲存到對應的位置
+                  transactionIds[connectorId] = transactionId;
+                  logMsg(`📝 已記錄 Connector ${connectorId} 的 transactionId: ${transactionId}`);
+                  
+                  // 如果當前選中的 connectorId 匹配，則更新 UI 顯示
+                  const currentConnectorId = parseInt($("#CUID-connector").val());
+                  if (currentConnectorId === connectorId) {
+                    $("#transactionId").val(transactionId);
+                  }
+                  
+                  // 如果該 connectorId 正在充電（connectorLocked[connectorId] === true），自動啟動定期發送
+                  // 注意：這裡不依賴 UI 中選中的 connectorId，而是檢查該 connectorId 的實際狀態
+                  if (connectorLocked[connectorId] === true) {
+                    // 更新狀態追蹤為 Charging（如果還沒有更新的話）
+                    connectorStatuses[connectorId] = "Charging";
+                    startPeriodicMeterValues(connectorId);
+                    logMsg(`🔄 自動啟動 Connector ${connectorId} 的定期發送 MeterValues`);
+                  }
+                } else {
+                  // 如果無法從 requestTracker 取得 connectorId，使用當前選中的 connectorId（向後兼容）
+                  const currentConnectorId = parseInt($("#CUID-connector").val());
+                  if (currentConnectorId) {
+                    transactionIds[currentConnectorId] = transactionId;
+                    $("#transactionId").val(transactionId);
+                    logMsg(`📝 已記錄 Connector ${currentConnectorId} 的 transactionId: ${transactionId} (使用當前選中的 connectorId)`);
+                  } else {
+                    // 最後的備用方案：直接更新 UI
+                    $("#transactionId").val(transactionId);
+                  }
+                }
               }
               logMsg("Response: " + JSON.stringify(ddata[2]));
             } else if (ddata[0] === 4) {
@@ -843,12 +905,30 @@
                     wsConnect();
                   }, 3000); // 3秒後重新連線
                   break;
-                case "RemoteStopTransaction":
+                case "RemoteStopTransaction": {
                   //TransactionID
                   var remStp = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStp);
 
-                  $("#transactionId").val(JSON.parse(msg.data)[3].transactionId);
+                  // 從請求中取得 transactionId
+                  const remoteTransactionId = JSON.parse(msg.data)[3].transactionId;
+                  
+                  // 找到對應的 connectorId
+                  const stopRemoteConnectorId = findConnectorIdByTransactionId(remoteTransactionId);
+                  
+                  if (stopRemoteConnectorId) {
+                    // 設定正確的 connectorId 到 UI
+                    $("#CUID-connector").val(stopRemoteConnectorId);
+                    $("#transactionId").val(remoteTransactionId);
+                    logMsg(`🔍 RemoteStopTransaction: 找到對應的 Connector ${stopRemoteConnectorId} (transactionId: ${remoteTransactionId})`);
+                    
+                    // 更新對應的 connectorLocked 狀態
+                    connectorLocked[stopRemoteConnectorId] = false;
+                  } else {
+                    // 如果找不到對應的 connectorId，使用 UI 顯示的值（向後兼容）
+                    $("#transactionId").val(remoteTransactionId);
+                    logMsg(`⚠️ RemoteStopTransaction: 無法找到對應的 connectorId，使用當前選中的 connectorId`);
+                  }
                   
                   // 調整狀態為結束充電, 觸發按鈕事件
                   // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
@@ -859,25 +939,50 @@
                   // 4. 結束交易後拔槍(Available)
                   stopTransaction();
                   
+                  // stopTransaction 已經會停止定期發送，這裡確保停止
+                  if (stopRemoteConnectorId) {
+                    stopPeriodicMeterValues(stopRemoteConnectorId);
+                    // 更新狀態追蹤
+                    connectorStatuses[stopRemoteConnectorId] = "Finishing";
+                    // 使用正確的 connectorId 來觸發狀態改變
+                    triggerStatus("Finishing", stopRemoteConnectorId);
+                  } else {
+                    // 如果找不到 connectorId，使用當前選中的（向後兼容）
+                    triggerStatus("Finishing");
+                  }
+                  
                   // $("#connector-vendorErrorCode").val("0x200008");
-                  triggerStatus("Finishing");
+                  // triggerStatus("Finishing"); // 已在上面處理
                   // $("#connector-vendorErrorCode").val("");
                   // triggerStatus("Available");
                   
                   $(".indicator").hide();
                   $("#yellow").show();
                   break;
-                case "RemoteStartTransaction":
+                }
+                case "RemoteStartTransaction": {
                   //Need to get idTag, connectorId (map - ddata[3])
-                  $("#TAG").val(ddata[3].idTag);
-                  console.log("RemostartTransaction ddata[3].idTag = ", ddata[3].idTag);
+                  const remoteIdTag = ddata[3].idTag;
+                  const startRemoteConnectorId = ddata[3].connectorId; // 從請求中取得 connectorId（可選參數）
+                  
+                  $("#TAG").val(remoteIdTag);
+                  console.log("RemoteStartTransaction - idTag:", remoteIdTag, "connectorId:", startRemoteConnectorId);
+                  
+                  // 如果請求中有指定 connectorId，則設定到 UI
+                  if (startRemoteConnectorId !== undefined && startRemoteConnectorId !== null) {
+                    $("#CUID-connector").val(startRemoteConnectorId);
+                    logMsg(`🔌 RemoteStartTransaction: 設定 Connector ${startRemoteConnectorId} 進行充電`);
+                  } else {
+                    logMsg(`🔌 RemoteStartTransaction: 未指定 connectorId，使用當前選中的 Connector ${$("#CUID-connector").val()}`);
+                  }
+                  
                   var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
                   _websocket.send(remStrt);
 
                   // 測試 etreego Auto-Charge 問題(是不是在Remote後才收到Auth)
                   setTimeout(() => {
                     Authorize()
-                  }, 2000);
+                  }, 500);
                   
                   /*
                   // 若為拔槍狀態('Available'), 則先進入準備('Preparing'), 過之後才會進充
@@ -892,9 +997,11 @@
                   // 最後進充
                   setTimeout(() => {
                     startTransaction();
-                  }, 3000);
+                    // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
+                  }, 1000);
 
                   break;
+                }
                 case "UnlockConnector": /////////ERROR!!!!!!!!
                   //connectorId
                   var UC = JSON.stringify([3, id, { status: "Accepted" }]);
@@ -981,8 +1088,11 @@
                   break;
 
                 // 禁用/解除禁用
-                case "ChangeAvailability":
-                  const isCharging = chargingStatus.includes($("#ConnectorStatus-connector").val());
+                case "ChangeAvailability": {
+                  const changeAvailConnectorId = ddata[3].connectorId;
+                  // 檢查該 connectorId 的實際狀態
+                  const connectorStatus = connectorStatuses[changeAvailConnectorId] || $("#ConnectorStatus-connector").val();
+                  const isCharging = chargingStatus.includes(connectorStatus);
                   var CA = JSON.stringify([3, id, { status: isCharging ? "Rejected" : "Accepted"  }]);
                   // 充電中暫時阻擋禁用(實際為進入"Scheduled")
                   if (isCharging) {
@@ -991,12 +1101,18 @@
                   }
                   // 若為樁(ConnectorId="0")禁用, 則廣播狀態事件
                   const isOperative = ddata[3].type === "Operative";
-                  if (ddata[3].connectorId === 1) {
+                  if (changeAvailConnectorId === 0) {
                     triggerStatusEVSE(isOperative ? "Available" : "Unavailable");
+                  } else if (changeAvailConnectorId && changeAvailConnectorId > 0) {
+                    // 使用正確的 connectorId 來觸發狀態改變
+                    triggerStatus(isOperative ? "Available" : "Unavailable", changeAvailConnectorId);
+                  } else {
+                    // 如果沒有指定 connectorId，使用當前選中的（向後兼容）
+                    triggerStatus(isOperative ? "Available" : "Unavailable");
                   }
-                  triggerStatus(isOperative ? "Available" : "Unavailable");
                   _websocket.send(CA);
                   break;
+                }
 
                 // Reservation
                 case "ReserveNow":
@@ -1051,6 +1167,166 @@
         }
       }
 
+      /**
+       * 根據 transactionId 找到對應的 connectorId
+       */
+      function findConnectorIdByTransactionId(transactionId) {
+        for (let connectorId in transactionIds) {
+          if (transactionIds[connectorId] == transactionId) {
+            return parseInt(connectorId);
+          }
+        }
+        return null;
+      }
+
+      /**
+       * 檢查指定 connectorId 是否正在充電
+       */
+      function isConnectorCharging(connectorId) {
+        return connectorLocked[connectorId] === true;
+      }
+
+      /**
+       * 啟動指定 connectorId 的定期發送 MeterValues
+       */
+      function startPeriodicMeterValues(connectorId) {
+        // 停止該 connectorId 的舊 handler（如果存在）
+        if (periodSendHandlers[connectorId]) {
+          clearInterval(periodSendHandlers[connectorId]);
+          periodSendHandlers[connectorId] = null;
+        }
+        
+        const meterValuesInterval = Number($("#meterValuesInterval").val()) || 10;
+        logMsg(`🔄 啟動 Connector ${connectorId} 的定期發送 MeterValues (間隔: ${meterValuesInterval}秒)`);
+        
+        periodSendHandlers[connectorId] = setInterval(() => {
+          // 使用該 connectorId 專屬的數值
+          meterValues[connectorId].energy += 50;
+          meterValues[connectorId].soc += 1;
+          
+          // 發送該 connectorId 的 MeterValues
+          sendMeterValueForConnector(connectorId);
+        }, meterValuesInterval * 1000);
+      }
+
+      /**
+       * 停止指定 connectorId 的定期發送 MeterValues
+       */
+      function stopPeriodicMeterValues(connectorId) {
+        if (periodSendHandlers[connectorId]) {
+          clearInterval(periodSendHandlers[connectorId]);
+          periodSendHandlers[connectorId] = null;
+          logMsg(`⏹️ 停止 Connector ${connectorId} 的定期發送 MeterValues`);
+        }
+      }
+
+      /**
+       * 發送指定 connectorId 的 MeterValues
+       */
+      function sendMeterValueForConnector(connectorId) {
+        // 根據 connectorId 取得對應的 transactionId 和數值
+        const transactionId = transactionIds[connectorId];
+        const meterValue = meterValues[connectorId];
+        
+        if (!transactionId) {
+          logMsg(`⚠️ Connector ${connectorId} 沒有 transactionId，跳過發送 MeterValues`);
+          return;
+        }
+        
+        // 使用統一的時間取得函數
+        const sendDate = getCurrentTimestamp();
+        const disconnectMins = Number($("#disconnectMins").val()) || 0;
+        sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000);
+        
+        // 建構 MeterValues payload
+        const meterValuePayload = {
+          connectorId: connectorId,
+          transactionId: transactionId,
+          meterValue: [
+            {
+              timestamp: sendDate.toISOString(),
+              sampledValue: [
+                {
+                  value: $("#metervalueVoltage").val(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Voltage",
+                  phase: "L1",
+                  location: "Outlet",
+                  unit: "V"
+                },
+                {
+                  value: $("#metervalueCurrnet").val(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Current.Import",
+                  phase: "L1",
+                  location: "Outlet",
+                  unit: "A"
+                },
+                {
+                  value: $("#metervaluePower").val(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Power.Active.Import",
+                  phase: null,
+                  location: "Outlet",
+                  unit: "W"
+                },
+                {
+                  value: "38",
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Temperature",
+                  phase: null,
+                  location: "Body",
+                  unit: "Celsius"
+                },
+                {
+                  value: meterValue.soc.toString(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "SoC",
+                  phase: null,
+                  location: "EV",
+                  unit: "Percent"
+                },
+                {
+                  value: $("#metervaluePower").val(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Power.Offered",
+                  phase: null,
+                  location: "Outlet",
+                  unit: "W"
+                },
+                {
+                  value: meterValue.energy.toString(),
+                  context: "Sample.Periodic",
+                  format: null,
+                  measurand: "Energy.Active.Import.Register",
+                  phase: null,
+                  location: "Outlet",
+                  unit: "Wh"
+                }
+              ]
+            }
+          ]
+        };
+        
+        // 發送 MeterValues
+        sessionStorage.setItem("LastAction", "MeterValues");
+        const MV = JSON.stringify([
+          2, 
+          id,
+          "MeterValues",
+          meterValuePayload
+        ]);
+        
+        _websocket.send(MV);
+        logMsg(`📤 發送 Connector ${connectorId} 的 MeterValues (energy: ${meterValue.energy}, soc: ${meterValue.soc})`);
+      }
+
       function logMsg(err) {
         console.log(err);
         $("#console").append("<li>" + err + "</li>");
@@ -1069,11 +1345,58 @@
         }
       }
 
-      function triggerStatus(status) { 
-          // 調整狀態, 並觸發按鈕事件
-          document.getElementById("ConnectorStatus-connector").value = status;
-          // 觸發 change 事件以觸發自動勾選邏輯和狀態通知
-          $("#ConnectorStatus-connector").trigger("change");
+      function triggerStatus(status, connectorId) { 
+          // 如果沒有提供 connectorId，使用當前選中的 connectorId
+          if (connectorId === undefined || connectorId === null) {
+            connectorId = parseInt($("#CUID-connector").val());
+          }
+          
+          // 更新狀態追蹤
+          connectorStatuses[connectorId] = status;
+          
+          // 如果當前 UI 選中的是這個 connectorId，更新 UI 顯示
+          const currentConnectorId = parseInt($("#CUID-connector").val());
+          if (currentConnectorId === connectorId) {
+            document.getElementById("ConnectorStatus-connector").value = status;
+            // 觸發 change 事件以觸發自動勾選邏輯和狀態通知
+            $("#ConnectorStatus-connector").trigger("change");
+          } else {
+            // 如果當前 UI 選中的不是這個 connectorId，直接管理定期發送，不觸發 UI change 事件
+            // 根據狀態和是否有 transactionId 來管理定期發送
+            if (status === "Charging" && transactionIds[connectorId] !== null) {
+              // 狀態變為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
+              startPeriodicMeterValues(connectorId);
+              logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
+            } else if (status !== "Charging") {
+              // 狀態變為非 Charging，停止定期發送
+              stopPeriodicMeterValues(connectorId);
+            }
+            
+            // 發送 StatusNotification（不依賴 UI）
+            const timestamp = getCurrentTimestamp();
+            const payload = {
+              connectorId: connectorId,
+              status: status,
+              errorCode: "NoError",
+              timestamp: timestamp.toISOString()
+            };
+            
+            // 檢查是否有 vendorErrorCode（從對應的輸入框取得）
+            let vendorErrorCode = "";
+            if (connectorId === 1) {
+              vendorErrorCode = $("#connector-vendorErrorCode").val();
+            } else if (connectorId === 2) {
+              // 如果有多個充電槍，可能需要不同的處理方式
+              vendorErrorCode = $("#connector-vendorErrorCode").val();
+            }
+            
+            if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+              payload.vendorErrorCode = vendorErrorCode;
+            }
+            
+            sendOcppRequest("StatusNotification", payload);
+            logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${connectorId}, status=${status}`);
+          }
        }
 
       /**
@@ -1188,51 +1511,69 @@
           // { idTag: "F0FDDD00C14A0000" },
         ]);
         _websocket.send(Auth);
-        // 開啟調整充電槍號
-        $("#CUID-connector").attr("disabled", false);
+        // 移除 disabled 邏輯，允許在充電中切換充電槍進行授權
       }
 
       function startTransaction() {
         sessionStorage.setItem("LastAction", "startTransaction");
         $(".indicator").hide();
         $("#green").show();
-        connector_locked = true;
-        logMsg("Connector status changed to: " + connector_locked);
         var connectorId = parseInt($("#CUID-connector").val());
         console.log("connectorId", connectorId);
         
+        // 追蹤特定 connectorId 的鎖定狀態
+        connectorLocked[connectorId] = true;
+        // 更新狀態追蹤為 Charging
+        connectorStatuses[connectorId] = "Charging";
+        logMsg(`Connector ${connectorId} status changed to: locked (充電中)`);
+        
         // 使用統一的時間取得函數
         const timestamp = getCurrentTimestamp();
-        var strtT = JSON.stringify([
-          2, 
-          id,
-          "StartTransaction",
-          {
-            connectorId: connectorId,
-            idTag: $("#TAG").val(),
-            // idTag: "",
-            timestamp: timestamp.toISOString(),
-            meterStart: parseInt($("#metervalue").val()),
-            // reservationId: 0,
-          },
-        ]);
-        console.log("start strtT = ", strtT);
-        _websocket.send(strtT);
-        // 鎖住調整充電槍號
-        $("#CUID-connector").attr("disabled", true);
-
+        const startPayload = {
+          connectorId: connectorId,
+          idTag: $("#TAG").val(),
+          // idTag: "",
+          timestamp: timestamp.toISOString(),
+          meterStart: parseInt($("#metervalue").val()),
+          // reservationId: 0,
+        };
+        
+        // 使用 sendOcppRequest 以便正確追蹤請求（用於回應時取得 connectorId）
+        const sentJson = sendOcppRequest("StartTransaction", startPayload);
+        console.log("start strtT = ", sentJson);
+        // 移除 disabled 邏輯，允許在充電中切換充電槍
+        
+        // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
+        // 這裡不立即啟動，等待回應確認交易成功後再啟動
 
         setTimeout(() => {
           console.log("晚個五秒");
           checkResrvedStart();
-        }, 5000);
+        }, 1000);
       }
 
       function stopTransaction() {
         sessionStorage.setItem("LastAction", "stopTransaction");
         $(".indicator").hide();
-        connector_locked = false;
-        logMsg("Connector status changed to: " + connector_locked);
+        
+        // 取得當前選中的 connectorId
+        const connectorId = parseInt($("#CUID-connector").val());
+        
+        // 從 transactionIds 物件取得對應的 transactionId
+        const transactionId = transactionIds[connectorId];
+        if (!transactionId) {
+          logMsg(`⚠️ 警告: Connector ${connectorId} 沒有找到對應的 transactionId，使用 UI 顯示的值`);
+        }
+        
+        // 使用對應的 transactionId，如果沒有則使用 UI 顯示的值（向後兼容）
+        const finalTransactionId = transactionId || Number($("#transactionId").val());
+        
+        // 更新對應 connectorId 的鎖定狀態
+        connectorLocked[connectorId] = false;
+        // 更新狀態追蹤（根據當前狀態，可能是 Finishing 或其他）
+        const currentStatus = connectorStatuses[connectorId] || "Finishing";
+        connectorStatuses[connectorId] = currentStatus;
+        logMsg(`Connector ${connectorId} status changed to: unlocked (充電結束)`);
         $("#yellow").show();
 
         // 新增功能: 調整充電時間
@@ -1249,15 +1590,21 @@
           id,
           "StopTransaction",
           {
-            transactionId: Number($("#transactionId").val()),
+            transactionId: finalTransactionId,
             idTag: $("#TAG").val(),
             timestamp: stopTime.toISOString(),
             meterStop: parseInt($("#metervalue").val()),
           },
         ]);
         _websocket.send(stpT);
-        // 開啟調整充電槍號
-        $("#CUID-connector").attr("disabled", false);
+        
+        // 停止該 connectorId 的定期發送
+        stopPeriodicMeterValues(connectorId);
+        
+        // 清除該 connectorId 的 transactionId
+        transactionIds[connectorId] = null;
+        
+        // 移除 disabled 邏輯，允許切換充電槍
       }
 
       function handleData(data, request = false) {
@@ -1335,10 +1682,15 @@
           // 使用統一的時間取得函數
           const sendDate = getCurrentTimestamp();
           sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
+          
+          // 根據當前選中的 connectorId 從 transactionIds 物件取得對應的 transactionId
+          const currentConnectorId = parseInt($("#CUID-connector").val());
+          const currentTransactionId = transactionIds[currentConnectorId] || $("#transactionId").val();
+          
           $("#metervalueDisplay").text(`
             {
-                "connectorId": ${$("#CUID-connector").val()},
-                "transactionId": ${$("#transactionId").val()},
+                "connectorId": ${currentConnectorId},
+                "transactionId": ${currentTransactionId},
                 "meterValue": [
                     {
                         "timestamp":  "${sendDate.toISOString()}",
@@ -1472,40 +1824,35 @@
           logMsg("已恢復使用實際時間模式");
         });
 
-        // 是否定期發送?
-        let periodSendHandler = null;
+        // 是否定期發送? (手動控制，主要用於 UI 顯示)
+        // 注意：實際的定期發送現在由狀態自動管理，此 checkbox 主要作為手動控制選項
         $(`#isPeriodSend`).on("change", function() {
-          const meterValuesInterval = Number($(`#meterValuesInterval`).val());
+          const connectorId = parseInt($("#CUID-connector").val());
           if ($(this).is(":checked")) {
-            console.log(`定期發送`);
-            periodSendHandler = setInterval(() => {
-              const incrementMeter = Number($("#metervalue").val()) + 50;
-              const incrementSoC = Number($("#metervalueSoC").val()) + 1;
-              console.log(`incrementMeter ==> ${incrementMeter}`);
-              console.log(`incrementSoC ==> ${incrementSoC}`);
-              $("#metervalue").val(incrementMeter);
-              $("#metervalueSoC").val(incrementSoC);
-              setTimeout(() => {
-                send_meterValue();
-              }, 500)
-            }, meterValuesInterval * 1000);
-          } else {
-            console.log(`無勾選`);
-            if (!!periodSendHandler) {
-              clearInterval(periodSendHandler);
+            // 手動啟動當前選中 connectorId 的定期發送
+            const currentStatus = $("#ConnectorStatus-connector").val();
+            if (currentStatus === "Charging") {
+              startPeriodicMeterValues(connectorId);
+            } else {
+              logMsg(`⚠️ 當前狀態不是 Charging，無法啟動定期發送`);
+              $(this).prop("checked", false);
             }
+          } else {
+            // 手動停止當前選中 connectorId 的定期發送
+            stopPeriodicMeterValues(connectorId);
           }
         })
 
         // 自動勾選定期發送 toggle switch 的處理
+        // 注意：現在定期發送由狀態自動管理，此 toggle 主要控制 UI checkbox 的自動勾選
         $("#autoPeriodSendToggle").on("change", function() {
           if ($(this).is(":checked")) {
-            // 當 toggle switch 開啟時，根據當前狀態自動設置 checkbox
+            // 當 toggle switch 開啟時，根據當前狀態自動設置 checkbox（僅 UI 顯示）
             const currentStatus = $("#ConnectorStatus-connector").val();
             if (currentStatus === "Charging") {
-              $("#isPeriodSend").prop("checked", true).trigger("change");
+              $("#isPeriodSend").prop("checked", true);
             } else {
-              $("#isPeriodSend").prop("checked", false).trigger("change");
+              $("#isPeriodSend").prop("checked", false);
             }
           }
           // 當 toggle switch 關閉時，不自動修改 checkbox，保持用戶的選擇
@@ -1521,25 +1868,18 @@
           }
         }
         // 新增為 Inputbox 修改也更新 Interval 事件
+        // 當間隔時間改變時，重新啟動所有正在運行的定期發送
         $("#meterValuesInterval").on("change", () => {
-          const meterValuesInterval = Number($(`#meterValuesInterval`).val());
-          if ($('##isPeriodSend').is(":checked")) {
-            console.log(`定期發送`);
-            periodSendHandler = setInterval(() => {
-              const incrementMeter = Number($("#metervalue").val()) + 50;
-              const incrementSoC = Number($("#metervalueSoC").val()) + 1;
-              console.log(`incrementMeter ==> ${incrementMeter}`);
-              console.log(`incrementSoC ==> ${incrementSoC}`);
-              $("#metervalue").val(incrementMeter);
-              $("#metervalueSoC").val(incrementSoC);
-              setTimeout(() => {
-                send_meterValue();
-              }, 500)
-            }, meterValuesInterval * 1000);
-          } else {
-            console.log(`無勾選`);
-            if (!!periodSendHandler) {
-              clearInterval(periodSendHandler);
+          // 重新啟動所有正在充電的充電槍的定期發送（使用新的間隔時間）
+          for (let connectorId in periodSendHandlers) {
+            if (periodSendHandlers[connectorId] !== null) {
+              // 該 connectorId 正在定期發送，重新啟動以使用新的間隔時間
+              const connectorStatus = $("#ConnectorStatus-connector").val();
+              const currentConnectorId = parseInt($("#CUID-connector").val());
+              // 檢查該 connectorId 是否正在充電（通過檢查 connectorLocked）
+              if (connectorLocked[connectorId] === true) {
+                startPeriodicMeterValues(parseInt(connectorId));
+              }
             }
           }
         })
@@ -1717,18 +2057,35 @@
         });
 
         $("#ConnectorStatus-connector").on("change", function() {
-          // 自動勾選/取消勾選「是否定期發送?」的邏輯
+          // 取得當前選中的 connectorId
+          const connectorId = parseInt($("#CUID-connector").val());
+          const currentStatus = $(this).val();
+          
+          // 更新狀態追蹤
+          connectorStatuses[connectorId] = currentStatus;
+          
+          // 根據狀態和是否有 transactionId 來管理定期發送
+          if (currentStatus === "Charging" && transactionIds[connectorId] !== null) {
+            // 狀態轉換為 Charging 且該 connectorId 有 transactionId（正在充電），自動啟動定期發送
+            startPeriodicMeterValues(connectorId);
+            logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
+          } else {
+            // 狀態轉換為非 Charging 狀態時，停止該 connectorId 的定期發送
+            stopPeriodicMeterValues(connectorId);
+          }
+          
+          // 自動勾選/取消勾選「是否定期發送?」的邏輯（UI 顯示用）
           const autoToggleEnabled = $("#autoPeriodSendToggle").is(":checked");
           if (autoToggleEnabled) {
-            const currentStatus = $(this).val();
             if (currentStatus === "Charging") {
               // 狀態轉換為 Charging 時，自動勾選「是否定期發送?」
-              $("#isPeriodSend").prop("checked", true).trigger("change");
+              $("#isPeriodSend").prop("checked", true);
             } else {
               // 狀態轉換為 Finishing 或非 Charging 狀態時，自動取消勾選「是否定期發送?」
-              $("#isPeriodSend").prop("checked", false).trigger("change");
+              $("#isPeriodSend").prop("checked", false);
             }
           }
+          
           $("#status-connector").click();
         });
 
@@ -1738,10 +2095,17 @@
           // 使用統一的時間取得函數
           const timestamp = getCurrentTimestamp();
           
+          // 取得 connectorId 和狀態
+          const connectorId = parseInt($("#CUID-connector").val());
+          const status = $("#ConnectorStatus-connector").val();
+          
+          // 更新狀態追蹤
+          connectorStatuses[connectorId] = status;
+          
           // 建構 StatusNotification payload，只包含有值的欄位
           const payload = {
-            connectorId: parseInt($("#CUID-connector").val()),
-            status: $("#ConnectorStatus-connector").val(),
+            connectorId: connectorId,
+            status: status,
             errorCode: "NoError",
             timestamp: timestamp.toISOString()
           };
@@ -1760,6 +2124,15 @@
           console.log(`   Payload:`, payload);
           console.log(`   完整JSON: ${sentJson}`);
           logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${payload.connectorId}, status=${payload.status}`);
+          
+          // 根據狀態和是否有 transactionId 來管理定期發送
+          if (status === "Charging" && transactionIds[connectorId] !== null) {
+            // 狀態為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
+            startPeriodicMeterValues(connectorId);
+          } else {
+            // 狀態為非 Charging，停止定期發送
+            stopPeriodicMeterValues(connectorId);
+          }
         });
 
         $("#data_transfer").click(function () {
