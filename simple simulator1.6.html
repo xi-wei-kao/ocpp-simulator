@@ -1,549 +1,488 @@
 <html>
-  <head>
-    <style>
-      html,
-      body {
-        margin: 0;
-        margin-left: 0.5rem
-      }
-      body {
-        background: #000;
-        color: white;
-        font-family: Arial;
-        /* height: 100vh !important; */
-      }
-      
-      button,
-      input,
-      select {
-        width: 100%;
-        margin-bottom: 5px;
-        cursor: pointer;
-        height: 2rem;
+
+<head>
+  <style>
+    html,
+    body {
+      margin: 0;
+      margin-left: 0.5rem
+    }
+
+    body {
+      background: #000;
+      color: white;
+      font-family: Arial;
+      /* height: 100vh !important; */
+    }
+
+    button,
+    input,
+    select {
+      width: 100%;
+      margin-bottom: 5px;
+      cursor: pointer;
+      height: 2rem;
+    }
+
+    button {
+      background: #369;
+      margin: 0.25rem;
+      color: #fff;
+      padding: 4px 12px;
+      border: none;
+      height: 2rem;
+      width: fit-content;
+
+    }
+
+    ul {
+      background: #000;
+      color: #eee;
+    }
+
+    #red,
+    #green,
+    #blue {
+      min-width: 10px;
+    }
+
+    #red {
+      background-color: red;
+    }
+
+    #green {
+      background-color: green;
+    }
+
+    #blue {
+      background-color: blue;
+    }
+
+    #yellow {
+      background-color: yellow;
+    }
+
+    .title {
+      color: #27a3ac;
+      text-align: center;
+      animation: changeColor ease;
+      animation-iteration-count: infinite;
+      animation-duration: 4s;
+      animation-fill-mode: both;
+      font-size: 48px;
+      padding: 0;
+      margin: 0;
+    }
+
+    .subTitle {
+      text-align: center;
+      font-size: large;
+    }
+
+    @keyframes changeColor {
+      0% {
+        color: rgb(146, 213, 142);
       }
 
-      button {
-        background: #369;
-        margin: 0.25rem;
-        color: #fff;
-        padding: 4px 12px;
-        border: none;
-        height: 2rem;
-        width: fit-content;
-        
+      50% {
+        color: rgb(133, 184, 222);
       }
 
-      ul {
-        background: #000;
-        color: #eee;
+      100% {
+        color: rgb(146, 213, 142);
       }
+    }
 
-      #red,
-      #green,
-      #blue {
-        min-width: 10px;
-      }
+    .metervalues {
+      display: flex;
+      text-align: center;
+    }
 
-      #red {
-        background-color: red;
-      }
+    .container {
+      display: flex;
+      max-height: 100%;
+    }
 
-      #green {
-        background-color: green;
-      }
+    .console {
+      flex-grow: 1;
+      flex-basis: 0;
+      /* overflow: scroll; */
+      max-height: 100%;
+      /* background-color: cyan; */
+    }
 
-      #blue {
-        background-color: blue;
-      }
+    .actions {
+      flex-grow: 1;
+      flex-basis: 0;
+      margin: 1.5rem 0px;
+    }
 
-      #yellow {
-        background-color: yellow;
-      }
-      .title {
-        color: #27a3ac;
-        text-align: center;
-        animation: changeColor ease;
-        animation-iteration-count: infinite;
-        animation-duration: 4s;
-        animation-fill-mode: both;
-        font-size: 48px;
-        padding: 0;
-        margin: 0;
-      }
-      .subTitle {
-        text-align: center;
-        font-size: large;
-      }
-      @keyframes changeColor {
-        0% {
-          color: rgb(146, 213, 142);
-        }
+    .wrapper {
+      max-height: 100%;
+    }
 
-        50% {
-          color: rgb(133, 184, 222);
-        }
+    .meterTexts {
+      flex-grow: 1;
+      flex-basis: 0;
+      text-align: left;
+    }
 
-        100% {
-          color: rgb(146, 213, 142);
-        }
-      }
-      .metervalues {
-        display: flex;
-        text-align: center;
-      }
-      .container {
-        display: flex;
-        max-height: 100%;
-      }
-      .console {
-        flex-grow: 1;
-        flex-basis: 0;
-        /* overflow: scroll; */
-        max-height: 100%;
-        /* background-color: cyan; */
-      }
-      .actions {
-        flex-grow: 1;
-        flex-basis: 0;
-        margin: 1.5rem 0px;
-      }
-      .wrapper {
-        max-height: 100%;
-      }
-      .meterTexts {
-        flex-grow: 1;
-        flex-basis: 0;
-        text-align: left;
-      }
+    .box-container {
+      padding: 0.5rem 0.5rem;
+      margin: 0.5rem 0.25rem;
+      border: 2px solid #efefef;
+      border-radius: 1.5rem;
+      box-shadow: #efefef50 3px 3px;
+    }
 
-      .box-container {
-        padding: 0.5rem 0.5rem;
-        margin: 0.5rem 0.25rem;
-        border: 2px solid #efefef;
-        border-radius: 1.5rem;
-        box-shadow: #efefef50 3px 3px;
-      }
+    .form-label-layout {
+      margin-bottom: 0.25rem;
+      border-left: 0.1rem solid #ffffff;
+      padding-left: 0.25rem;
+    }
 
-      .form-label-layout {
-        margin-bottom: 0.25rem;
-        border-left: 0.1rem solid #ffffff;
-        padding-left: 0.25rem;
-      }
+    .console-container {
+      border: 2px solid #FFA07A;
+      height: 60%;
+      overflow: scroll;
+      /* position: relative; */
+    }
 
-      .console-container {
-        border: 2px solid #FFA07A;
-        height: 60%;
-        overflow: scroll;
-        /* position: relative; */
-      }
+    /* Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+      margin: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
-      /* Toggle Switch Styles */
-      .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 44px;
-        height: 22px;
-        margin: 0;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      margin: 0;
+      position: absolute;
+    }
 
-      .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-        margin: 0;
-        position: absolute;
-      }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #666;
+      transition: 0.3s;
+      border-radius: 22px;
+      border: 1px solid #444;
+    }
 
-      .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #666;
-        transition: 0.3s;
-        border-radius: 22px;
-        border: 1px solid #444;
-      }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
 
-      .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: 0.3s;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
+    .toggle-switch input:checked+.toggle-slider {
+      background-color: #27a3ac;
+      border-color: #27a3ac;
+    }
 
-      .toggle-switch input:checked + .toggle-slider {
-        background-color: #27a3ac;
-        border-color: #27a3ac;
-      }
+    .toggle-switch input:checked+.toggle-slider:before {
+      transform: translateX(22px);
+    }
 
-      .toggle-switch input:checked + .toggle-slider:before {
-        transform: translateX(22px);
-      }
+    .toggle-switch:hover .toggle-slider {
+      box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
+    }
 
-      .toggle-switch:hover .toggle-slider {
-        box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
-      }
+    .toggle-switch input:focus+.toggle-slider {
+      box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
+    }
+  </style>
+</head>
 
-      .toggle-switch input:focus + .toggle-slider {
-        box-shadow: 0 0 8px rgba(39, 163, 172, 0.6);
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="wrapper">
-      <h1 class="title">Hello22</h1>
-      <p class="subTitle">充電樁模擬器</p>
-      <select style="display: none">
-        <option value="">OCPP-J1.6</option>
-      </select>
-      <div class="container">
-        <div class="actions">
-          <div class="box-container">
-            <h4>Metadata Configuration(基本設定)</h4>
-            <hr/>
-            <label class="form-label-layout">
-              Central Station【中心系統連線資訊：http://主機ip:埠號/充電樁編號】
-            </label>
-            <!-- value="ws://localhost:2020/1076875101" -->
-            <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
-            <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
-            <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
-            <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
-            <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
-            <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
-            <!-- value="wss://yds-jp-stage.beseye.com:443/ocpp/1076875101" -->
-            <!-- value="wss://yds-dev.beseye.com:443/ocpp/SN2410191439" -->
-            <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
-            <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
-            <!-- value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004" -->
-            <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
-            <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
-            <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <select id="server-select" style="max-width: 30%;">
-                <option value="wss://int-alb.yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com</option>
-                <option value="wss://yds-dev.beseye.com:443/ocpp/">台灣(dev):yds-dev.beseye.com</option>
-                <option value="wss://yds-stage.beseye.com:443/ocpp/">台灣(stage):yds-stage.beseye.com</option>
-                <option value="wss://starcharger-yds.beseye.com:443/ocpp/">台灣(ms):starcharger-yds.beseye.com</option>
-                <option value="wss://10.2.67.160:443/ocpp/">台灣(RT):10.2.67.160</option>
-                <option value="/">---</option>
-                <option value="wss://yds-jp-dev.beseye.com:443/ocpp/">日本(dev):yds-jp-dev.beseye.com</option>
-                <option value="wss://yds-jp-stage.beseye.com:443/ocpp/">日本(stage):yds-jp-stage.beseye.com</option>
-                <option value="/">---</option>
-                <option value="ws://localhost:2020/">台灣(地端local):localhost</option>
-                <option value="ws://10.2.67.109:2020/">台灣(地端DEV):10.2.67.109</option>
-                <option value="ws://10.2.67.113:2020/">台灣(地端STAGE):10.2.67.113</option>
-                <option value="ws://192.168.157.100:2020/">台灣(IPC):192.168.157.100</option>
-              </select>
-              <input
-                id="CP"
-                type="text"
-                value="1076875101"
-                placeholder="Id Station"
-              />
-            </div>
-            <hr/>
-            <button id="connect">Connect</button>
+<body>
+  <div class="wrapper">
+    <h1 class="title">Hello22</h1>
+    <p class="subTitle">充電樁模擬器</p>
+    <select style="display: none">
+      <option value="">OCPP-J1.6</option>
+    </select>
+    <div class="container">
+      <div class="actions">
+        <div class="box-container">
+          <h4>Metadata Configuration(基本設定)</h4>
+          <hr />
+          <label class="form-label-layout">
+            Central Station【中心系統連線資訊：http://主機ip:埠號/充電樁編號】
+          </label>
+          <!-- value="ws://localhost:2020/1076875101" -->
+          <!-- value="wss://yds-stage.beseye.com:443/ocpp/1076875201" -->
+          <!-- value="wss://yds-japan.beseye.com:443/ocpp/1076875101" -->
+          <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
+          <!-- value="wss://gcsms.starcharger.com.tzw:443/ocpp/qeprodt70001??username=qeprodt70001&authKey=StarChargerAdmin" -->
+          <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
+          <!-- value-"wss://yds-jp-dev.beseye.com:443/ocpp/1076875101" -->
+          <!-- value="wss://yds-jp-stage.beseye.com:443/ocpp/1076875101" -->
+          <!-- value="wss://yds-dev.beseye.com:443/ocpp/SN2410191439" -->
+          <!-- value="wss://yds-ms.beseye.com:443/ocpp/C01AL2405004" -->
+          <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
+          <!-- value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004" -->
+          <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
+          <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
+          <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <select id="server-select" style="max-width: 30%;">
+              <option value="wss://int-alb.yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com
+              </option>
+              <option value="wss://yds-dev.beseye.com:443/ocpp/">台灣(dev):yds-dev.beseye.com</option>
+              <option value="wss://yds-stage.beseye.com:443/ocpp/">台灣(stage):yds-stage.beseye.com</option>
+              <option value="wss://starcharger-yds.beseye.com:443/ocpp/">台灣(ms):starcharger-yds.beseye.com</option>
+              <option value="wss://10.2.67.160:443/ocpp/">台灣(RT):10.2.67.160</option>
+              <option value="/">---</option>
+              <option value="wss://yds-jp-dev.beseye.com:443/ocpp/">日本(dev):yds-jp-dev.beseye.com</option>
+              <option value="wss://yds-jp-stage.beseye.com:443/ocpp/">日本(stage):yds-jp-stage.beseye.com</option>
+              <option value="/">---</option>
+              <option value="ws://localhost:2020/">台灣(地端local):localhost</option>
+              <option value="ws://10.2.67.109:2020/">台灣(地端DEV):10.2.67.109</option>
+              <option value="ws://10.2.67.113:2020/">台灣(地端STAGE):10.2.67.113</option>
+              <option value="ws://192.168.157.100:2020/">台灣(IPC):192.168.157.100</option>
+            </select>
+            <input id="CP" type="text" value="1076875101" placeholder="Id Station" />
           </div>
+          <hr />
+          <button id="connect">Connect</button>
+        </div>
 
-          <!-- Block: Core Profile Operation -->
-          <div class="box-container">
-            <h4>Actions - Core Profile(事件操作)</h4>
-            <hr/>
+        <!-- Block: Core Profile Operation -->
+        <div class="box-container">
+          <h4>Actions - Core Profile(事件操作)</h4>
+          <hr />
 
-            <div style="display: flex; gap: 1rem; align-items: center">
-                <button id="heartbeat">Heartbeat</button>
-                <label>充電樁時間慢幾秒?</label>
-                <input 
-                  type="number" 
-                  id="latency-second" 
-                  value="0"
-                  style="max-width: 80px;" />
-                <!-- <button id="test-flow-btn">測試情境流程</button> -->
+          <div style="display: flex; gap: 1rem; align-items: center">
+            <button id="heartbeat">Heartbeat</button>
+            <label>充電樁時間慢幾秒?</label>
+            <input type="number" id="latency-second" value="0" style="max-width: 80px;" />
+            <!-- <button id="test-flow-btn">測試情境流程</button> -->
+          </div>
+          <hr />
+
+          <!-- 自訂時間基準設定 -->
+          <div
+            style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; background-color: #1a1a1a; border-radius: 0.5rem;">
+            <label class="form-label-layout" style="color: #27a3ac;">時間基準設定（所有timestamp將從此時間開始計算）</label>
+
+            <!-- 自動同步選項 -->
+            <div
+              style="display: flex; gap: 0.5rem; align-items: center; padding: 0.5rem; background-color: #2a2a2a; border-radius: 0.25rem;">
+              <input type="checkbox" id="auto-sync-time" style="width: auto; margin: 0;" />
+              <label style="margin: 0; cursor: pointer; color: #27a3ac;" for="auto-sync-time">
+                🔄 自動同步系統時間（從 Heartbeat 回應）
+              </label>
+              <span id="last-sync-time" style="font-size: 0.85rem; color: #999; margin-left: auto;"></span>
             </div>
-            <hr/>
-            
-            <!-- 自訂時間基準設定 -->
-            <div style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; background-color: #1a1a1a; border-radius: 0.5rem;">
-              <label class="form-label-layout" style="color: #27a3ac;">時間基準設定（所有timestamp將從此時間開始計算）</label>
-              
-              <!-- 自動同步選項 -->
-              <div style="display: flex; gap: 0.5rem; align-items: center; padding: 0.5rem; background-color: #2a2a2a; border-radius: 0.25rem;">
-                <input 
-                  type="checkbox"
-                  id="auto-sync-time" 
-                  style="width: auto; margin: 0;"
-                />
-                <label style="margin: 0; cursor: pointer; color: #27a3ac;" for="auto-sync-time">
-                  🔄 自動同步系統時間（從 Heartbeat 回應）
-                </label>
-                <span id="last-sync-time" style="font-size: 0.85rem; color: #999; margin-left: auto;"></span>
-              </div>
 
-              <!-- 手動設定選項 -->
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input 
-                  type="datetime-local" 
-                  id="base-timestamp" 
-                  style="max-width: 220px;"
-                />
-                <button id="apply-base-time" style="background-color: #27a3ac;">手動套用基準時間</button>
-                <button id="reset-base-time" style="background-color: #666;">恢復實際時間</button>
-                <span id="time-mode-indicator" style="color: #999; font-weight: bold;">模式: 實際時間</span>
-              </div>
-              <div style="font-size: 0.85rem; color: #999;">
-                說明: 啟用自動同步後，每次 Heartbeat 回應都會更新基準時間；或可手動設定基準時間
-              </div>
+            <!-- 手動設定選項 -->
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="datetime-local" id="base-timestamp" style="max-width: 220px;" />
+              <button id="apply-base-time" style="background-color: #27a3ac;">手動套用基準時間</button>
+              <button id="reset-base-time" style="background-color: #666;">恢復實際時間</button>
+              <span id="time-mode-indicator" style="color: #999; font-weight: bold;">模式: 實際時間</span>
             </div>
-            <hr/>
-
-            <!-- Status Notification -->
-            <div style="display: flex; gap: 0.5rem">
-              <div style="max-width: 50%;">
-                <label class="form-label-layout">Connector Status(充電樁狀態)</label>
-                <select name="ConnectorStatus" id="ConnectorStatus" value="Available">
-                  <option value="Available">Available</option>
-                  <option value="Unavailable">Unavailable</option>
-                  <option value="Faulted">Faulted</option>
-                </select>
-                <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電樁)</label>
-                <input id="cp-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
-                <label class="form-label-layout">Connector uid(0為充電樁)</label>
-                <input id="CUID" type="text" placeholder="Connector uid" value="0" disabled=true />
-                <button id="status">Status Notification(充電樁)</button>
-              </div>
-              <div>
-                <label class="form-label-layout">Connector Status(充電槍狀態)</label>
-                <select name="ConnectorStatus" id="ConnectorStatus-connector">
-                  <option value="Available">Available</option>
-                  <option value="Preparing">Preparing</option>
-                  <option value="Charging">Charging</option>
-                  <option value="SuspendedEV">SuspendedEV</option>
-                  <option value="SuspendedEVSE">SuspendedEVSE</option>
-                  <option value="Finishing">Finishing</option>
-                  <option value="Reserved">Reserved</option>
-                  <option value="Faulted">Faulted</option>
-                  <option value="Unavailable">Unavailable</option>
-                </select>
-                <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電槍)</label>
-                <input id="connector-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
-                <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
-                <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" />
-                <button id="status-connector">Status Notification(充電槍)</button>
-              </div>
+            <div style="font-size: 0.85rem; color: #999;">
+              說明: 啟用自動同步後，每次 Heartbeat 回應都會更新基準時間；或可手動設定基準時間
             </div>
-            <hr/>
+          </div>
+          <hr />
 
-            <div style="display: flex; gap: 0.75rem">
-              <label class="form-label-layout">Tag【卡號, 十六進位】</label>
-              <a style="color: yellow" 
-                target="_blank"
-                href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
-                參考轉換網址
-              </a>
+          <!-- Status Notification -->
+          <div style="display: flex; gap: 0.5rem">
+            <div style="max-width: 50%;">
+              <label class="form-label-layout">Connector Status(充電樁狀態)</label>
+              <select name="ConnectorStatus" id="ConnectorStatus" value="Available">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+                <option value="Faulted">Faulted</option>
+              </select>
+              <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電樁)</label>
+              <input id="cp-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
+              <label class="form-label-layout">Connector uid(0為充電樁)</label>
+              <input id="CUID" type="text" placeholder="Connector uid" value="0" disabled=true />
+              <button id="status">Status Notification(充電樁)</button>
             </div>
-            <input
-              id="TAG"
-              type="text"
-              placeholder="Tag"
-              value="32372EB1C92E0000"
-            />
-            <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
-            <input
-              id="transactionId"
-              type="text"
-              placeholder="transactionId"
-              value="1"
-            />
-            <button id="send">Authorize</button>
-            <button id="start">Start Transaction</button>
-            <label>充幾分鐘</label>
-            <input
-              id="duration"
-              type="number"
-              placeholder="duration"
-              value="0"
-              style="max-width: 100px;"
-            />
-            <button id="stop">Stop Transaction</button>
-            <button id="data_transfer">Data Tranfer</button>
-            <hr/>
-
-            <!-- MeterValues -->
             <div>
-              <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
-              <input
-                id="metervalue"
-                type="text"
-                placeholder="Meter value"
-                value="15000"
-              />
-              <label>Meter value: power【功率(單位: 瓦特, W)】</label>
-              <input
-                id="metervaluePower"
-                type="text"
-                placeholder="Meter value"
-                value="7000"
-              />
-              <label>Meter value: current【電流(單位: 安培, A)】</label>
-              <input
-                id="metervalueCurrnet"
-                type="text"
-                placeholder="Meter value"
-                value="32"
-              />
-              <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
-              <input
-                id="metervalueVoltage"
-                type="text"
-                placeholder="Meter value"
-                value="220"
-              />
-              <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
-              <input
-                id="metervalueSoC"
-                type="text"
-                placeholder="Meter value"
-                value="0"
-              />
-              <div style="display: inline-flex; gap: 1rem; align-items: center">
-                <label>傳入格式內容</label>
-                <label>斷線了幾分鐘傳入?</label>
-                <input
-                  id="disconnectMins"
-                  type="number"
-                  placeholder="disconnectMins"
-                  value="0"
-                  style="max-width: 120px"
-                />
+              <label class="form-label-layout">Connector Status(充電槍狀態)</label>
+              <select name="ConnectorStatus" id="ConnectorStatus-connector">
+                <option value="Available">Available</option>
+                <option value="Preparing">Preparing</option>
+                <option value="Charging">Charging</option>
+                <option value="SuspendedEV">SuspendedEV</option>
+                <option value="SuspendedEVSE">SuspendedEVSE</option>
+                <option value="Finishing">Finishing</option>
+                <option value="Reserved">Reserved</option>
+                <option value="Faulted">Faulted</option>
+                <option value="Unavailable">Unavailable</option>
+              </select>
+              <label class="form-label-layout">設定硬體商錯誤代碼_VendorErrorCode(充電槍)</label>
+              <input id="connector-vendorErrorCode" type="text" placeholder="調整VendorErrorCode" value="" />
+              <label class="form-label-layout">Connector uid(>=1為充電槍)</label>
+              <input id="CUID-connector" type="text" placeholder="Connector uid" value="1" />
+              <button id="status-connector">Status Notification(充電槍)</button>
+            </div>
+          </div>
+          <hr />
+
+          <div style="display: flex; gap: 0.75rem">
+            <label class="form-label-layout">Tag【卡號, 十六進位】</label>
+            <a style="color: yellow" target="_blank" href="https://tools.yeecord.com/zh-tw/base-converter/hex/dec">
+              參考轉換網址
+            </a>
+          </div>
+          <input id="TAG" type="text" placeholder="Tag" value="32372EB1C92E0000" />
+          <label class="form-label-layout">TransactionId【充電交易ID, 於交易啟動自動調整】</label>
+          <input id="transactionId" type="text" placeholder="transactionId" value="1" />
+          <button id="send">Authorize</button>
+          <button id="start">Start Transaction</button>
+          <label>充幾分鐘</label>
+          <input id="duration" type="number" placeholder="duration" value="0" style="max-width: 100px;" />
+          <button id="stop">Stop Transaction</button>
+          <button id="data_transfer">Data Tranfer</button>
+          <hr />
+
+          <!-- MeterValues -->
+          <div>
+            <label>Meter value: electricity【電量(單位: 瓦小時, Kh)】</label>
+            <input id="metervalue" type="text" placeholder="Meter value" value="15000" />
+            <label>Meter value: power【功率(單位: 瓦特, W)】</label>
+            <input id="metervaluePower" type="text" placeholder="Meter value" value="7000" />
+            <label>Meter value: current【電流(單位: 安培, A)】</label>
+            <input id="metervalueCurrnet" type="text" placeholder="Meter value" value="32" />
+            <label>Meter value: voltage【電壓(單位: 伏特, V)】</label>
+            <input id="metervalueVoltage" type="text" placeholder="Meter value" value="220" />
+            <label>Meter value: SoC【電池比率(單位: 比率, %)】</label>
+            <input id="metervalueSoC" type="text" placeholder="Meter value" value="0" />
+            <div style="display: inline-flex; gap: 1rem; align-items: center">
+              <label>傳入格式內容</label>
+              <label>斷線了幾分鐘傳入?</label>
+              <input id="disconnectMins" type="number" placeholder="disconnectMins" value="0"
+                style="max-width: 120px" />
+            </div>
+            <div style="height: 200px; overflow-y: scroll;">
+              <pre id="metervalueDisplay"></pre>
+            </div>
+            <div style="display: flex; margin-top: 0.5rem; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <button id="mv" style="min-width: 160px;">Send Meter Values</button>
+              <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="isPeriodSend" />
+                <label style="min-width: 120px; margin: 0;">是否定期發送?</label>
               </div>
-              <div style="height: 200px; overflow-y: scroll;">
-                <pre id="metervalueDisplay"></pre>
+              <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+                <label class="toggle-switch" style="flex-shrink: 0;">
+                  <input type="checkbox" id="autoPeriodSendToggle" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+                <label for="autoPeriodSendToggle"
+                  style="margin: 0; cursor: pointer; white-space: nowrap; font-size: 0.9rem; color: #27a3ac;">自動勾選</label>
               </div>
-              <div style="display: flex; margin-top: 0.5rem; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <button id="mv" style="min-width: 160px;">Send Meter Values</button>
-                <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                  <input 
-                    type="checkbox"
-                    id="isPeriodSend" />
-                  <label style="min-width: 120px; margin: 0;">是否定期發送?</label>
-                </div>
-                <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
-                  <label class="toggle-switch" style="flex-shrink: 0;">
-                    <input type="checkbox" id="autoPeriodSendToggle" checked />
-                    <span class="toggle-slider"></span>
-                  </label>
-                  <label for="autoPeriodSendToggle" style="margin: 0; cursor: pointer; white-space: nowrap; font-size: 0.9rem; color: #27a3ac;">自動勾選</label>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.25rem">
-                  <input 
-                    type="number"
-                    id="meterValuesInterval"
-                    value="10"
-                    style="max-width: 120px;" />
-                    <label style="min-width: 100px;">發送間隔(秒)</label>
-                  <div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
-                      id="meterInterInfo"
-                      style="width: 36px; height: 36px;">
-                      <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
-                      </path>
-                    </svg>
-                    <div style="position: absolute; z-index: 999; margin-top: 4px">
-                      <div 
-                        id="meterValueInfoContainer"
-                        style="background-color: 
+              <div style="display: flex; align-items: center; gap: 0.25rem">
+                <input type="number" id="meterValuesInterval" value="10" style="max-width: 120px;" />
+                <label style="min-width: 100px;">發送間隔(秒)</label>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" id="meterInterInfo"
+                    style="width: 36px; height: 36px;">
+                    <path fill="currentColor"
+                      d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64m67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344M590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z">
+                    </path>
+                  </svg>
+                  <div style="position: absolute; z-index: 999; margin-top: 4px">
+                    <div id="meterValueInfoContainer" style="background-color: 
                               #ffffff; border-radius: 0.5rem;
                               padding: 8 12;
                               display: none">
-                        <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
-                      </div>
+                      <span style="color: #000;">定期發送訊號每次會增加"50Wh"度數</span>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
-          </div>
 
-          <!-- Firmware 操作區塊 -->
-          <div class="box-container">
-            <h4>Actions - Firmware Management Profile(事件操作)</h4>
-            <hr/>
-
-            <div style="margin-top: 1rem; margin-bottom: 1rem;">
-              <div>
-                <label class="form-label-layout">listVersion</label>
-              </div>
-              <input
-                id="listVersion"
-                type="number"
-                placeholder="listVersion"
-                value="0"
-              />
-              <label class="form-label-layout">Send Local List Status【test other status return!(Default Accepted)】</label>
-              <select name="SendLocalListStatus" id="SendLocalListStatus">
-                <option value="Accepted">Accepted</option>
-                <option value="Failed">Failed</option>
-                <option value="NotSupported">NotSupported</option>
-                <option value="VersionMismatch">VersionMismatch</option>
-              </select>
-            </div>
-            <hr/>
-
-            <div>
-              <label>Diagnostics Status【診斷報告狀態回報】</label>
-              <select name="DiagnosticsStatus" id="DiagnosticsStatus">
-                <option value="Idle">Idle</option>
-                <option value="Uploaded">Uploaded</option>
-                <option value="UploadFailed">UploadFailed</option>
-                <option value="Uploading">Uploading</option>
-              </select>
-              <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status Notification</button>
-            </div>
-            <hr/>
-
-            <div>
-              <label>Firmware Status【韌體更新狀態回報】</label>
-              <select name="FirmwareStatus" id="FirmwareStatus">
-                <option value="Downloaded">Downloaded</option>
-                <option value="DownloadFailed">DownloadFailed</option>
-                <option value="Downloading">Downloading</option>
-                <option value="Idle">Idle</option>
-                <option value="InstallationFailed">InstallationFailed</option>
-                <option value="Installing">Installing</option>
-                <option value="Installed">Installed</option>
-              </select>
-              <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status Notification</button>
-            </div>
           </div>
         </div>
-        <div class="console">
-          <div style="display: flex; align-items: center">
+
+        <!-- Firmware 操作區塊 -->
+        <div class="box-container">
+          <h4>Actions - Firmware Management Profile(事件操作)</h4>
+          <hr />
+
+          <div style="margin-top: 1rem; margin-bottom: 1rem;">
             <div>
-              <span class="indicator" id="red">____</span>
-              <span class="indicator" id="green">____</span>
-              <span class="indicator" id="blue">____</span>
-              <span class="indicator" id="yellow">____</span>
+              <label class="form-label-layout">listVersion</label>
             </div>
-            <div>
-              <button id="clear-console-btn">清除主控台</button>
-            </div>
+            <input id="listVersion" type="number" placeholder="listVersion" value="0" />
+            <label class="form-label-layout">Send Local List Status【test other status return!(Default Accepted)】</label>
+            <select name="SendLocalListStatus" id="SendLocalListStatus">
+              <option value="Accepted">Accepted</option>
+              <option value="Failed">Failed</option>
+              <option value="NotSupported">NotSupported</option>
+              <option value="VersionMismatch">VersionMismatch</option>
+            </select>
           </div>
-          <!-- 註解區塊, 自定義訊息 -->
-          <!-- <div style="padding: 1rem">
+          <hr />
+
+          <div>
+            <label>Diagnostics Status【診斷報告狀態回報】</label>
+            <select name="DiagnosticsStatus" id="DiagnosticsStatus">
+              <option value="Idle">Idle</option>
+              <option value="Uploaded">Uploaded</option>
+              <option value="UploadFailed">UploadFailed</option>
+              <option value="Uploading">Uploading</option>
+            </select>
+            <button id="Diagnostics-Status-Notification" style="background-color: #27a3ac;">Diagnostics Status
+              Notification</button>
+          </div>
+          <hr />
+
+          <div>
+            <label>Firmware Status【韌體更新狀態回報】</label>
+            <select name="FirmwareStatus" id="FirmwareStatus">
+              <option value="Downloaded">Downloaded</option>
+              <option value="DownloadFailed">DownloadFailed</option>
+              <option value="Downloading">Downloading</option>
+              <option value="Idle">Idle</option>
+              <option value="InstallationFailed">InstallationFailed</option>
+              <option value="Installing">Installing</option>
+              <option value="Installed">Installed</option>
+            </select>
+            <button id="Firmware-Status-Notification" style="background-color: #27a3ac;">Firmware Status
+              Notification</button>
+          </div>
+        </div>
+      </div>
+      <div class="console">
+        <div style="display: flex; align-items: center">
+          <div>
+            <span class="indicator" id="red">____</span>
+            <span class="indicator" id="green">____</span>
+            <span class="indicator" id="blue">____</span>
+            <span class="indicator" id="yellow">____</span>
+          </div>
+          <div>
+            <button id="clear-console-btn">清除主控台</button>
+          </div>
+        </div>
+        <!-- 註解區塊, 自定義訊息 -->
+        <!-- <div style="padding: 1rem">
             <label>message</label>
             <input
               id="message-input"
@@ -553,284 +492,281 @@
             <button id="cus-send" style="margin-top: 0.75rem">send</button>
             <pre id="message-preview"></pre>
           </div> -->
-          <div class="console-container">
-            <ul id="console"></ul>
-          </div>
+        <div class="console-container">
+          <ul id="console"></ul>
         </div>
       </div>
     </div>
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.min.js"
-      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-      crossorigin="anonymous"
-    ></script>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
-    <script>
-      var timesRun = 0;
+  <script>
+    var timesRun = 0;
 
-      var c = 0;
-      var possible =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      var id = randomId();
-      var _websocket = null;
-      // 多充電槍狀態追蹤：追蹤每隻槍的鎖定狀態
-      var connectorLocked = {
-        1: false,  // 第一隻槍的鎖定狀態
-        2: false   // 第二隻槍的鎖定狀態
-      };
-      // 多充電槍交易ID追蹤：追蹤每隻槍的 transactionId
-      var transactionIds = {
-        1: null,   // 第一隻槍的 transactionId
-        2: null    // 第二隻槍的 transactionId
-      };
-      
-      // 多充電槍定期發送 handler 追蹤：追蹤每隻槍的定期發送 interval
-      var periodSendHandlers = {
-        1: null,  // 第一隻槍的定期發送 handler
-        2: null   // 第二隻槍的定期發送 handler
-      };
-      
-      // 多充電槍 MeterValues 數值追蹤：追蹤每隻槍的數值（獨立累加）
-      var meterValues = {
-        1: { energy: 15000, soc: 0 },  // 第一隻槍的數值
-        2: { energy: 15000, soc: 0 }   // 第二隻槍的數值
-      };
-      
-      // 追蹤每個 connectorId 的實際狀態
-      var connectorStatuses = {
-        1: "Available",  // 第一隻槍的狀態
-        2: "Available"    // 第二隻槍的狀態
-      };
+    var c = 0;
+    var possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var id = randomId();
+    var _websocket = null;
+    // 多充電槍狀態追蹤：追蹤每隻槍的鎖定狀態
+    var connectorLocked = {
+      1: false,  // 第一隻槍的鎖定狀態
+      2: false   // 第二隻槍的鎖定狀態
+    };
+    // 多充電槍交易ID追蹤：追蹤每隻槍的 transactionId
+    var transactionIds = {
+      1: null,   // 第一隻槍的 transactionId
+      2: null    // 第二隻槍的 transactionId
+    };
 
-      const chargingStatus = [
-        "Charging", "SuspendedEVSE", "SuspendedEV"
-      ]
+    // 多充電槍定期發送 handler 追蹤：追蹤每隻槍的定期發送 interval
+    var periodSendHandlers = {
+      1: null,  // 第一隻槍的定期發送 handler
+      2: null   // 第二隻槍的定期發送 handler
+    };
 
-      window.onload = () => {
-        sessionStorage.setItem("LastAction", "");
+    // 多充電槍 MeterValues 數值追蹤：追蹤每隻槍的數值（獨立累加）
+    var meterValues = {
+      1: { energy: 15000, soc: 0 },  // 第一隻槍的數值
+      2: { energy: 15000, soc: 0 }   // 第二隻槍的數值
+    };
+
+    // 追蹤每個 connectorId 的實際狀態
+    var connectorStatuses = {
+      1: "Available",  // 第一隻槍的狀態
+      2: "Available"    // 第二隻槍的狀態
+    };
+
+    const chargingStatus = [
+      "Charging", "SuspendedEVSE", "SuspendedEV"
+    ]
+
+    window.onload = () => {
+      sessionStorage.setItem("LastAction", "");
+    }
+
+    // 定期檢查重啟 (已移除，改為直接在 Reset 處理中處理)
+
+    // 時間基準相關變數
+    var baseTimestamp = null;  // 用戶設定的基準時間
+    var baseRealTime = null;   // 按下套用按鈕時的實際時間
+    var useCustomTime = false; // 是否使用自訂時間模式
+
+    // 請求追蹤：記錄每個 messageId 對應的 action 和 payload
+    var requestTracker = {};
+
+    // 重啟前狀態保存：記錄重啟前的充電樁和充電槍狀態
+    var savedStatusBeforeReset = {
+      chargePointStatus: null,    // 充電樁狀態 (connectorId=0)
+      connectorStatus: null,       // 充電槍狀態 (connectorId=1)
+      connector2Status: null       // 第二隻充電槍狀態 (connectorId=2)
+    };
+
+    // 充電槍數量配置 (1 或 2)
+    var connectorCount = 2;  // 設定為 2 隻槍
+
+    // 清除主控台
+    $("#clear-console-btn").on("click", () => {
+      $("#console").html("");
+    })
+
+    /**
+     * 統一的時間取得函數
+     * 如果啟用自訂時間模式，則返回【基準時間 + 從啟用後經過的時間 - 延遲秒數】
+     * 否則返回【當前實際時間 - 延遲秒數】
+     */
+    function getCurrentTimestamp() {
+      const latencySecond = Number($("#latency-second").val()) || 0;
+
+      if (useCustomTime && baseTimestamp && baseRealTime) {
+        // 計算從啟用自訂時間後經過了多少毫秒
+        const elapsedMs = Date.now() - baseRealTime;
+        // 基準時間 + 經過時間 - 延遲秒數
+        const resultTime = new Date(baseTimestamp.getTime() + elapsedMs);
+        resultTime.setSeconds(resultTime.getSeconds() - latencySecond);
+        return resultTime;
+      } else {
+        // 使用實際時間
+        const now = new Date();
+        now.setSeconds(now.getSeconds() - latencySecond);
+        return now;
       }
+    }
 
-      // 定期檢查重啟 (已移除，改為直接在 Reset 處理中處理)
-      
-      // 時間基準相關變數
-      var baseTimestamp = null;  // 用戶設定的基準時間
-      var baseRealTime = null;   // 按下套用按鈕時的實際時間
-      var useCustomTime = false; // 是否使用自訂時間模式
-      
-      // 請求追蹤：記錄每個 messageId 對應的 action 和 payload
-      var requestTracker = {};
-      
-      // 重啟前狀態保存：記錄重啟前的充電樁和充電槍狀態
-      var savedStatusBeforeReset = {
-        chargePointStatus: null,    // 充電樁狀態 (connectorId=0)
-        connectorStatus: null,       // 充電槍狀態 (connectorId=1)
-        connector2Status: null       // 第二隻充電槍狀態 (connectorId=2)
+    /**
+     * 發送 OCPP 請求並追蹤
+     */
+    function sendOcppRequest(action, payload) {
+      const message = [2, id, action, payload];
+      const messageJson = JSON.stringify(message);
+
+      // 記錄請求以便追蹤錯誤
+      requestTracker[id] = {
+        action: action,
+        payload: payload,
+        fullJson: messageJson,
+        sentTime: new Date().toISOString()
       };
-      
-      // 充電槍數量配置 (1 或 2)
-      var connectorCount = 2;  // 設定為 2 隻槍
 
-      // 清除主控台
-      $("#clear-console-btn").on("click", () => {
-        $("#console").html("");
-      })
+      // 發送
+      _websocket.send(messageJson);
 
-      /**
-       * 統一的時間取得函數
-       * 如果啟用自訂時間模式，則返回【基準時間 + 從啟用後經過的時間 - 延遲秒數】
-       * 否則返回【當前實際時間 - 延遲秒數】
-       */
-      function getCurrentTimestamp() {
-        const latencySecond = Number($("#latency-second").val()) || 0;
-        
-        if (useCustomTime && baseTimestamp && baseRealTime) {
-          // 計算從啟用自訂時間後經過了多少毫秒
-          const elapsedMs = Date.now() - baseRealTime;
-          // 基準時間 + 經過時間 - 延遲秒數
-          const resultTime = new Date(baseTimestamp.getTime() + elapsedMs);
-          resultTime.setSeconds(resultTime.getSeconds() - latencySecond);
-          return resultTime;
-        } else {
-          // 使用實際時間
-          const now = new Date();
-          now.setSeconds(now.getSeconds() - latencySecond);
-          return now;
+      return messageJson;
+    }
+
+    function randomId() {
+      id = "";
+      for (var i = 0; i < 36; i++) {
+        id += possible.charAt(Math.floor(Math.random() * possible.length));
+      }
+      return id;
+    }
+
+    function wsConnect() {
+      var wsurl = $("#server-select").val();
+      var CP = $("#CP").val();
+
+      if (_websocket) {
+        $("#red").show();
+        _websocket.close(3001);
+      } else {
+        console.log("connect ==>", wsurl + CP);
+        /*
+        const connectorHeaders = {
+          "Authorization": "StarChargerAdmin",
         }
-      }
-      
-      /**
-       * 發送 OCPP 請求並追蹤
-       */
-      function sendOcppRequest(action, payload) {
-        const message = [2, id, action, payload];
-        const messageJson = JSON.stringify(message);
-        
-        // 記錄請求以便追蹤錯誤
-        requestTracker[id] = {
-          action: action,
-          payload: payload,
-          fullJson: messageJson,
-          sentTime: new Date().toISOString()
-        };
-        
-        // 發送
-        _websocket.send(messageJson);
-        
-        return messageJson;
-      }
-      
-      function randomId() {
-        id = "";
-        for (var i = 0; i < 36; i++) {
-          id += possible.charAt(Math.floor(Math.random() * possible.length));
+        */
+        const connectorHeaders = {
+          "username": CP,
+          "password": "StarChargerAdmin"
         }
-        return id;
-      }
 
-      function wsConnect() {
-        var wsurl = $("#server-select").val();
-        var CP = $("#CP").val();
-
-        if (_websocket) {
-          $("#red").show();
-          _websocket.close(3001);
-        } else {
-          console.log("connect ==>", wsurl + CP);
+        _websocket = new WebSocket(wsurl + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
+        _websocket.onopen = function (authorizationData) {
           /*
-          const connectorHeaders = {
-            "Authorization": "StarChargerAdmin",
-          }
+          // 握手成功後主動送出認證資訊
+          const username = CP;
+          const password = "StarChargerAdmin";
+          ws.send(username);                         // 對應 server 的 String s
+          ws.send(new TextEncoder().encode(password)); // 對應 server 的 byte[] bytes
           */
-          const connectorHeaders = {
-            "username": CP,
-            "password": "StarChargerAdmin"
+
+          // 檢查是否為重啟後的連線
+          const lastAction = sessionStorage.getItem("LastAction");
+          const isResetReconnect = lastAction === "Reset";
+
+          if (!isResetReconnect) {
+            // 非重啟連線，設定為 BootNotification
+            sessionStorage.setItem("LastAction", "BootNotification");
           }
 
-          _websocket = new WebSocket(wsurl + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
-          _websocket.onopen = function (authorizationData) {
-            /*
-            // 握手成功後主動送出認證資訊
-            const username = CP;
-            const password = "StarChargerAdmin";
-            ws.send(username);                         // 對應 server 的 String s
-            ws.send(new TextEncoder().encode(password)); // 對應 server 的 byte[] bytes
-            */
+          $("#yellow").show();
+          BootNotification();
+          $("#connect").text("Disconnect").css("background", "green");
 
-            // 檢查是否為重啟後的連線
-            const lastAction = sessionStorage.getItem("LastAction");
-            const isResetReconnect = lastAction === "Reset";
-            
-            if (!isResetReconnect) {
-              // 非重啟連線，設定為 BootNotification
-              sessionStorage.setItem("LastAction", "BootNotification");
-            }
-            
-            $("#yellow").show();
-            BootNotification();
-            $("#connect").text("Disconnect").css("background", "green");
-            
-            // 如果是重啟後的連線，發送狀態通知
-            if (isResetReconnect) {
-              setTimeout(() => {
-                logMsg("🔄 重啟後發送線上狀態通知");
-                sendOnlineStatusNotifications();
-                sessionStorage.setItem("LastAction", ""); // 清除重啟標記
-                logMsg("✅ 重啟流程完成！");
-              }, 3000); // 等待 BootNotification 完成後再發送狀態
-            }
-          };
+          // 如果是重啟後的連線，發送狀態通知
+          if (isResetReconnect) {
+            setTimeout(() => {
+              logMsg("🔄 重啟後發送線上狀態通知");
+              sendOnlineStatusNotifications();
+              sessionStorage.setItem("LastAction", ""); // 清除重啟標記
+              logMsg("✅ 重啟流程完成！");
+            }, 3000); // 等待 BootNotification 完成後再發送狀態
+          }
+        };
 
-          _websocket.onmessage = function (msg) {
-            // console.log("msg = ", msg);
-            c++;
-            var ddata = JSON.parse(msg.data);
-            console.log(ddata);
-            if (c == 1) {
-              var hb_interval = handleData(ddata);
-              sessionStorage.setItem("Configuration", hb_interval);
-              startHB(hb_interval * 1000);
-            }
+        _websocket.onmessage = function (msg) {
+          // console.log("msg = ", msg);
+          c++;
+          var ddata = JSON.parse(msg.data);
+          console.log(ddata);
+          if (c == 1) {
+            var hb_interval = handleData(ddata);
+            sessionStorage.setItem("Configuration", hb_interval);
+            startHB(hb_interval * 1000);
+          }
 
-            if (ddata[0] === 3) {
-              logMsg(`Data exchange successful! payload: ${JSON.stringify(ddata)}`);
-              
-              // 檢查是否為 Heartbeat 回應，並處理自動同步時間
-              var lastAction = sessionStorage.getItem("LastAction");
-              if (lastAction === "Heartbeat" && ddata[2].currentTime) {
-                const systemTime = ddata[2].currentTime;
-                logMsg(`📡 收到系統時間: ${systemTime}`);
-                
-                // 如果啟用自動同步，則自動設定基準時間
-                if ($("#auto-sync-time").is(":checked")) {
-                  const systemDate = new Date(systemTime);
-                  baseTimestamp = systemDate;
-                  baseRealTime = Date.now();
-                  useCustomTime = true;
-                  
-                  const localTimeStr = systemDate.toLocaleString('zh-TW', { 
-                    timeZone: 'Asia/Taipei',
-                    year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                  });
-                  
-                  $("#time-mode-indicator").text("模式: 自動同步").css("color", "#27a3ac");
-                  $("#last-sync-time").text(`上次同步: ${localTimeStr}`);
-                  logMsg(`🔄 已自動同步系統時間為基準`);
-                  console.log("自動同步時間:", systemDate.toISOString());
-                }
+          if (ddata[0] === 3) {
+            logMsg(`Data exchange successful! payload: ${JSON.stringify(ddata)}`);
+
+            // 檢查是否為 Heartbeat 回應，並處理自動同步時間
+            var lastAction = sessionStorage.getItem("LastAction");
+            if (lastAction === "Heartbeat" && ddata[2].currentTime) {
+              const systemTime = ddata[2].currentTime;
+              logMsg(`📡 收到系統時間: ${systemTime}`);
+
+              // 如果啟用自動同步，則自動設定基準時間
+              if ($("#auto-sync-time").is(":checked")) {
+                const systemDate = new Date(systemTime);
+                baseTimestamp = systemDate;
+                baseRealTime = Date.now();
+                useCustomTime = true;
+
+                const localTimeStr = systemDate.toLocaleString('zh-TW', {
+                  timeZone: 'Asia/Taipei',
+                  year: 'numeric', month: '2-digit', day: '2-digit',
+                  hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+
+                $("#time-mode-indicator").text("模式: 自動同步").css("color", "#27a3ac");
+                $("#last-sync-time").text(`上次同步: ${localTimeStr}`);
+                logMsg(`🔄 已自動同步系統時間為基準`);
+                console.log("自動同步時間:", systemDate.toISOString());
               }
-              
-              // 處理 StartTransaction 回應：根據 connectorId 儲存對應的 transactionId
-              var transactionId = ddata[2].transactionId;
-              if (transactionId) {
-                // 從 requestTracker 取得原始請求的 connectorId
-                const messageId = ddata[1];
-                const originalRequest = requestTracker[messageId];
-                if (originalRequest && originalRequest.action === "StartTransaction" && originalRequest.payload.connectorId) {
-                  const connectorId = originalRequest.payload.connectorId;
-                  // 根據 connectorId 將 transactionId 儲存到對應的位置
-                  transactionIds[connectorId] = transactionId;
-                  logMsg(`📝 已記錄 Connector ${connectorId} 的 transactionId: ${transactionId}`);
-                  
-                  // 如果當前選中的 connectorId 匹配，則更新 UI 顯示
-                  const currentConnectorId = parseInt($("#CUID-connector").val());
-                  if (currentConnectorId === connectorId) {
-                    $("#transactionId").val(transactionId);
-                  }
-                  
-                  // 如果該 connectorId 正在充電（connectorLocked[connectorId] === true），自動啟動定期發送
-                  // 注意：這裡不依賴 UI 中選中的 connectorId，而是檢查該 connectorId 的實際狀態
-                  if (connectorLocked[connectorId] === true) {
-                    // 更新狀態追蹤為 Charging（如果還沒有更新的話）
-                    connectorStatuses[connectorId] = "Charging";
-                    startPeriodicMeterValues(connectorId);
-                    logMsg(`🔄 自動啟動 Connector ${connectorId} 的定期發送 MeterValues`);
-                  }
-                } else {
-                  // 如果無法從 requestTracker 取得 connectorId，使用當前選中的 connectorId（向後兼容）
-                  const currentConnectorId = parseInt($("#CUID-connector").val());
-                  if (currentConnectorId) {
-                    transactionIds[currentConnectorId] = transactionId;
-                    $("#transactionId").val(transactionId);
-                    logMsg(`📝 已記錄 Connector ${currentConnectorId} 的 transactionId: ${transactionId} (使用當前選中的 connectorId)`);
-                  } else {
-                    // 最後的備用方案：直接更新 UI
-                    $("#transactionId").val(transactionId);
-                  }
-                }
-              }
-              logMsg("Response: " + JSON.stringify(ddata[2]));
-            } else if (ddata[0] === 4) {
-              // CALLERROR: [4, messageId, errorCode, errorDescription, errorDetails]
+            }
+
+            // 處理 StartTransaction 回應：根據 connectorId 儲存對應的 transactionId
+            var transactionId = ddata[2].transactionId;
+            if (transactionId) {
+              // 從 requestTracker 取得原始請求的 connectorId
               const messageId = ddata[1];
-              const errorCode = ddata[2];
-              const errorDesc = ddata[3] || '(無描述)';
-              const errorDetails = ddata[4];
-              
-              // 從追蹤器中找出原始請求
               const originalRequest = requestTracker[messageId];
-              
-              let errorMsg = `
+              if (originalRequest && originalRequest.action === "StartTransaction" && originalRequest.payload.connectorId) {
+                const connectorId = originalRequest.payload.connectorId;
+                // 根據 connectorId 將 transactionId 儲存到對應的位置
+                transactionIds[connectorId] = transactionId;
+                logMsg(`📝 已記錄 Connector ${connectorId} 的 transactionId: ${transactionId}`);
+
+                // 如果當前選中的 connectorId 匹配，則更新 UI 顯示
+                const currentConnectorId = parseInt($("#CUID-connector").val());
+                if (currentConnectorId === connectorId) {
+                  $("#transactionId").val(transactionId);
+                }
+
+                // 如果該 connectorId 正在充電（connectorLocked[connectorId] === true），自動啟動定期發送
+                // 注意：這裡不依賴 UI 中選中的 connectorId，而是檢查該 connectorId 的實際狀態
+                if (connectorLocked[connectorId] === true) {
+                  // 更新狀態追蹤為 Charging（如果還沒有更新的話）
+                  connectorStatuses[connectorId] = "Charging";
+                  startPeriodicMeterValues(connectorId);
+                  logMsg(`🔄 自動啟動 Connector ${connectorId} 的定期發送 MeterValues`);
+                }
+              } else {
+                // 如果無法從 requestTracker 取得 connectorId，使用當前選中的 connectorId（向後兼容）
+                const currentConnectorId = parseInt($("#CUID-connector").val());
+                if (currentConnectorId) {
+                  transactionIds[currentConnectorId] = transactionId;
+                  $("#transactionId").val(transactionId);
+                  logMsg(`📝 已記錄 Connector ${currentConnectorId} 的 transactionId: ${transactionId} (使用當前選中的 connectorId)`);
+                } else {
+                  // 最後的備用方案：直接更新 UI
+                  $("#transactionId").val(transactionId);
+                }
+              }
+            }
+            logMsg("Response: " + JSON.stringify(ddata[2]));
+          } else if (ddata[0] === 4) {
+            // CALLERROR: [4, messageId, errorCode, errorDescription, errorDetails]
+            const messageId = ddata[1];
+            const errorCode = ddata[2];
+            const errorDesc = ddata[3] || '(無描述)';
+            const errorDetails = ddata[4];
+
+            // 從追蹤器中找出原始請求
+            const originalRequest = requestTracker[messageId];
+
+            let errorMsg = `
 ❌ CALLERROR - 後端拒絕請求！
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 【錯誤資訊】
@@ -839,8 +775,8 @@
   ErrorDetails: ${JSON.stringify(errorDetails)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
-              if (originalRequest) {
-                errorMsg += `
+            if (originalRequest) {
+              errorMsg += `
 【原始請求】
   Action: ${originalRequest.action}
   MessageId: ${messageId}
@@ -848,846 +784,862 @@
   Payload: ${JSON.stringify(originalRequest.payload, null, 2)}
   完整JSON: ${originalRequest.fullJson}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-                
-                // 清理追蹤記錄
-                delete requestTracker[messageId];
-              } else {
-                errorMsg += `
+
+              // 清理追蹤記錄
+              delete requestTracker[messageId];
+            } else {
+              errorMsg += `
 【原始請求】(追蹤記錄未找到)
   MessageId: ${messageId}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+            }
+
+            logMsg(errorMsg);
+            console.error("❌ CALLERROR 完整資訊:", {
+              error: ddata,
+              originalRequest: originalRequest
+            });
+          } else if (JSON.parse(msg.data)[0] === 2) {
+            logMsg(JSON.parse(msg.data)[2]);
+            id = JSON.parse(msg.data)[1];
+
+            switch (ddata[2]) {
+              case "ChangeConfiguration":
+                var ChangeConf = JSON.stringify([3, id, { status: "Accepted" }]);
+                logMsg("接收ChangeConfig");
+                _websocket.send(ChangeConf);
+                // setTimeout(() => {
+                // }, 4000)
+                break;
+
+              case "Reset":
+                //Reset type SOFT, HARD
+                var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
+                console.log("Reset 即將送出");
+                _websocket.send(ResetS);
+
+                // 重啟前：保存當前狀態
+                logMsg("🔄 重啟前保存當前狀態");
+                saveStatusBeforeReset();
+
+                // 設定重啟標記
+                sessionStorage.setItem("LastAction", "Reset");
+
+                // 模擬重啟：關閉 WebSocket 連線
+                logMsg("🔄 模擬重啟：關閉連線");
+                setTimeout(() => {
+                  if (_websocket) {
+                    _websocket.close(3001); // 關閉連線模擬重啟
+                    _websocket = null;
+                  }
+                }, 1000); // 1秒後關閉連線
+
+                // 重新連線
+                setTimeout(() => {
+                  console.log("--- 重啟重試 ---");
+                  logMsg("🔄 重啟後重新連線");
+                  wsConnect();
+                }, 3000); // 3秒後重新連線
+                break;
+              case "RemoteStopTransaction": {
+                //TransactionID
+                var remStp = JSON.stringify([3, id, { status: "Accepted" }]);
+                _websocket.send(remStp);
+
+                // 從請求中取得 transactionId
+                const remoteTransactionId = JSON.parse(msg.data)[3].transactionId;
+
+                // 找到對應的 connectorId
+                const stopRemoteConnectorId = findConnectorIdByTransactionId(remoteTransactionId);
+
+                if (stopRemoteConnectorId) {
+                  // 設定正確的 connectorId 到 UI
+                  $("#CUID-connector").val(stopRemoteConnectorId);
+                  $("#transactionId").val(remoteTransactionId);
+                  logMsg(`🔍 RemoteStopTransaction: 找到對應的 Connector ${stopRemoteConnectorId} (transactionId: ${remoteTransactionId})`);
+
+                  // 更新對應的 connectorLocked 狀態
+                  connectorLocked[stopRemoteConnectorId] = false;
+                } else {
+                  // 如果找不到對應的 connectorId，使用 UI 顯示的值（向後兼容）
+                  $("#transactionId").val(remoteTransactionId);
+                  logMsg(`⚠️ RemoteStopTransaction: 無法找到對應的 connectorId，使用當前選中的 connectorId`);
+                }
+
+                // 調整狀態為結束充電, 觸發按鈕事件
+                // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+
+                // 2. 結束交易前, 最後一筆 MeterValues
+                // send_meterValue();
+
+                // 4. 結束交易後拔槍(Available)
+                stopTransaction();
+
+                // stopTransaction 已經會停止定期發送，這裡確保停止
+                if (stopRemoteConnectorId) {
+                  stopPeriodicMeterValues(stopRemoteConnectorId);
+                  // 更新狀態追蹤
+                  connectorStatuses[stopRemoteConnectorId] = "Finishing";
+                  // 使用正確的 connectorId 來觸發狀態改變
+                  triggerStatus("Finishing", stopRemoteConnectorId);
+                } else {
+                  // 如果找不到 connectorId，使用當前選中的（向後兼容）
+                  triggerStatus("Finishing");
+                }
+
+                // $("#connector-vendorErrorCode").val("0x200008");
+                // triggerStatus("Finishing"); // 已在上面處理
+                // $("#connector-vendorErrorCode").val("");
+                // triggerStatus("Available");
+
+                $(".indicator").hide();
+                $("#yellow").show();
+                break;
               }
-              
-              logMsg(errorMsg);
-              console.error("❌ CALLERROR 完整資訊:", {
-                error: ddata,
-                originalRequest: originalRequest
-              });
-            } else if (JSON.parse(msg.data)[0] === 2) {
-              logMsg(JSON.parse(msg.data)[2]);
-              id = JSON.parse(msg.data)[1];
+              case "RemoteStartTransaction": {
+                //Need to get idTag, connectorId (map - ddata[3])
+                const remoteIdTag = ddata[3].idTag;
+                const startRemoteConnectorId = ddata[3].connectorId; // 從請求中取得 connectorId（可選參數）
 
-              switch (ddata[2]) {
-                case "ChangeConfiguration":
-                  var ChangeConf = JSON.stringify([3, id, { status: "Accepted" }]);
-                  logMsg("接收ChangeConfig");
-                  _websocket.send(ChangeConf);
-                  // setTimeout(() => {
-                  // }, 4000)
-                  break;
+                $("#TAG").val(remoteIdTag);
+                console.log("RemoteStartTransaction - idTag:", remoteIdTag, "connectorId:", startRemoteConnectorId);
 
-                case "Reset":
-                  //Reset type SOFT, HARD
-                  var ResetS = JSON.stringify([3, id, { status: "Accepted" }]);
-                  console.log("Reset 即將送出");
-                  _websocket.send(ResetS);
-                  
-                  // 重啟前：保存當前狀態
-                  logMsg("🔄 重啟前保存當前狀態");
-                  saveStatusBeforeReset();
-                  
-                  // 設定重啟標記
-                  sessionStorage.setItem("LastAction", "Reset");
-                  
-                  // 模擬重啟：關閉 WebSocket 連線
-                  logMsg("🔄 模擬重啟：關閉連線");
-                  setTimeout(() => {
-                    if (_websocket) {
-                      _websocket.close(3001); // 關閉連線模擬重啟
-                      _websocket = null;
-                    }
-                  }, 1000); // 1秒後關閉連線
-                  
-                  // 重新連線
-                  setTimeout(() => {
-                    console.log("--- 重啟重試 ---");
-                    logMsg("🔄 重啟後重新連線");
-                    wsConnect();
-                  }, 3000); // 3秒後重新連線
-                  break;
-                case "RemoteStopTransaction": {
-                  //TransactionID
-                  var remStp = JSON.stringify([3, id, { status: "Accepted" }]);
-                  _websocket.send(remStp);
-
-                  // 從請求中取得 transactionId
-                  const remoteTransactionId = JSON.parse(msg.data)[3].transactionId;
-                  
-                  // 找到對應的 connectorId
-                  const stopRemoteConnectorId = findConnectorIdByTransactionId(remoteTransactionId);
-                  
-                  if (stopRemoteConnectorId) {
-                    // 設定正確的 connectorId 到 UI
-                    $("#CUID-connector").val(stopRemoteConnectorId);
-                    $("#transactionId").val(remoteTransactionId);
-                    logMsg(`🔍 RemoteStopTransaction: 找到對應的 Connector ${stopRemoteConnectorId} (transactionId: ${remoteTransactionId})`);
-                    
-                    // 更新對應的 connectorLocked 狀態
-                    connectorLocked[stopRemoteConnectorId] = false;
-                  } else {
-                    // 如果找不到對應的 connectorId，使用 UI 顯示的值（向後兼容）
-                    $("#transactionId").val(remoteTransactionId);
-                    logMsg(`⚠️ RemoteStopTransaction: 無法找到對應的 connectorId，使用當前選中的 connectorId`);
-                  }
-                  
-                  // 調整狀態為結束充電, 觸發按鈕事件
-                  // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
-                  
-                  // 2. 結束交易前, 最後一筆 MeterValues
-                  // send_meterValue();
-                  
-                  // 4. 結束交易後拔槍(Available)
-                  stopTransaction();
-                  
-                  // stopTransaction 已經會停止定期發送，這裡確保停止
-                  if (stopRemoteConnectorId) {
-                    stopPeriodicMeterValues(stopRemoteConnectorId);
-                    // 更新狀態追蹤
-                    connectorStatuses[stopRemoteConnectorId] = "Finishing";
-                    // 使用正確的 connectorId 來觸發狀態改變
-                    triggerStatus("Finishing", stopRemoteConnectorId);
-                  } else {
-                    // 如果找不到 connectorId，使用當前選中的（向後兼容）
-                    triggerStatus("Finishing");
-                  }
-                  
-                  // $("#connector-vendorErrorCode").val("0x200008");
-                  // triggerStatus("Finishing"); // 已在上面處理
-                  // $("#connector-vendorErrorCode").val("");
-                  // triggerStatus("Available");
-                  
-                  $(".indicator").hide();
-                  $("#yellow").show();
-                  break;
+                // 如果請求中有指定 connectorId，則設定到 UI
+                if (startRemoteConnectorId !== undefined && startRemoteConnectorId !== null) {
+                  $("#CUID-connector").val(startRemoteConnectorId);
+                  logMsg(`🔌 RemoteStartTransaction: 設定 Connector ${startRemoteConnectorId} 進行充電`);
+                } else {
+                  logMsg(`🔌 RemoteStartTransaction: 未指定 connectorId，使用當前選中的 Connector ${$("#CUID-connector").val()}`);
                 }
-                case "RemoteStartTransaction": {
-                  //Need to get idTag, connectorId (map - ddata[3])
-                  const remoteIdTag = ddata[3].idTag;
-                  const startRemoteConnectorId = ddata[3].connectorId; // 從請求中取得 connectorId（可選參數）
-                  
-                  $("#TAG").val(remoteIdTag);
-                  console.log("RemoteStartTransaction - idTag:", remoteIdTag, "connectorId:", startRemoteConnectorId);
-                  
-                  // 如果請求中有指定 connectorId，則設定到 UI
-                  if (startRemoteConnectorId !== undefined && startRemoteConnectorId !== null) {
-                    $("#CUID-connector").val(startRemoteConnectorId);
-                    logMsg(`🔌 RemoteStartTransaction: 設定 Connector ${startRemoteConnectorId} 進行充電`);
-                  } else {
-                    logMsg(`🔌 RemoteStartTransaction: 未指定 connectorId，使用當前選中的 Connector ${$("#CUID-connector").val()}`);
-                  }
-                  
-                  var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
-                  _websocket.send(remStrt);
 
-                  // 測試 etreego Auto-Charge 問題(是不是在Remote後才收到Auth)
+                var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
+                _websocket.send(remStrt);
+
+                // 測試 etreego Auto-Charge 問題(是不是在Remote後才收到Auth)
+                setTimeout(() => {
+                  Authorize()
+                }, 500);
+
+                /*
+                // 若為拔槍狀態('Available'), 則先進入準備('Preparing'), 過之後才會進充
+                const currentStatus = $("#ConnectorStatus-connector").val();
+                if (currentStatus === "Available") {
                   setTimeout(() => {
-                    Authorize()
+                    triggerStatus("Preparing");
                   }, 500);
-                  
-                  /*
-                  // 若為拔槍狀態('Available'), 則先進入準備('Preparing'), 過之後才會進充
-                  const currentStatus = $("#ConnectorStatus-connector").val();
-                  if (currentStatus === "Available") {
-                    setTimeout(() => {
-                      triggerStatus("Preparing");
-                    }, 500);
-                  }
-                  */
-                  
-                  // 最後進充
-                  setTimeout(() => {
-                    startTransaction();
-                    // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
-                  }, 1000);
-
-                  break;
                 }
-                case "UnlockConnector": /////////ERROR!!!!!!!!
-                  //connectorId
-                  var UC = JSON.stringify([3, id, { status: "Accepted" }]);
-                  console.log("解鎖即將送出");
-                  _websocket.send(UC);
-                  // connector_locked = false;
-                  // $('.indicator').hide();
-                  //$('#yellow').show();
-                  //logMsg("Connector status changed to: "+connector_locked);
-                  break;
-                case "TriggerMessage":
-                  // Called by CPMS asking ChargePoint to execute the instruction
-                  // Implemented for MeterValues
-                  logMsg(`Trigger Message Type: ${ddata[3].requestedMessage}`);
+                */
 
-                  switch (ddata[3].requestedMessage) {
-                    case "MeterValues" :
-                      var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
-                      _websocket.send(remStrt);
-                      send_meterValue();
+                // 最後進充
+                setTimeout(() => {
+                  startTransaction();
+                  // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
+                }, 1000);
+
+                break;
+              }
+              case "UnlockConnector": /////////ERROR!!!!!!!!
+                //connectorId
+                var UC = JSON.stringify([3, id, { status: "Accepted" }]);
+                console.log("解鎖即將送出");
+                _websocket.send(UC);
+                // connector_locked = false;
+                // $('.indicator').hide();
+                //$('#yellow').show();
+                //logMsg("Connector status changed to: "+connector_locked);
+                break;
+              case "TriggerMessage":
+                // Called by CPMS asking ChargePoint to execute the instruction
+                // Implemented for MeterValues
+                logMsg(`Trigger Message Type: ${ddata[3].requestedMessage}`);
+
+                switch (ddata[3].requestedMessage) {
+                  case "MeterValues":
+                    var remStrt = JSON.stringify([3, id, { status: "Accepted" }]);
+                    _websocket.send(remStrt);
+                    send_meterValue();
                     break;
-                    default : 
-                      var error = JSON.stringify([4, id]);
-                      _websocket.send(error);
-                  }
+                  default:
+                    var error = JSON.stringify([4, id]);
+                    _websocket.send(error);
+                }
 
-                  break;
-                case "SetChargingProfile":
-                  console.log("SetChargingProfile ddata = ", ddata);
-                  const setChargingProfile = JSON.parse(msg.data)[3];
-                  const profile = setChargingProfile.csChargingProfiles;
-                  logMsg("================================================");
-                  logMsg("--- 充電設定 ------------------------------------------------------------");
-                  const cpId = $("#CP").val().toString();
-                  logMsg(`樁體號: ${cpId}`);
-                  logMsg(`connectorId(分配槍號 0為Load-Balancing模式): ${setChargingProfile.connectorId}`);
-                  logMsg(`chargingProfileId(分配id): ${profile.chargingProfileId}`);
-                  logMsg(`stackLevel(分配優先層級): ${profile.stackLevel}`);
-                  logMsg(`chargingProfileKind(分配規則): ${profile.chargingProfileKind}`);
-                  logMsg(`chargingProfilePurpose(分配類型): ${profile.chargingProfilePurpose}`);
-                  logMsg(`chargingRateUnit(單位): ${profile.chargingSchedule.chargingRateUnit}`);
-                  logMsg(`chargingSchedulePeriod(套用): ${profile.chargingSchedule.chargingSchedulePeriod[0].limit}`);
-                  logMsg("--- 充電設定 ------------------------------------------------------------");
-                  logMsg("================================================");
-                  var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
-                  console.log("修改充電設定即將送出");
-                  _websocket.send(SCP);
-                  break;
-                case "ClearChargingProfile":
-                  var CCP = JSON.stringify([3, id, { status: "Accepted" }]);
+                break;
+              case "SetChargingProfile":
+                console.log("SetChargingProfile ddata = ", ddata);
+                const setChargingProfile = JSON.parse(msg.data)[3];
+                const profile = setChargingProfile.csChargingProfiles;
+                logMsg("================================================");
+                logMsg("--- 充電設定 ------------------------------------------------------------");
+                const cpId = $("#CP").val().toString();
+                logMsg(`樁體號: ${cpId}`);
+                logMsg(`connectorId(分配槍號 0為Load-Balancing模式): ${setChargingProfile.connectorId}`);
+                logMsg(`chargingProfileId(分配id): ${profile.chargingProfileId}`);
+                logMsg(`stackLevel(分配優先層級): ${profile.stackLevel}`);
+                logMsg(`chargingProfileKind(分配規則): ${profile.chargingProfileKind}`);
+                logMsg(`chargingProfilePurpose(分配類型): ${profile.chargingProfilePurpose}`);
+                logMsg(`chargingRateUnit(單位): ${profile.chargingSchedule.chargingRateUnit}`);
+                logMsg(`chargingSchedulePeriod(套用): ${profile.chargingSchedule.chargingSchedulePeriod[0].limit}`);
+                logMsg("--- 充電設定 ------------------------------------------------------------");
+                logMsg("================================================");
+                var SCP = JSON.stringify([3, id, { status: "Accepted" }]);
+                console.log("修改充電設定即將送出");
+                _websocket.send(SCP);
+                break;
+              case "ClearChargingProfile":
+                var CCP = JSON.stringify([3, id, { status: "Accepted" }]);
 
-                  const clearChargingProfile = JSON.parse(msg.data)[3];
-                  logMsg("================================================");
-                  logMsg("--- 清除 充電設定 ------------------------------------------------------------");
-                  cpId2 = $("#CP").val().toString();
-                  logMsg(`樁體號: ${cpId2}`);
-                  logMsg(`id(分配id): ${clearChargingProfile.id}`);
-                  logMsg(`connectorId(清除槍號:0=樁): ${clearChargingProfile.connectorId}`);
-                  logMsg(`chargingProfilePurpose(清除類型): ${clearChargingProfile.chargingProfilePurpose ?? "未定義"}`);
-                  logMsg(`stackLevel(套用層級): ${clearChargingProfile.stackLevel}`);
-                  logMsg("--- 清除 充電設定 ------------------------------------------------------------");
-                  logMsg("================================================");
-                  _websocket.send(CCP);
-                  break;
-                
-                // 新增 Local Auth List Management & Firmware Management 相關 CMS 事件接收後回應
-                // Local Auth List Management
-                case "GetLocalListVersion":
-                  var GLLV = JSON.stringify([3, id, { listVersion: 1 }]);
-                  _websocket.send(GLLV);
-                  break;
-                case "SendLocalList":
-                  var SLL = JSON.stringify([3, id, { status: $("#SendLocalListStatus").val() }]);
-                  _websocket.send(SLL);
-                  break;
-                // Firmware Management
-                case "GetDiagnostics":
-                  var GD = JSON.stringify([3, id, { fileName: "abc.log" }]);
-                  _websocket.send(GD);
-                  break;
-                case "UpdateFireware":
-                  var UF = JSON.stringify([3, id, {}]);
-                  _websocket.send(UF);
-                  break;
+                const clearChargingProfile = JSON.parse(msg.data)[3];
+                logMsg("================================================");
+                logMsg("--- 清除 充電設定 ------------------------------------------------------------");
+                cpId2 = $("#CP").val().toString();
+                logMsg(`樁體號: ${cpId2}`);
+                logMsg(`id(分配id): ${clearChargingProfile.id}`);
+                logMsg(`connectorId(清除槍號:0=樁): ${clearChargingProfile.connectorId}`);
+                logMsg(`chargingProfilePurpose(清除類型): ${clearChargingProfile.chargingProfilePurpose ?? "未定義"}`);
+                logMsg(`stackLevel(套用層級): ${clearChargingProfile.stackLevel}`);
+                logMsg("--- 清除 充電設定 ------------------------------------------------------------");
+                logMsg("================================================");
+                _websocket.send(CCP);
+                break;
 
-                // 禁用/解除禁用
-                case "ChangeAvailability": {
-                  const changeAvailConnectorId = ddata[3].connectorId;
-                  // 檢查該 connectorId 的實際狀態
-                  const connectorStatus = connectorStatuses[changeAvailConnectorId] || $("#ConnectorStatus-connector").val();
-                  const isCharging = chargingStatus.includes(connectorStatus);
-                  var CA = JSON.stringify([3, id, { status: isCharging ? "Rejected" : "Accepted"  }]);
-                  // 充電中暫時阻擋禁用(實際為進入"Scheduled")
-                  if (isCharging) {
-                    _websocket.send(CA);
-                    break;
-                  }
-                  // 若為樁(ConnectorId="0")禁用, 則廣播狀態事件
-                  const isOperative = ddata[3].type === "Operative";
-                  if (changeAvailConnectorId === 0) {
-                    triggerStatusEVSE(isOperative ? "Available" : "Unavailable");
-                  } else if (changeAvailConnectorId && changeAvailConnectorId > 0) {
-                    // 使用正確的 connectorId 來觸發狀態改變
-                    triggerStatus(isOperative ? "Available" : "Unavailable", changeAvailConnectorId);
-                  } else {
-                    // 如果沒有指定 connectorId，使用當前選中的（向後兼容）
-                    triggerStatus(isOperative ? "Available" : "Unavailable");
-                  }
+              // 新增 Local Auth List Management & Firmware Management 相關 CMS 事件接收後回應
+              // Local Auth List Management
+              case "GetLocalListVersion":
+                var GLLV = JSON.stringify([3, id, { listVersion: 1 }]);
+                _websocket.send(GLLV);
+                break;
+              case "SendLocalList":
+                var SLL = JSON.stringify([3, id, { status: $("#SendLocalListStatus").val() }]);
+                _websocket.send(SLL);
+                break;
+              // Firmware Management
+              case "GetDiagnostics":
+                var GD = JSON.stringify([3, id, { fileName: "abc.log" }]);
+                _websocket.send(GD);
+                break;
+              case "UpdateFireware":
+                var UF = JSON.stringify([3, id, {}]);
+                _websocket.send(UF);
+                break;
+
+              // 禁用/解除禁用
+              case "ChangeAvailability": {
+                const changeAvailConnectorId = ddata[3].connectorId;
+                // 檢查該 connectorId 的實際狀態
+                const connectorStatus = connectorStatuses[changeAvailConnectorId] || $("#ConnectorStatus-connector").val();
+                const isCharging = chargingStatus.includes(connectorStatus);
+                var CA = JSON.stringify([3, id, { status: isCharging ? "Rejected" : "Accepted" }]);
+                // 充電中暫時阻擋禁用(實際為進入"Scheduled")
+                if (isCharging) {
                   _websocket.send(CA);
                   break;
                 }
-
-                // Reservation
-                case "ReserveNow":
-                  logMsg("ReserveNow");
-                  var RN = JSON.stringify([3, id, { status: "Accepted" }]);
-                  _websocket.send(RN);
-                  // 發送預約狀態
-                  triggerStatus("Reserved");
-                  break;
-                case "CancelReservation":
-                  var CR = JSON.stringify([3, id, { status: "Accepted" }]);
-                  _websocket.send(CR);
-                  logMsg("預約取消");
-                  // 回到可用狀態
-                  triggerStatus("Available");
-                  break;
-                default:
-                  var error = JSON.stringify([4, id]);
-                  _websocket.send(error);
-                  break;
-              }
-            }
-          };
-
-          _websocket.onclose = function (evt) {
-            $("#connect").text("Connect").css("background", "#369");
-            if (evt.code == 3001) {
-              logMsg("ws closed");
-              _websocket = null;
-            } else {
-              logMsg("ws connection error: " + evt.code);
-              $("#console").html("");
-              _websocket = null;
-              wsConnect();
-            }
-          };
-
-          _websocket.onerror = function (evt) {
-            if (_websocket.readyState == 1) {
-              $("#red").show();
-              logMsg("ws normal error: " + evt.type);
-            }
-          };
-        }
-      }
-
-
-      function checkResrvedStart() {
-        const currentStatus = $("#ConnectorStatus-connector").val();
-        if (currentStatus !== "Reserved") {
-          triggerStatus("Charging");
-        }
-      }
-
-      /**
-       * 根據 transactionId 找到對應的 connectorId
-       */
-      function findConnectorIdByTransactionId(transactionId) {
-        for (let connectorId in transactionIds) {
-          if (transactionIds[connectorId] == transactionId) {
-            return parseInt(connectorId);
-          }
-        }
-        return null;
-      }
-
-      /**
-       * 檢查指定 connectorId 是否正在充電
-       */
-      function isConnectorCharging(connectorId) {
-        return connectorLocked[connectorId] === true;
-      }
-
-      /**
-       * 啟動指定 connectorId 的定期發送 MeterValues
-       */
-      function startPeriodicMeterValues(connectorId) {
-        // 停止該 connectorId 的舊 handler（如果存在）
-        if (periodSendHandlers[connectorId]) {
-          clearInterval(periodSendHandlers[connectorId]);
-          periodSendHandlers[connectorId] = null;
-        }
-        
-        const meterValuesInterval = Number($("#meterValuesInterval").val()) || 10;
-        logMsg(`🔄 啟動 Connector ${connectorId} 的定期發送 MeterValues (間隔: ${meterValuesInterval}秒)`);
-        
-        periodSendHandlers[connectorId] = setInterval(() => {
-          // 使用該 connectorId 專屬的數值
-          meterValues[connectorId].energy += 50;
-          meterValues[connectorId].soc += 1;
-          
-          // 發送該 connectorId 的 MeterValues
-          sendMeterValueForConnector(connectorId);
-        }, meterValuesInterval * 1000);
-      }
-
-      /**
-       * 停止指定 connectorId 的定期發送 MeterValues
-       */
-      function stopPeriodicMeterValues(connectorId) {
-        if (periodSendHandlers[connectorId]) {
-          clearInterval(periodSendHandlers[connectorId]);
-          periodSendHandlers[connectorId] = null;
-          logMsg(`⏹️ 停止 Connector ${connectorId} 的定期發送 MeterValues`);
-        }
-      }
-
-      /**
-       * 發送指定 connectorId 的 MeterValues
-       */
-      function sendMeterValueForConnector(connectorId) {
-        // 根據 connectorId 取得對應的 transactionId 和數值
-        const transactionId = transactionIds[connectorId];
-        const meterValue = meterValues[connectorId];
-        
-        if (!transactionId) {
-          logMsg(`⚠️ Connector ${connectorId} 沒有 transactionId，跳過發送 MeterValues`);
-          return;
-        }
-        
-        // 使用統一的時間取得函數
-        const sendDate = getCurrentTimestamp();
-        const disconnectMins = Number($("#disconnectMins").val()) || 0;
-        sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000);
-        
-        // 建構 MeterValues payload
-        const meterValuePayload = {
-          connectorId: connectorId,
-          transactionId: transactionId,
-          meterValue: [
-            {
-              timestamp: sendDate.toISOString(),
-              sampledValue: [
-                {
-                  value: $("#metervalueVoltage").val(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Voltage",
-                  phase: "L1",
-                  location: "Outlet",
-                  unit: "V"
-                },
-                {
-                  value: $("#metervalueCurrnet").val(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Current.Import",
-                  phase: "L1",
-                  location: "Outlet",
-                  unit: "A"
-                },
-                {
-                  value: $("#metervaluePower").val(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Power.Active.Import",
-                  phase: null,
-                  location: "Outlet",
-                  unit: "W"
-                },
-                {
-                  value: "38",
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Temperature",
-                  phase: null,
-                  location: "Body",
-                  unit: "Celsius"
-                },
-                {
-                  value: meterValue.soc.toString(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "SoC",
-                  phase: null,
-                  location: "EV",
-                  unit: "Percent"
-                },
-                {
-                  value: $("#metervaluePower").val(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Power.Offered",
-                  phase: null,
-                  location: "Outlet",
-                  unit: "W"
-                },
-                {
-                  value: meterValue.energy.toString(),
-                  context: "Sample.Periodic",
-                  format: null,
-                  measurand: "Energy.Active.Import.Register",
-                  phase: null,
-                  location: "Outlet",
-                  unit: "Wh"
+                // 若為樁(ConnectorId="0")禁用, 則廣播狀態事件
+                const isOperative = ddata[3].type === "Operative";
+                if (changeAvailConnectorId === 0) {
+                  triggerStatusEVSE(isOperative ? "Available" : "Unavailable");
+                } else if (changeAvailConnectorId && changeAvailConnectorId > 0) {
+                  // 使用正確的 connectorId 來觸發狀態改變
+                  triggerStatus(isOperative ? "Available" : "Unavailable", changeAvailConnectorId);
+                } else {
+                  // 如果沒有指定 connectorId，使用當前選中的（向後兼容）
+                  triggerStatus(isOperative ? "Available" : "Unavailable");
                 }
-              ]
+                _websocket.send(CA);
+                break;
+              }
+
+              // Reservation
+              case "ReserveNow":
+                logMsg("ReserveNow");
+                var RN = JSON.stringify([3, id, { status: "Accepted" }]);
+                _websocket.send(RN);
+                // 發送預約狀態
+                triggerStatus("Reserved");
+                break;
+              case "CancelReservation":
+                var CR = JSON.stringify([3, id, { status: "Accepted" }]);
+                _websocket.send(CR);
+                logMsg("預約取消");
+                // 回到可用狀態
+                triggerStatus("Available");
+                break;
+              default:
+                var error = JSON.stringify([4, id]);
+                _websocket.send(error);
+                break;
             }
-          ]
-        };
-        
-        // 發送 MeterValues
-        sessionStorage.setItem("LastAction", "MeterValues");
-        const MV = JSON.stringify([
-          2, 
-          id,
-          "MeterValues",
-          meterValuePayload
-        ]);
-        
-        _websocket.send(MV);
-        logMsg(`📤 發送 Connector ${connectorId} 的 MeterValues (energy: ${meterValue.energy}, soc: ${meterValue.soc})`);
-      }
-
-      function logMsg(err) {
-        console.log(err);
-        $("#console").append("<li>" + err + "</li>");
-      }
-
-      function triggerStatusEVSE(status) {
-        const statusCheck = [
-          "Available", "Unavailable", "Faulted"
-        ]
-        if (statusCheck.includes(status)) {
-          document.getElementById("ConnectorStatus").value = status;
-          setTimeout(() => {
-            document.getElementById("status-connector").dispatchEvent(new Event("click"));
-          }, 300);
-          logMsg(`樁狀態切換: ${status}`);
-        }
-      }
-
-      function triggerStatus(status, connectorId) { 
-          // 如果沒有提供 connectorId，使用當前選中的 connectorId
-          if (connectorId === undefined || connectorId === null) {
-            connectorId = parseInt($("#CUID-connector").val());
           }
-          
-          // 更新狀態追蹤
-          connectorStatuses[connectorId] = status;
-          
-          // 如果當前 UI 選中的是這個 connectorId，更新 UI 顯示
-          const currentConnectorId = parseInt($("#CUID-connector").val());
-          if (currentConnectorId === connectorId) {
-            document.getElementById("ConnectorStatus-connector").value = status;
-            // 觸發 change 事件以觸發自動勾選邏輯和狀態通知
-            $("#ConnectorStatus-connector").trigger("change");
+        };
+
+        _websocket.onclose = function (evt) {
+          $("#connect").text("Connect").css("background", "#369");
+          if (evt.code == 3001) {
+            logMsg("ws closed");
+            _websocket = null;
           } else {
-            // 如果當前 UI 選中的不是這個 connectorId，直接管理定期發送，不觸發 UI change 事件
-            // 根據狀態和是否有 transactionId 來管理定期發送
-            if (status === "Charging" && transactionIds[connectorId] !== null) {
-              // 狀態變為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
-              startPeriodicMeterValues(connectorId);
-              logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
-            } else if (status !== "Charging") {
-              // 狀態變為非 Charging，停止定期發送
-              stopPeriodicMeterValues(connectorId);
-            }
-            
-            // 發送 StatusNotification（不依賴 UI）
-            const timestamp = getCurrentTimestamp();
-            const payload = {
-              connectorId: connectorId,
-              status: status,
-              errorCode: "NoError",
-              timestamp: timestamp.toISOString()
-            };
-            
-            // 檢查是否有 vendorErrorCode（從對應的輸入框取得）
-            let vendorErrorCode = "";
-            if (connectorId === 1) {
-              vendorErrorCode = $("#connector-vendorErrorCode").val();
-            } else if (connectorId === 2) {
-              // 如果有多個充電槍，可能需要不同的處理方式
-              vendorErrorCode = $("#connector-vendorErrorCode").val();
-            }
-            
-            if (vendorErrorCode && vendorErrorCode.trim() !== "") {
-              payload.vendorErrorCode = vendorErrorCode;
-            }
-            
-            sendOcppRequest("StatusNotification", payload);
-            logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${connectorId}, status=${status}`);
+            logMsg("ws connection error: " + evt.code);
+            $("#console").html("");
+            _websocket = null;
+            wsConnect();
           }
-       }
+        };
 
-      /**
-       * 重啟前保存當前狀態
-       * 從 UI 元素中讀取當前的充電樁和充電槍狀態
-       */
-      function saveStatusBeforeReset() {
-        // 保存充電樁狀態 (connectorId=0)
-        savedStatusBeforeReset.chargePointStatus = $("#ConnectorStatus").val();
-        
-        // 根據 CUID-connector 的值來判斷是哪一隻充電槍
-        const currentConnectorId = parseInt($("#CUID-connector").val());
-        const currentConnectorStatus = $("#ConnectorStatus-connector").val();
-        
-        // 保存當前設定的充電槍狀態
-        if (currentConnectorId === 1) {
-          savedStatusBeforeReset.connectorStatus = currentConnectorStatus;
-        } else if (currentConnectorId === 2) {
-          savedStatusBeforeReset.connector2Status = currentConnectorStatus;
+        _websocket.onerror = function (evt) {
+          if (_websocket.readyState == 1) {
+            $("#red").show();
+            logMsg("ws normal error: " + evt.type);
+          }
+        };
+      }
+    }
+
+
+    function checkResrvedStart() {
+      const currentStatus = $("#ConnectorStatus-connector").val();
+      if (currentStatus !== "Reserved") {
+        triggerStatus("Charging");
+      }
+    }
+
+    /**
+     * 根據 transactionId 找到對應的 connectorId
+     */
+    function findConnectorIdByTransactionId(transactionId) {
+      for (let connectorId in transactionIds) {
+        if (transactionIds[connectorId] == transactionId) {
+          return parseInt(connectorId);
         }
-        
-        // 為了支援兩隻充電槍，我們需要設定預設狀態
-        // 如果沒有設定第二隻充電槍的狀態，使用預設值
-        if (!savedStatusBeforeReset.connectorStatus) {
-          savedStatusBeforeReset.connectorStatus = "Available"; // 預設第一隻槍為 Available
-        }
-        if (!savedStatusBeforeReset.connector2Status) {
-          savedStatusBeforeReset.connector2Status = "Preparing"; // 預設第二隻槍為 Preparing
-        }
-        
-        logMsg(`💾 已保存重啟前狀態:`);
-        logMsg(`   充電樁 (connectorId=0): ${savedStatusBeforeReset.chargePointStatus}`);
-        logMsg(`   充電槍1 (connectorId=1): ${savedStatusBeforeReset.connectorStatus}`);
-        logMsg(`   充電槍2 (connectorId=2): ${savedStatusBeforeReset.connector2Status}`);
-        
-        // 將狀態保存到 sessionStorage 以防頁面刷新
-        sessionStorage.setItem("savedStatusBeforeReset", JSON.stringify(savedStatusBeforeReset));
+      }
+      return null;
+    }
+
+    /**
+     * 檢查指定 connectorId 是否正在充電
+     */
+    function isConnectorCharging(connectorId) {
+      return connectorLocked[connectorId] === true;
+    }
+
+    /**
+     * 啟動指定 connectorId 的定期發送 MeterValues
+     */
+    function startPeriodicMeterValues(connectorId) {
+      // 停止該 connectorId 的舊 handler（如果存在）
+      if (periodSendHandlers[connectorId]) {
+        clearInterval(periodSendHandlers[connectorId]);
+        periodSendHandlers[connectorId] = null;
       }
 
+      const meterValuesInterval = Number($("#meterValuesInterval").val()) || 10;
+      logMsg(`🔄 啟動 Connector ${connectorId} 的定期發送 MeterValues (間隔: ${meterValuesInterval}秒)`);
 
-      /**
-       * 重啟後發送線上狀態通知
-       * 恢復重啟前保存的充電樁和充電槍狀態
-       */
-      function sendOnlineStatusNotifications() {
-        const timestamp = getCurrentTimestamp();
-        
-        // 從 sessionStorage 讀取保存的狀態
-        const savedStatus = sessionStorage.getItem("savedStatusBeforeReset");
-        let statusToRestore = savedStatusBeforeReset;
-        
-        if (savedStatus) {
-          try {
-            statusToRestore = JSON.parse(savedStatus);
-            logMsg(`📖 從 sessionStorage 讀取保存的狀態: ` + statusToRestore);
-          } catch (e) {
-            logMsg(`⚠️ 讀取保存狀態失敗，使用預設狀態`);
+      periodSendHandlers[connectorId] = setInterval(() => {
+        // 使用該 connectorId 專屬的數值
+        meterValues[connectorId].energy += 50;
+        meterValues[connectorId].soc += 1;
+
+        // 發送該 connectorId 的 MeterValues
+        sendMeterValueForConnector(connectorId);
+      }, meterValuesInterval * 1000);
+    }
+
+    /**
+     * 停止指定 connectorId 的定期發送 MeterValues
+     */
+    function stopPeriodicMeterValues(connectorId) {
+      if (periodSendHandlers[connectorId]) {
+        clearInterval(periodSendHandlers[connectorId]);
+        periodSendHandlers[connectorId] = null;
+        logMsg(`⏹️ 停止 Connector ${connectorId} 的定期發送 MeterValues`);
+      }
+    }
+
+    /**
+     * 發送指定 connectorId 的 MeterValues
+     */
+    function sendMeterValueForConnector(connectorId) {
+      // 根據 connectorId 取得對應的 transactionId 和數值
+      const transactionId = transactionIds[connectorId];
+      const meterValue = meterValues[connectorId];
+
+      if (!transactionId) {
+        logMsg(`⚠️ Connector ${connectorId} 沒有 transactionId，跳過發送 MeterValues`);
+        return;
+      }
+
+      // 使用統一的時間取得函數
+      const sendDate = getCurrentTimestamp();
+      const disconnectMins = Number($("#disconnectMins").val()) || 0;
+      sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000);
+
+      // 建構 MeterValues payload
+      const meterValuePayload = {
+        connectorId: connectorId,
+        transactionId: transactionId,
+        meterValue: [
+          {
+            timestamp: sendDate.toISOString(),
+            sampledValue: [
+              {
+                value: $("#metervalueVoltage").val(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Voltage",
+                phase: "L1",
+                location: "Outlet",
+                unit: "V"
+              },
+              {
+                value: $("#metervalueCurrnet").val(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Current.Import",
+                phase: "L1",
+                location: "Outlet",
+                unit: "A"
+              },
+              {
+                value: $("#metervaluePower").val(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Power.Active.Import",
+                phase: null,
+                location: "Outlet",
+                unit: "W"
+              },
+              {
+                value: "38",
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Temperature",
+                phase: null,
+                location: "Body",
+                unit: "Celsius"
+              },
+              {
+                value: meterValue.soc.toString(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "SoC",
+                phase: null,
+                location: "EV",
+                unit: "Percent"
+              },
+              {
+                value: $("#metervaluePower").val(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Power.Offered",
+                phase: null,
+                location: "Outlet",
+                unit: "W"
+              },
+              {
+                value: meterValue.energy.toString(),
+                context: "Sample.Periodic",
+                format: null,
+                measurand: "Energy.Active.Import.Register",
+                phase: null,
+                location: "Outlet",
+                unit: "Wh"
+              }
+            ]
           }
+        ]
+      };
+
+      // 發送 MeterValues
+      sessionStorage.setItem("LastAction", "MeterValues");
+      const MV = JSON.stringify([
+        2,
+        id,
+        "MeterValues",
+        meterValuePayload
+      ]);
+
+      _websocket.send(MV);
+      logMsg(`📤 發送 Connector ${connectorId} 的 MeterValues (energy: ${meterValue.energy}, soc: ${meterValue.soc})`);
+    }
+
+    function logMsg(err) {
+      console.log(err);
+      $("#console").append("<li>" + err + "</li>");
+    }
+
+    function triggerStatusEVSE(status) {
+      const statusCheck = [
+        "Available", "Unavailable", "Faulted"
+      ]
+      if (statusCheck.includes(status)) {
+        document.getElementById("ConnectorStatus").value = status;
+        setTimeout(() => {
+          document.getElementById("status-connector").dispatchEvent(new Event("click"));
+        }, 300);
+        logMsg(`樁狀態切換: ${status}`);
+      }
+    }
+
+    function triggerStatus(status, connectorId) {
+      // 如果沒有提供 connectorId，使用當前選中的 connectorId
+      if (connectorId === undefined || connectorId === null) {
+        connectorId = parseInt($("#CUID-connector").val());
+      }
+
+      // 更新狀態追蹤
+      connectorStatuses[connectorId] = status;
+
+      // 如果當前 UI 選中的是這個 connectorId，更新 UI 顯示
+      const currentConnectorId = parseInt($("#CUID-connector").val());
+      if (currentConnectorId === connectorId) {
+        document.getElementById("ConnectorStatus-connector").value = status;
+        // 觸發 change 事件以觸發自動勾選邏輯和狀態通知
+        $("#ConnectorStatus-connector").trigger("change");
+      } else {
+        // 如果當前 UI 選中的不是這個 connectorId，直接管理定期發送，不觸發 UI change 事件
+        // 根據狀態和是否有 transactionId 來管理定期發送
+        if (status === "Charging" && transactionIds[connectorId] !== null) {
+          // 狀態變為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
+          startPeriodicMeterValues(connectorId);
+          logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
+        } else if (status !== "Charging") {
+          // 狀態變為非 Charging，停止定期發送
+          stopPeriodicMeterValues(connectorId);
         }
-        
-        // 發送充電樁狀態 (connectorId=0)
-        const cpStatus = statusToRestore.chargePointStatus || "Available";
-        const cpPayload = {
-          connectorId: 0,
-          status: cpStatus,
-          errorCode: "NoError", 
-          timestamp: timestamp.toISOString()
-        };
-        sendOcppRequest("StatusNotification", cpPayload);
-        logMsg(`📤 發送充電樁狀態: connectorId=0, status=${cpStatus}`);
-        
-        // 發送第一隻充電槍狀態 (connectorId=1)
-        const connector1Status = statusToRestore.connectorStatus || "Available";
-        const connector1Payload = {
-          connectorId: 1,
-          status: connector1Status,
+
+        // 發送 StatusNotification（不依賴 UI）
+        const timestamp = getCurrentTimestamp();
+        const payload = {
+          connectorId: connectorId,
+          status: status,
           errorCode: "NoError",
           timestamp: timestamp.toISOString()
         };
-        sendOcppRequest("StatusNotification", connector1Payload);
-        logMsg(`📤 發送充電槍1狀態: connectorId=1, status=${connector1Status}`);
-        
-        // 發送第二隻充電槍狀態 (connectorId=2) - 如果充電樁有兩隻槍
-        if (connectorCount >= 2) {
-          const connector2Status = statusToRestore.connector2Status || "Preparing";
-          const connector2Payload = {
-            connectorId: 2,
-            status: connector2Status,
-            errorCode: "NoError",
-            timestamp: timestamp.toISOString()
-          };
-          sendOcppRequest("StatusNotification", connector2Payload);
-          logMsg(`📤 發送充電槍2狀態: connectorId=2, status=${connector2Status}`);
+
+        // 檢查是否有 vendorErrorCode（從對應的輸入框取得）
+        let vendorErrorCode = "";
+        if (connectorId === 1) {
+          vendorErrorCode = $("#connector-vendorErrorCode").val();
+        } else if (connectorId === 2) {
+          // 如果有多個充電槍，可能需要不同的處理方式
+          vendorErrorCode = $("#connector-vendorErrorCode").val();
         }
-        
-        // 清除保存的狀態
-        savedStatusBeforeReset = {
-          chargePointStatus: null,
-          connectorStatus: null,
-          connector2Status: null
+
+        if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+          payload.vendorErrorCode = vendorErrorCode;
+        }
+
+        sendOcppRequest("StatusNotification", payload);
+        logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${connectorId}, status=${status}`);
+      }
+    }
+
+    /**
+     * 重啟前保存當前狀態
+     * 從 UI 元素中讀取當前的充電樁和充電槍狀態
+     */
+    function saveStatusBeforeReset() {
+      // 保存充電樁狀態 (connectorId=0)
+      savedStatusBeforeReset.chargePointStatus = $("#ConnectorStatus").val();
+
+      // 根據 CUID-connector 的值來判斷是哪一隻充電槍
+      const currentConnectorId = parseInt($("#CUID-connector").val());
+      const currentConnectorStatus = $("#ConnectorStatus-connector").val();
+
+      // 保存當前設定的充電槍狀態
+      if (currentConnectorId === 1) {
+        savedStatusBeforeReset.connectorStatus = currentConnectorStatus;
+      } else if (currentConnectorId === 2) {
+        savedStatusBeforeReset.connector2Status = currentConnectorStatus;
+      }
+
+      // 為了支援兩隻充電槍，我們需要設定預設狀態
+      // 如果沒有設定第二隻充電槍的狀態，使用預設值
+      if (!savedStatusBeforeReset.connectorStatus) {
+        savedStatusBeforeReset.connectorStatus = "Available"; // 預設第一隻槍為 Available
+      }
+      if (!savedStatusBeforeReset.connector2Status) {
+        savedStatusBeforeReset.connector2Status = "Preparing"; // 預設第二隻槍為 Preparing
+      }
+
+      logMsg(`💾 已保存重啟前狀態:`);
+      logMsg(`   充電樁 (connectorId=0): ${savedStatusBeforeReset.chargePointStatus}`);
+      logMsg(`   充電槍1 (connectorId=1): ${savedStatusBeforeReset.connectorStatus}`);
+      logMsg(`   充電槍2 (connectorId=2): ${savedStatusBeforeReset.connector2Status}`);
+
+      // 將狀態保存到 sessionStorage 以防頁面刷新
+      sessionStorage.setItem("savedStatusBeforeReset", JSON.stringify(savedStatusBeforeReset));
+    }
+
+
+    /**
+     * 重啟後發送線上狀態通知
+     * 恢復重啟前保存的充電樁和充電槍狀態
+     */
+    function sendOnlineStatusNotifications() {
+      const timestamp = getCurrentTimestamp();
+
+      // 從 sessionStorage 讀取保存的狀態
+      const savedStatus = sessionStorage.getItem("savedStatusBeforeReset");
+      let statusToRestore = savedStatusBeforeReset;
+
+      if (savedStatus) {
+        try {
+          statusToRestore = JSON.parse(savedStatus);
+          logMsg(`📖 從 sessionStorage 讀取保存的狀態: ` + statusToRestore);
+        } catch (e) {
+          logMsg(`⚠️ 讀取保存狀態失敗，使用預設狀態`);
+        }
+      }
+
+      // 發送充電樁狀態 (connectorId=0)
+      const cpStatus = statusToRestore.chargePointStatus || "Available";
+      const cpPayload = {
+        connectorId: 0,
+        status: cpStatus,
+        errorCode: "NoError",
+        timestamp: timestamp.toISOString()
+      };
+      sendOcppRequest("StatusNotification", cpPayload);
+      logMsg(`📤 發送充電樁狀態: connectorId=0, status=${cpStatus}`);
+
+      // 發送第一隻充電槍狀態 (connectorId=1)
+      const connector1Status = statusToRestore.connectorStatus || "Available";
+      const connector1Payload = {
+        connectorId: 1,
+        status: connector1Status,
+        errorCode: "NoError",
+        timestamp: timestamp.toISOString()
+      };
+      sendOcppRequest("StatusNotification", connector1Payload);
+      logMsg(`📤 發送充電槍1狀態: connectorId=1, status=${connector1Status}`);
+
+      // 發送第二隻充電槍狀態 (connectorId=2) - 如果充電樁有兩隻槍
+      if (connectorCount >= 2) {
+        const connector2Status = statusToRestore.connector2Status || "Preparing";
+        const connector2Payload = {
+          connectorId: 2,
+          status: connector2Status,
+          errorCode: "NoError",
+          timestamp: timestamp.toISOString()
         };
-        sessionStorage.removeItem("savedStatusBeforeReset");
+        sendOcppRequest("StatusNotification", connector2Payload);
+        logMsg(`📤 發送充電槍2狀態: connectorId=2, status=${connector2Status}`);
       }
 
-      function Authorize() {
-        sessionStorage.setItem("LastAction", "Authorize");
-        var Auth = JSON.stringify([
-          2,
-          id,
-          "Authorize",
-          { idTag: $("#TAG").val() },
-          // { idTag: "F0FDDD00C14A0000" },
-        ]);
-        _websocket.send(Auth);
-        // 移除 disabled 邏輯，允許在充電中切換充電槍進行授權
+      // 清除保存的狀態
+      savedStatusBeforeReset = {
+        chargePointStatus: null,
+        connectorStatus: null,
+        connector2Status: null
+      };
+      sessionStorage.removeItem("savedStatusBeforeReset");
+    }
+
+    function Authorize() {
+      sessionStorage.setItem("LastAction", "Authorize");
+      var Auth = JSON.stringify([
+        2,
+        id,
+        "Authorize",
+        { idTag: $("#TAG").val() },
+        // { idTag: "F0FDDD00C14A0000" },
+      ]);
+      _websocket.send(Auth);
+      // 移除 disabled 邏輯，允許在充電中切換充電槍進行授權
+    }
+
+    function startTransaction() {
+      sessionStorage.setItem("LastAction", "startTransaction");
+      $(".indicator").hide();
+      $("#green").show();
+      var connectorId = parseInt($("#CUID-connector").val());
+      console.log("connectorId", connectorId);
+
+      // 追蹤特定 connectorId 的鎖定狀態
+      connectorLocked[connectorId] = true;
+      // 更新狀態追蹤為 Charging
+      connectorStatuses[connectorId] = "Charging";
+
+      // 修正: 開始充電時，重置 internal meterValues state，確保從正確的起始值開始累加
+      // 避免保留上一次充電的累積數值
+      const initMeterValue = parseInt($("#metervalue").val()) || 0;
+      if (meterValues[connectorId]) {
+        meterValues[connectorId].energy = initMeterValue;
+        // 可選: 重置 SOC，這裡假設新充電 SOC 從 0 或特定值開始，視需求而定
+        // meterValues[connectorId].soc = 0; 
+      } else {
+        meterValues[connectorId] = { energy: initMeterValue, soc: 0 };
+      }
+      logMsg(`Connector ${connectorId} status changed to: locked (充電中), Meter 重置為: ${initMeterValue}`);
+
+      // 使用統一的時間取得函數
+      const timestamp = getCurrentTimestamp();
+      const startPayload = {
+        connectorId: connectorId,
+        idTag: $("#TAG").val(),
+        // idTag: "",
+        timestamp: timestamp.toISOString(),
+        meterStart: parseInt($("#metervalue").val()),
+        // reservationId: 0,
+      };
+
+      // 使用 sendOcppRequest 以便正確追蹤請求（用於回應時取得 connectorId）
+      const sentJson = sendOcppRequest("StartTransaction", startPayload);
+      console.log("start strtT = ", sentJson);
+      // 移除 disabled 邏輯，允許在充電中切換充電槍
+
+      // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
+      // 這裡不立即啟動，等待回應確認交易成功後再啟動
+
+      setTimeout(() => {
+        console.log("晚個五秒");
+        checkResrvedStart();
+      }, 1000);
+    }
+
+    function stopTransaction() {
+      sessionStorage.setItem("LastAction", "stopTransaction");
+      $(".indicator").hide();
+
+      // 取得當前選中的 connectorId
+      const connectorId = parseInt($("#CUID-connector").val());
+
+      // 從 transactionIds 物件取得對應的 transactionId
+      const transactionId = transactionIds[connectorId];
+      if (!transactionId) {
+        logMsg(`⚠️ 警告: Connector ${connectorId} 沒有找到對應的 transactionId，使用 UI 顯示的值`);
       }
 
-      function startTransaction() {
-        sessionStorage.setItem("LastAction", "startTransaction");
-        $(".indicator").hide();
-        $("#green").show();
-        var connectorId = parseInt($("#CUID-connector").val());
-        console.log("connectorId", connectorId);
-        
-        // 追蹤特定 connectorId 的鎖定狀態
-        connectorLocked[connectorId] = true;
-        // 更新狀態追蹤為 Charging
-        connectorStatuses[connectorId] = "Charging";
-        logMsg(`Connector ${connectorId} status changed to: locked (充電中)`);
-        
-        // 使用統一的時間取得函數
-        const timestamp = getCurrentTimestamp();
-        const startPayload = {
-          connectorId: connectorId,
+      // 使用對應的 transactionId，如果沒有則使用 UI 顯示的值（向後兼容）
+      const finalTransactionId = transactionId || Number($("#transactionId").val());
+
+      // 更新對應 connectorId 的鎖定狀態
+      connectorLocked[connectorId] = false;
+      // 更新狀態追蹤（根據當前狀態，可能是 Finishing 或其他）
+      const currentStatus = connectorStatuses[connectorId] || "Finishing";
+      connectorStatuses[connectorId] = currentStatus;
+      logMsg(`Connector ${connectorId} status changed to: unlocked (充電結束)`);
+      $("#yellow").show();
+
+      // 新增功能: 調整充電時間
+      // 使用統一的時間取得函數
+      const timestamp = getCurrentTimestamp();
+      const duraionMin = $("#duration").val();
+      console.log("duraionMin = ", duraionMin);
+      let duration = parseInt(duraionMin, 10) * 60 * 1000;
+      let stopTime = new Date(timestamp.getTime() + duration);
+      console.log("stopTime = ", stopTime);
+
+      // 修正: 優先使用模擬器內部累積的電量值 (meterValues state)，避免 stopMeter 小於中間傳送的 meterValues
+      // 如果找不到對應的 connector 數值，才降級使用 UI 輸入框的值
+      const accumulatedEnergy = meterValues[connectorId] ? meterValues[connectorId].energy : null;
+      const meterStopValue = accumulatedEnergy !== null ? accumulatedEnergy : parseInt($("#metervalue").val());
+
+      var stpT = JSON.stringify([
+        2,
+        id,
+        "StopTransaction",
+        {
+          transactionId: finalTransactionId,
           idTag: $("#TAG").val(),
-          // idTag: "",
-          timestamp: timestamp.toISOString(),
-          meterStart: parseInt($("#metervalue").val()),
-          // reservationId: 0,
-        };
-        
-        // 使用 sendOcppRequest 以便正確追蹤請求（用於回應時取得 connectorId）
-        const sentJson = sendOcppRequest("StartTransaction", startPayload);
-        console.log("start strtT = ", sentJson);
-        // 移除 disabled 邏輯，允許在充電中切換充電槍
-        
-        // 注意：定期發送會在 StartTransaction 回應後，根據狀態自動啟動
-        // 這裡不立即啟動，等待回應確認交易成功後再啟動
+          timestamp: stopTime.toISOString(),
+          meterStop: meterStopValue,
+        },
+      ]);
+      _websocket.send(stpT);
 
-        setTimeout(() => {
-          console.log("晚個五秒");
-          checkResrvedStart();
-        }, 1000);
+      // 停止該 connectorId 的定期發送
+      stopPeriodicMeterValues(connectorId);
+
+      // 清除該 connectorId 的 transactionId
+      transactionIds[connectorId] = null;
+
+      // 移除 disabled 邏輯，允許切換充電槍
+    }
+
+    function handleData(data, request = false) {
+      var lastAction = getLastAction();
+      if ((lastAction = "BootNotification")) {
+        data = data[2];
+        heartbeat_interval = "40";
+        return heartbeat_interval;
+      } else if ((lastAction = "StartTransaction")) {
+        return "StartTransaction";
+      } else if (1 == 2) {
+        alert("else");
       }
+    }
 
-      function stopTransaction() {
-        sessionStorage.setItem("LastAction", "stopTransaction");
-        $(".indicator").hide();
-        
-        // 取得當前選中的 connectorId
-        const connectorId = parseInt($("#CUID-connector").val());
-        
-        // 從 transactionIds 物件取得對應的 transactionId
-        const transactionId = transactionIds[connectorId];
-        if (!transactionId) {
-          logMsg(`⚠️ 警告: Connector ${connectorId} 沒有找到對應的 transactionId，使用 UI 顯示的值`);
-        }
-        
-        // 使用對應的 transactionId，如果沒有則使用 UI 顯示的值（向後兼容）
-        const finalTransactionId = transactionId || Number($("#transactionId").val());
-        
-        // 更新對應 connectorId 的鎖定狀態
-        connectorLocked[connectorId] = false;
-        // 更新狀態追蹤（根據當前狀態，可能是 Finishing 或其他）
-        const currentStatus = connectorStatuses[connectorId] || "Finishing";
-        connectorStatuses[connectorId] = currentStatus;
-        logMsg(`Connector ${connectorId} status changed to: unlocked (充電結束)`);
-        $("#yellow").show();
+    function getLastAction() {
+      var LastAction = sessionStorage.getItem("LastAction");
+      return LastAction;
+    }
 
-        // 新增功能: 調整充電時間
+    function BootNotification() {
+      var BN = JSON.stringify([
+        2,
+        id,
+        "BootNotification",
+        {
+          chargePointVendor: "AVT-Company",
+          chargePointModel: "AVT-Express",
+          chargePointSerialNumber: "avt.001.13.1",
+          chargeBoxSerialNumber: "avt.001.13.1.01",
+          firmwareVersion: "0.9.87",
+          iccid: "",
+          imsi: "",
+          meterType: "AVT NQC-ACDC",
+          meterSerialNumber: "avt.001.13.1.01",
+        },
+      ]);
+
+      logMsg("ws connected");
+
+      _websocket.send(BN);
+    }
+
+    function startHB(interval) {
+      logMsg("Setting heartbeat interval to " + interval);
+      setInterval(send_heartbeat, interval);
+    }
+
+    function send_heartbeat() {
+      sessionStorage.setItem("LastAction", "Heartbeat");
+      var HB = JSON.stringify([2, id, "Heartbeat", {}]);
+      _websocket.send(HB);
+    }
+
+    function send_meterValue() {
+      console.log("mv");
+
+      sessionStorage.setItem("LastAction", "MeterValues");
+      var MV = JSON.stringify([
+        2,
+        id,
+        "MeterValues",
+        JSON.parse($("#metervalueDisplay").text().trim())
+      ]);
+
+      _websocket.send(MV);
+    }
+
+    $(document).ready(function () {
+
+      // 定期更新顯示
+      const meterValueInterval = setInterval(() => {
+        const disconnectMins = Number($(`#disconnectMins`).val())
+
         // 使用統一的時間取得函數
-        const timestamp = getCurrentTimestamp();
-        const duraionMin = $("#duration").val();
-        console.log("duraionMin = ", duraionMin);
-        let duration = parseInt(duraionMin, 10) * 60 * 1000;
-        let stopTime = new Date(timestamp.getTime() + duration);
-        console.log("stopTime = ", stopTime);
+        const sendDate = getCurrentTimestamp();
+        sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
 
-        var stpT = JSON.stringify([
-          2,
-          id,
-          "StopTransaction",
-          {
-            transactionId: finalTransactionId,
-            idTag: $("#TAG").val(),
-            timestamp: stopTime.toISOString(),
-            meterStop: parseInt($("#metervalue").val()),
-          },
-        ]);
-        _websocket.send(stpT);
-        
-        // 停止該 connectorId 的定期發送
-        stopPeriodicMeterValues(connectorId);
-        
-        // 清除該 connectorId 的 transactionId
-        transactionIds[connectorId] = null;
-        
-        // 移除 disabled 邏輯，允許切換充電槍
-      }
+        // 根據當前選中的 connectorId 從 transactionIds 物件取得對應的 transactionId
+        const currentConnectorId = parseInt($("#CUID-connector").val());
+        const currentTransactionId = transactionIds[currentConnectorId] || $("#transactionId").val();
 
-      function handleData(data, request = false) {
-        var lastAction = getLastAction();
-        if ((lastAction = "BootNotification")) {
-          data = data[2];
-          heartbeat_interval = "40";
-          return heartbeat_interval;
-        } else if ((lastAction = "StartTransaction")) {
-          return "StartTransaction";
-        } else if (1 == 2) {
-          alert("else");
-        }
-      }
-
-      function getLastAction() {
-        var LastAction = sessionStorage.getItem("LastAction");
-        return LastAction;
-      }
-
-      function BootNotification() {
-        var BN = JSON.stringify([
-          2,
-          id,
-          "BootNotification",
-          {
-            chargePointVendor: "AVT-Company",
-            chargePointModel: "AVT-Express",
-            chargePointSerialNumber: "avt.001.13.1",
-            chargeBoxSerialNumber: "avt.001.13.1.01",
-            firmwareVersion: "0.9.87",
-            iccid: "",
-            imsi: "",
-            meterType: "AVT NQC-ACDC",
-            meterSerialNumber: "avt.001.13.1.01",
-          },
-        ]);
-
-        logMsg("ws connected");
-
-        _websocket.send(BN);
-      }
-
-      function startHB(interval) {
-        logMsg("Setting heartbeat interval to " + interval);
-        setInterval(send_heartbeat, interval);
-      }
-
-      function send_heartbeat() {
-        sessionStorage.setItem("LastAction", "Heartbeat");
-        var HB = JSON.stringify([2, id, "Heartbeat", {}]);
-        _websocket.send(HB);
-      }
-
-      function send_meterValue() {
-        console.log("mv");
-
-        sessionStorage.setItem("LastAction", "MeterValues");
-        var MV = JSON.stringify([
-          2, 
-          id,
-          "MeterValues",
-          JSON.parse($("#metervalueDisplay").text().trim())
-        ]);
-
-        _websocket.send(MV);
-      }
-
-      $(document).ready(function () {
-
-        // 定期更新顯示
-        const meterValueInterval = setInterval(() => {
-          const disconnectMins = Number($(`#disconnectMins`).val())
-
-          // 使用統一的時間取得函數
-          const sendDate = getCurrentTimestamp();
-          sendDate.setTime(sendDate.getTime() - disconnectMins * 60 * 1000)
-          
-          // 根據當前選中的 connectorId 從 transactionIds 物件取得對應的 transactionId
-          const currentConnectorId = parseInt($("#CUID-connector").val());
-          const currentTransactionId = transactionIds[currentConnectorId] || $("#transactionId").val();
-          
-          $("#metervalueDisplay").text(`
+        $("#metervalueDisplay").text(`
             {
                 "connectorId": ${currentConnectorId},
                 "transactionId": ${currentTransactionId},
@@ -1763,103 +1715,91 @@
                 ]
             }
           `)
-        }, 2000);
+      }, 2000);
 
-        $(".indicator").hide();
-        $("#red").show();
+      $(".indicator").hide();
+      $("#red").show();
 
-        // 自動同步時間開關
-        $("#auto-sync-time").on("change", function() {
-          if ($(this).is(":checked")) {
-            logMsg("🔄 已啟用自動同步系統時間，將在下次 Heartbeat 回應時同步");
-            $("#time-mode-indicator").text("模式: 等待同步...").css("color", "#f39c12");
-          } else {
-            // 取消自動同步時，如果當前是自動同步模式，則恢復實際時間
-            if ($("#time-mode-indicator").text().includes("自動同步")) {
-              useCustomTime = false;
-              baseTimestamp = null;
-              baseRealTime = null;
-              $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
-              $("#last-sync-time").text("");
-              logMsg("已取消自動同步，恢復使用實際時間");
-            }
-          }
-        });
-
-        // 手動套用基準時間按鈕
-        $("#apply-base-time").click(function() {
-          const inputValue = $("#base-timestamp").val();
-          if (!inputValue) {
-            alert("請先選擇時間！");
-            return;
-          }
-          
-          // 如果啟用了自動同步，先取消它
-          if ($("#auto-sync-time").is(":checked")) {
-            $("#auto-sync-time").prop("checked", false);
+      // 自動同步時間開關
+      $("#auto-sync-time").on("change", function () {
+        if ($(this).is(":checked")) {
+          logMsg("🔄 已啟用自動同步系統時間，將在下次 Heartbeat 回應時同步");
+          $("#time-mode-indicator").text("模式: 等待同步...").css("color", "#f39c12");
+        } else {
+          // 取消自動同步時，如果當前是自動同步模式，則恢復實際時間
+          if ($("#time-mode-indicator").text().includes("自動同步")) {
+            useCustomTime = false;
+            baseTimestamp = null;
+            baseRealTime = null;
+            $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
             $("#last-sync-time").text("");
+            logMsg("已取消自動同步，恢復使用實際時間");
           }
-          
-          // 將 datetime-local 的值轉換為 Date 物件（本地時間）
-          baseTimestamp = new Date(inputValue);
-          // 記錄按下按鈕時的實際時間
-          baseRealTime = Date.now();
-          // 啟用自訂時間模式
-          useCustomTime = true;
-          
-          $("#time-mode-indicator").text("模式: 手動設定").css("color", "#27a3ac");
-          logMsg(`已手動套用基準時間: ${baseTimestamp.toISOString()} (UTC)`);
-          console.log("baseTimestamp:", baseTimestamp);
-          console.log("baseRealTime:", new Date(baseRealTime));
-        });
+        }
+      });
 
-        // 恢復實際時間按鈕
-        $("#reset-base-time").click(function() {
-          useCustomTime = false;
-          baseTimestamp = null;
-          baseRealTime = null;
+      // 手動套用基準時間按鈕
+      $("#apply-base-time").click(function () {
+        const inputValue = $("#base-timestamp").val();
+        if (!inputValue) {
+          alert("請先選擇時間！");
+          return;
+        }
+
+        // 如果啟用了自動同步，先取消它
+        if ($("#auto-sync-time").is(":checked")) {
           $("#auto-sync-time").prop("checked", false);
-          $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
           $("#last-sync-time").text("");
-          logMsg("已恢復使用實際時間模式");
-        });
+        }
 
-        // 是否定期發送? (手動控制，主要用於 UI 顯示)
-        // 注意：實際的定期發送現在由狀態自動管理，此 checkbox 主要作為手動控制選項
-        $(`#isPeriodSend`).on("change", function() {
-          const connectorId = parseInt($("#CUID-connector").val());
-          if ($(this).is(":checked")) {
-            // 手動啟動當前選中 connectorId 的定期發送
-            const currentStatus = $("#ConnectorStatus-connector").val();
-            if (currentStatus === "Charging") {
-              startPeriodicMeterValues(connectorId);
-            } else {
-              logMsg(`⚠️ 當前狀態不是 Charging，無法啟動定期發送`);
-              $(this).prop("checked", false);
-            }
+        // 將 datetime-local 的值轉換為 Date 物件（本地時間）
+        baseTimestamp = new Date(inputValue);
+        // 記錄按下按鈕時的實際時間
+        baseRealTime = Date.now();
+        // 啟用自訂時間模式
+        useCustomTime = true;
+
+        $("#time-mode-indicator").text("模式: 手動設定").css("color", "#27a3ac");
+        logMsg(`已手動套用基準時間: ${baseTimestamp.toISOString()} (UTC)`);
+        console.log("baseTimestamp:", baseTimestamp);
+        console.log("baseRealTime:", new Date(baseRealTime));
+      });
+
+      // 恢復實際時間按鈕
+      $("#reset-base-time").click(function () {
+        useCustomTime = false;
+        baseTimestamp = null;
+        baseRealTime = null;
+        $("#auto-sync-time").prop("checked", false);
+        $("#time-mode-indicator").text("模式: 實際時間").css("color", "#999");
+        $("#last-sync-time").text("");
+        logMsg("已恢復使用實際時間模式");
+      });
+
+      // 是否定期發送? (手動控制，主要用於 UI 顯示)
+      // 注意：實際的定期發送現在由狀態自動管理，此 checkbox 主要作為手動控制選項
+      $(`#isPeriodSend`).on("change", function () {
+        const connectorId = parseInt($("#CUID-connector").val());
+        if ($(this).is(":checked")) {
+          // 手動啟動當前選中 connectorId 的定期發送
+          const currentStatus = $("#ConnectorStatus-connector").val();
+          if (currentStatus === "Charging") {
+            startPeriodicMeterValues(connectorId);
           } else {
-            // 手動停止當前選中 connectorId 的定期發送
-            stopPeriodicMeterValues(connectorId);
+            logMsg(`⚠️ 當前狀態不是 Charging，無法啟動定期發送`);
+            $(this).prop("checked", false);
           }
-        })
+        } else {
+          // 手動停止當前選中 connectorId 的定期發送
+          stopPeriodicMeterValues(connectorId);
+        }
+      })
 
-        // 自動勾選定期發送 toggle switch 的處理
-        // 注意：現在定期發送由狀態自動管理，此 toggle 主要控制 UI checkbox 的自動勾選
-        $("#autoPeriodSendToggle").on("change", function() {
-          if ($(this).is(":checked")) {
-            // 當 toggle switch 開啟時，根據當前狀態自動設置 checkbox（僅 UI 顯示）
-            const currentStatus = $("#ConnectorStatus-connector").val();
-            if (currentStatus === "Charging") {
-              $("#isPeriodSend").prop("checked", true);
-            } else {
-              $("#isPeriodSend").prop("checked", false);
-            }
-          }
-          // 當 toggle switch 關閉時，不自動修改 checkbox，保持用戶的選擇
-        })
-
-        // 頁面載入時，如果 toggle 預設開啟，根據當前狀態初始化 checkbox
-        if ($("#autoPeriodSendToggle").is(":checked")) {
+      // 自動勾選定期發送 toggle switch 的處理
+      // 注意：現在定期發送由狀態自動管理，此 toggle 主要控制 UI checkbox 的自動勾選
+      $("#autoPeriodSendToggle").on("change", function () {
+        if ($(this).is(":checked")) {
+          // 當 toggle switch 開啟時，根據當前狀態自動設置 checkbox（僅 UI 顯示）
           const currentStatus = $("#ConnectorStatus-connector").val();
           if (currentStatus === "Charging") {
             $("#isPeriodSend").prop("checked", true);
@@ -1867,346 +1807,359 @@
             $("#isPeriodSend").prop("checked", false);
           }
         }
-        // 新增為 Inputbox 修改也更新 Interval 事件
-        // 當間隔時間改變時，重新啟動所有正在運行的定期發送
-        $("#meterValuesInterval").on("change", () => {
-          // 重新啟動所有正在充電的充電槍的定期發送（使用新的間隔時間）
-          for (let connectorId in periodSendHandlers) {
-            if (periodSendHandlers[connectorId] !== null) {
-              // 該 connectorId 正在定期發送，重新啟動以使用新的間隔時間
-              const connectorStatus = $("#ConnectorStatus-connector").val();
-              const currentConnectorId = parseInt($("#CUID-connector").val());
-              // 檢查該 connectorId 是否正在充電（通過檢查 connectorLocked）
-              if (connectorLocked[connectorId] === true) {
-                startPeriodicMeterValues(parseInt(connectorId));
-              }
+        // 當 toggle switch 關閉時，不自動修改 checkbox，保持用戶的選擇
+      })
+
+      // 頁面載入時，如果 toggle 預設開啟，根據當前狀態初始化 checkbox
+      if ($("#autoPeriodSendToggle").is(":checked")) {
+        const currentStatus = $("#ConnectorStatus-connector").val();
+        if (currentStatus === "Charging") {
+          $("#isPeriodSend").prop("checked", true);
+        } else {
+          $("#isPeriodSend").prop("checked", false);
+        }
+      }
+      // 新增為 Inputbox 修改也更新 Interval 事件
+      // 當間隔時間改變時，重新啟動所有正在運行的定期發送
+      $("#meterValuesInterval").on("change", () => {
+        // 重新啟動所有正在充電的充電槍的定期發送（使用新的間隔時間）
+        for (let connectorId in periodSendHandlers) {
+          if (periodSendHandlers[connectorId] !== null) {
+            // 該 connectorId 正在定期發送，重新啟動以使用新的間隔時間
+            const connectorStatus = $("#ConnectorStatus-connector").val();
+            const currentConnectorId = parseInt($("#CUID-connector").val());
+            // 檢查該 connectorId 是否正在充電（通過檢查 connectorLocked）
+            if (connectorLocked[connectorId] === true) {
+              startPeriodicMeterValues(parseInt(connectorId));
             }
           }
-        })
+        }
+      })
 
-        // 定期發送提示框顯示
-        $("#meterInterInfo").on("mouseover", function() {
-          $(`#meterValueInfoContainer`).css("display", "block");
-        })
-        $("#meterInterInfo").on("mouseout", function() {
-          $(`#meterValueInfoContainer`).css("display", "none");
-        })
+      // 定期發送提示框顯示
+      $("#meterInterInfo").on("mouseover", function () {
+        $(`#meterValueInfoContainer`).css("display", "block");
+      })
+      $("#meterInterInfo").on("mouseout", function () {
+        $(`#meterValueInfoContainer`).css("display", "none");
+      })
 
-        //bind controls
-        $("#connect").click(function () {
-          console.log("連線按鈕被點擊");
-          $(".indicator").hide();
-          $("#console").html("");
-          if (!_websocket) {
-            wsConnect();
-          } else {
-            _websocket.close(3001);
-            _websocket = null;
-            $("#connect").text("Connect").css("background", "#369");
-          }
-        });
-
-        $("#send").click(function () {
-          Authorize();
-        });
-
-        // 測試特殊流程
-        $("#test-flow-btn").click(function () {
-/**
-1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
-    2025-07-23 15:01:23.060 StatusNotification['Finishing']
-    <- 2025-07-23 15:01:23.061 回應
-(相隔約0.2秒)
-2. 結束交易前, 最後一筆 MeterValues
-    2025-07-23 15:01:23.217 MeterValues
-    <- 2025-07-23 15:01:23.218 回應
-(相隔約0.15秒)
-3. 結束交易處理
-    2025-07-23 15:01:23.355
-    <- 2025-07-23 15:01:23.356 回應
-(相隔約1.5秒)
-4. 結束交易後拔槍(Available)
-    2025-07-23 15:01:24.850 StatusNotification['Available']
-    <- 2025-07-23 15:01:27.296 回應
-(相隔約6秒)
-5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
-    2025-07-23 15:02:33.777
-    <- 2025-07-23 15:02:33.778 回應
-(相隔約5秒)
-6. 故障後狀態都回來空閑(Available): ConnectorId是2的, 0跟1也有一起傳
-    2025-07-23 15:02:38.077
-    <- ??? 回應
-*/
-          // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
-          $("#connector-vendorErrorCode").val("0x200205");
-          triggerStatus("Finishing");
-
-          // 2. 結束交易前, 最後一筆 MeterValues
-          send_meterValue();
-
-          // 4. 結束交易後拔槍(Available)
-          $("#connector-vendorErrorCode").val("");
-          triggerStatus("Available");
-
-          // 3. 結束交易處理
-          // stopTransaction();
-
-          // 5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
-          /*
-          setTimeout(() => {
-            // 三筆陸續傳入故障
-            [0, 1, 2].forEach(connectorId => {
-              $("#CUID-connector").val(connectorId);
-              setTimeout(() => {
-                $("#connector-vendorErrorCode").val("0x10020c");
-                triggerStatus("Faulted");
-              }, 150)
-            });
-          }, 1500 + 6000);
-          */
-
-          /*
-          // 6. 故障後狀態都回來空閑(Available)
-          setTimeout(() => {    
-            // 三筆陸續傳入故障
-            [0, 1, 2].forEach(connectorId => {
-              setTimeout(() => {
-                $("#CUID-connector").val(connectorId);
-                $("#connector-vendorErrorCode").val("");
-                triggerStatus("Available");
-              }, 150)
-            });
-          }, 1500 + 6000 + 5000); 
-          */
-
-        });
-
-        $("#start").click(function () {
-          // 調整狀態為充電中, 觸發按鈕事件
-          startTransaction();
-        });
-
-        $("#stop").click(function () {
-          // 調整狀態為結束充電, 觸發按鈕事件
-          stopTransaction();
-          setTimeout(() => {
-            console.log("晚個五秒");
-            triggerStatus("Finishing");
-          }, 5000);
-        });
-        $("#mv").click(function () {
-          send_meterValue();
-        });
-        $("#mvp").click(function () {
-          var i = Number($("#meterInterval").val());
-          var timesRun = 0;
-          var interval = setInterval(function () {
-            timesRun += 1;
-            var val = Number($("#metervalue").val());
-            var incrementvalue = Number($("#meterIncrement").val());
-            var counter = Number($("#meterSendTimes").val());
-            var Myelement = document.getElementById("metervalue");
-            console.log(Myelement.value);
-            Myelement.value = (val + incrementvalue).toString();;
-            console.log("mvp", val, incrementvalue, interval, counter);
-            if (timesRun === counter) {
-              timesRun = 0;
-              clearInterval(interval);
-            }
-            //do whatever here..
-            send_meterValue();
-          }, i);
-        });
-
-        $("#heartbeat").click(function () {
-          send_heartbeat();
-        });
-
-        $("#ConnectorStatus").on("change", function() {
-          $("#status").click();
-        });
-
-        $("#status").click(function () {
-          sessionStorage.setItem("LastAction", "StatusNotification");
-
-          // 使用統一的時間取得函數
-          const timestamp = getCurrentTimestamp();
-          
-          // 建構 StatusNotification payload，只包含有值的欄位
-          const payload = {
-            connectorId: parseInt($("#CUID").val()),
-            status: $("#ConnectorStatus").val(),
-            errorCode: "NoError",
-            timestamp: timestamp.toISOString()
-          };
-          
-          // 只有當 vendorErrorCode 有值時才加入
-          const vendorErrorCode = $("#cp-vendorErrorCode").val();
-          if (vendorErrorCode && vendorErrorCode.trim() !== "") {
-            payload.vendorErrorCode = vendorErrorCode;
-          }
-          
-          // 使用追蹤函數發送
-          const sentJson = sendOcppRequest("StatusNotification", payload);
-          
-          console.log(`📤 [充電樁] 發送 StatusNotification:`);
-          console.log(`   MessageId: ${id}`);
-          console.log(`   Payload:`, payload);
-          console.log(`   完整JSON: ${sentJson}`);
-          logMsg(`📤 發送 StatusNotification (充電樁): connectorId=${payload.connectorId}, status=${payload.status}`);
-        });
-
-        $("#ConnectorStatus-connector").on("change", function() {
-          // 取得當前選中的 connectorId
-          const connectorId = parseInt($("#CUID-connector").val());
-          const currentStatus = $(this).val();
-          
-          // 更新狀態追蹤
-          connectorStatuses[connectorId] = currentStatus;
-          
-          // 根據狀態和是否有 transactionId 來管理定期發送
-          if (currentStatus === "Charging" && transactionIds[connectorId] !== null) {
-            // 狀態轉換為 Charging 且該 connectorId 有 transactionId（正在充電），自動啟動定期發送
-            startPeriodicMeterValues(connectorId);
-            logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
-          } else {
-            // 狀態轉換為非 Charging 狀態時，停止該 connectorId 的定期發送
-            stopPeriodicMeterValues(connectorId);
-          }
-          
-          // 自動勾選/取消勾選「是否定期發送?」的邏輯（UI 顯示用）
-          const autoToggleEnabled = $("#autoPeriodSendToggle").is(":checked");
-          if (autoToggleEnabled) {
-            if (currentStatus === "Charging") {
-              // 狀態轉換為 Charging 時，自動勾選「是否定期發送?」
-              $("#isPeriodSend").prop("checked", true);
-            } else {
-              // 狀態轉換為 Finishing 或非 Charging 狀態時，自動取消勾選「是否定期發送?」
-              $("#isPeriodSend").prop("checked", false);
-            }
-          }
-          
-          $("#status-connector").click();
-        });
-
-        $("#status-connector").click(function () {
-          sessionStorage.setItem("LastAction", "StatusNotification");
-
-          // 使用統一的時間取得函數
-          const timestamp = getCurrentTimestamp();
-          
-          // 取得 connectorId 和狀態
-          const connectorId = parseInt($("#CUID-connector").val());
-          const status = $("#ConnectorStatus-connector").val();
-          
-          // 更新狀態追蹤
-          connectorStatuses[connectorId] = status;
-          
-          // 建構 StatusNotification payload，只包含有值的欄位
-          const payload = {
-            connectorId: connectorId,
-            status: status,
-            errorCode: "NoError",
-            timestamp: timestamp.toISOString()
-          };
-          
-          // 只有當 vendorErrorCode 有值時才加入
-          const vendorErrorCode = $("#connector-vendorErrorCode").val();
-          if (vendorErrorCode && vendorErrorCode.trim() !== "") {
-            payload.vendorErrorCode = vendorErrorCode;
-          }
-          
-          // 使用追蹤函數發送
-          const sentJson = sendOcppRequest("StatusNotification", payload);
-          
-          console.log(`📤 [充電槍] 發送 StatusNotification:`);
-          console.log(`   MessageId: ${id}`);
-          console.log(`   Payload:`, payload);
-          console.log(`   完整JSON: ${sentJson}`);
-          logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${payload.connectorId}, status=${payload.status}`);
-          
-          // 根據狀態和是否有 transactionId 來管理定期發送
-          if (status === "Charging" && transactionIds[connectorId] !== null) {
-            // 狀態為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
-            startPeriodicMeterValues(connectorId);
-          } else {
-            // 狀態為非 Charging，停止定期發送
-            stopPeriodicMeterValues(connectorId);
-          }
-        });
-
-        $("#data_transfer").click(function () {
-          sessionStorage.setItem("LastAction", "DataTransfer");
-          var DT = JSON.stringify([
-            2,
-            id,
-            "DataTransfer",
-            {
-              vendorId: "rus.avt.cp",
-              messageId: "GetChargeInstruction",
-              data: "",
-            },
-          ]);
-          _websocket.send(DT);
-        });
-
-        // hsiwei{5/35}:新增韌體相關按鈕監聽事件
-        $("#Diagnostics-Status-Notification").click(function() {
-          sessionStorage.setItem("LastAction", "DiagnosticsStatusNotification");
-          var DT = JSON.stringify([
-            2,
-            id,
-            "DiagnosticsStatusNotification",
-            {
-              status: $("#DiagnosticsStatus").val()
-            },
-          ]);
-          _websocket.send(DT);
-        });
-
-        // hsiwei{5/35}:新增韌體相關按鈕監聽事件
-        $("#Firmware-Status-Notification").click(function() {
-          sessionStorage.setItem("LastAction", "FirmwareStatusNotification");
-          var DT = JSON.stringify([
-            2,
-            id,
-            "FirmwareStatusNotification",
-            {
-              status: $("#FirmwareStatus").val()
-            },
-          ]);
-          _websocket.send(DT);
-        });
-
-        // hsiwei{3/14}:新增自定義測試用送出訊息按鈕
-        $("#cus-send").click(function() {
-          var message = $("#message-input").val();
-          console.log("message = ", message);
-
-          // 送出訊息
-          _websocket.send(message.trim());
-          alert("送出訊息");
-        });
-
-        // hsiwei{3/14}:修改input內容連動顯示內容
-        $("#message-input").change(function(e) {
-          var message = $(this).val();
-          console.log("message = ", message);
-          try {
-            var json = JSON.parse(message);
-            $("#message-preview").text(json);
-          } catch (e) {
-            console.error("error = ", e);
-            $("#message-preview").text(message);
-          }
-        })
-
-        $("#connect").on("change", function () {
-          if (_websocket) {
-            _websocket.close(3001);
-          }
-        });
+      //bind controls
+      $("#connect").click(function () {
+        console.log("連線按鈕被點擊");
+        $(".indicator").hide();
+        $("#console").html("");
+        if (!_websocket) {
+          wsConnect();
+        } else {
+          _websocket.close(3001);
+          _websocket = null;
+          $("#connect").text("Connect").css("background", "#369");
+        }
       });
-    </script>
-  </body>
+
+      $("#send").click(function () {
+        Authorize();
+      });
+
+      // 測試特殊流程
+      $("#test-flow-btn").click(function () {
+        /**
+        1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+            2025-07-23 15:01:23.060 StatusNotification['Finishing']
+            <- 2025-07-23 15:01:23.061 回應
+        (相隔約0.2秒)
+        2. 結束交易前, 最後一筆 MeterValues
+            2025-07-23 15:01:23.217 MeterValues
+            <- 2025-07-23 15:01:23.218 回應
+        (相隔約0.15秒)
+        3. 結束交易處理
+            2025-07-23 15:01:23.355
+            <- 2025-07-23 15:01:23.356 回應
+        (相隔約1.5秒)
+        4. 結束交易後拔槍(Available)
+            2025-07-23 15:01:24.850 StatusNotification['Available']
+            <- 2025-07-23 15:01:27.296 回應
+        (相隔約6秒)
+        5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
+            2025-07-23 15:02:33.777
+            <- 2025-07-23 15:02:33.778 回應
+        (相隔約5秒)
+        6. 故障後狀態都回來空閑(Available): ConnectorId是2的, 0跟1也有一起傳
+            2025-07-23 15:02:38.077
+            <- ??? 回應
+        */
+        // 1. 結束交易前, 先傳入的結束狀態(venderErrorCode="0x100203")
+        $("#connector-vendorErrorCode").val("0x200205");
+        triggerStatus("Finishing");
+
+        // 2. 結束交易前, 最後一筆 MeterValues
+        send_meterValue();
+
+        // 4. 結束交易後拔槍(Available)
+        $("#connector-vendorErrorCode").val("");
+        triggerStatus("Available");
+
+        // 3. 結束交易處理
+        // stopTransaction();
+
+        // 5. 拔槍後又傳故障(Faulted): ConnectorId是2的, 0跟1也有一起傳(VenderErrorCode="0x10020c")
+        /*
+        setTimeout(() => {
+          // 三筆陸續傳入故障
+          [0, 1, 2].forEach(connectorId => {
+            $("#CUID-connector").val(connectorId);
+            setTimeout(() => {
+              $("#connector-vendorErrorCode").val("0x10020c");
+              triggerStatus("Faulted");
+            }, 150)
+          });
+        }, 1500 + 6000);
+        */
+
+        /*
+        // 6. 故障後狀態都回來空閑(Available)
+        setTimeout(() => {    
+          // 三筆陸續傳入故障
+          [0, 1, 2].forEach(connectorId => {
+            setTimeout(() => {
+              $("#CUID-connector").val(connectorId);
+              $("#connector-vendorErrorCode").val("");
+              triggerStatus("Available");
+            }, 150)
+          });
+        }, 1500 + 6000 + 5000); 
+        */
+
+      });
+
+      $("#start").click(function () {
+        // 調整狀態為充電中, 觸發按鈕事件
+        startTransaction();
+      });
+
+      $("#stop").click(function () {
+        // 調整狀態為結束充電, 觸發按鈕事件
+        stopTransaction();
+        setTimeout(() => {
+          console.log("晚個五秒");
+          triggerStatus("Finishing");
+        }, 5000);
+      });
+      $("#mv").click(function () {
+        send_meterValue();
+      });
+      $("#mvp").click(function () {
+        var i = Number($("#meterInterval").val());
+        var timesRun = 0;
+        var interval = setInterval(function () {
+          timesRun += 1;
+          var val = Number($("#metervalue").val());
+          var incrementvalue = Number($("#meterIncrement").val());
+          var counter = Number($("#meterSendTimes").val());
+          var Myelement = document.getElementById("metervalue");
+          console.log(Myelement.value);
+          Myelement.value = (val + incrementvalue).toString();;
+          console.log("mvp", val, incrementvalue, interval, counter);
+          if (timesRun === counter) {
+            timesRun = 0;
+            clearInterval(interval);
+          }
+          //do whatever here..
+          send_meterValue();
+        }, i);
+      });
+
+      $("#heartbeat").click(function () {
+        send_heartbeat();
+      });
+
+      $("#ConnectorStatus").on("change", function () {
+        $("#status").click();
+      });
+
+      $("#status").click(function () {
+        sessionStorage.setItem("LastAction", "StatusNotification");
+
+        // 使用統一的時間取得函數
+        const timestamp = getCurrentTimestamp();
+
+        // 建構 StatusNotification payload，只包含有值的欄位
+        const payload = {
+          connectorId: parseInt($("#CUID").val()),
+          status: $("#ConnectorStatus").val(),
+          errorCode: "NoError",
+          timestamp: timestamp.toISOString()
+        };
+
+        // 只有當 vendorErrorCode 有值時才加入
+        const vendorErrorCode = $("#cp-vendorErrorCode").val();
+        if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+          payload.vendorErrorCode = vendorErrorCode;
+        }
+
+        // 使用追蹤函數發送
+        const sentJson = sendOcppRequest("StatusNotification", payload);
+
+        console.log(`📤 [充電樁] 發送 StatusNotification:`);
+        console.log(`   MessageId: ${id}`);
+        console.log(`   Payload:`, payload);
+        console.log(`   完整JSON: ${sentJson}`);
+        logMsg(`📤 發送 StatusNotification (充電樁): connectorId=${payload.connectorId}, status=${payload.status}`);
+      });
+
+      $("#ConnectorStatus-connector").on("change", function () {
+        // 取得當前選中的 connectorId
+        const connectorId = parseInt($("#CUID-connector").val());
+        const currentStatus = $(this).val();
+
+        // 更新狀態追蹤
+        connectorStatuses[connectorId] = currentStatus;
+
+        // 根據狀態和是否有 transactionId 來管理定期發送
+        if (currentStatus === "Charging" && transactionIds[connectorId] !== null) {
+          // 狀態轉換為 Charging 且該 connectorId 有 transactionId（正在充電），自動啟動定期發送
+          startPeriodicMeterValues(connectorId);
+          logMsg(`🔄 Connector ${connectorId} 狀態變為 Charging，自動啟動定期發送`);
+        } else {
+          // 狀態轉換為非 Charging 狀態時，停止該 connectorId 的定期發送
+          stopPeriodicMeterValues(connectorId);
+        }
+
+        // 自動勾選/取消勾選「是否定期發送?」的邏輯（UI 顯示用）
+        const autoToggleEnabled = $("#autoPeriodSendToggle").is(":checked");
+        if (autoToggleEnabled) {
+          if (currentStatus === "Charging") {
+            // 狀態轉換為 Charging 時，自動勾選「是否定期發送?」
+            $("#isPeriodSend").prop("checked", true);
+          } else {
+            // 狀態轉換為 Finishing 或非 Charging 狀態時，自動取消勾選「是否定期發送?」
+            $("#isPeriodSend").prop("checked", false);
+          }
+        }
+
+        $("#status-connector").click();
+      });
+
+      $("#status-connector").click(function () {
+        sessionStorage.setItem("LastAction", "StatusNotification");
+
+        // 使用統一的時間取得函數
+        const timestamp = getCurrentTimestamp();
+
+        // 取得 connectorId 和狀態
+        const connectorId = parseInt($("#CUID-connector").val());
+        const status = $("#ConnectorStatus-connector").val();
+
+        // 更新狀態追蹤
+        connectorStatuses[connectorId] = status;
+
+        // 建構 StatusNotification payload，只包含有值的欄位
+        const payload = {
+          connectorId: connectorId,
+          status: status,
+          errorCode: "NoError",
+          timestamp: timestamp.toISOString()
+        };
+
+        // 只有當 vendorErrorCode 有值時才加入
+        const vendorErrorCode = $("#connector-vendorErrorCode").val();
+        if (vendorErrorCode && vendorErrorCode.trim() !== "") {
+          payload.vendorErrorCode = vendorErrorCode;
+        }
+
+        // 使用追蹤函數發送
+        const sentJson = sendOcppRequest("StatusNotification", payload);
+
+        console.log(`📤 [充電槍] 發送 StatusNotification:`);
+        console.log(`   MessageId: ${id}`);
+        console.log(`   Payload:`, payload);
+        console.log(`   完整JSON: ${sentJson}`);
+        logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${payload.connectorId}, status=${payload.status}`);
+
+        // 根據狀態和是否有 transactionId 來管理定期發送
+        if (status === "Charging" && transactionIds[connectorId] !== null) {
+          // 狀態為 Charging 且該 connectorId 有 transactionId（正在充電），啟動定期發送
+          startPeriodicMeterValues(connectorId);
+        } else {
+          // 狀態為非 Charging，停止定期發送
+          stopPeriodicMeterValues(connectorId);
+        }
+      });
+
+      $("#data_transfer").click(function () {
+        sessionStorage.setItem("LastAction", "DataTransfer");
+        var DT = JSON.stringify([
+          2,
+          id,
+          "DataTransfer",
+          {
+            vendorId: "rus.avt.cp",
+            messageId: "GetChargeInstruction",
+            data: "",
+          },
+        ]);
+        _websocket.send(DT);
+      });
+
+      // hsiwei{5/35}:新增韌體相關按鈕監聽事件
+      $("#Diagnostics-Status-Notification").click(function () {
+        sessionStorage.setItem("LastAction", "DiagnosticsStatusNotification");
+        var DT = JSON.stringify([
+          2,
+          id,
+          "DiagnosticsStatusNotification",
+          {
+            status: $("#DiagnosticsStatus").val()
+          },
+        ]);
+        _websocket.send(DT);
+      });
+
+      // hsiwei{5/35}:新增韌體相關按鈕監聽事件
+      $("#Firmware-Status-Notification").click(function () {
+        sessionStorage.setItem("LastAction", "FirmwareStatusNotification");
+        var DT = JSON.stringify([
+          2,
+          id,
+          "FirmwareStatusNotification",
+          {
+            status: $("#FirmwareStatus").val()
+          },
+        ]);
+        _websocket.send(DT);
+      });
+
+      // hsiwei{3/14}:新增自定義測試用送出訊息按鈕
+      $("#cus-send").click(function () {
+        var message = $("#message-input").val();
+        console.log("message = ", message);
+
+        // 送出訊息
+        _websocket.send(message.trim());
+        alert("送出訊息");
+      });
+
+      // hsiwei{3/14}:修改input內容連動顯示內容
+      $("#message-input").change(function (e) {
+        var message = $(this).val();
+        console.log("message = ", message);
+        try {
+          var json = JSON.parse(message);
+          $("#message-preview").text(json);
+        } catch (e) {
+          console.error("error = ", e);
+          $("#message-preview").text(message);
+        }
+      })
+
+      $("#connect").on("change", function () {
+        if (_websocket) {
+          _websocket.close(3001);
+        }
+      });
+    });
+  </script>
+</body>
+
 </html>
