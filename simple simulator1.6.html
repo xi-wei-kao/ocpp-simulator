@@ -964,9 +964,27 @@
                     _websocket.send(remStrt);
                     send_meterValue();
                     break;
+                  // 重新觸發 StatusNotification
+                  case "StatusNotification":
+                    $("#status").click();
+                    break;
+                  // 依照OCPP-1.6 回傳固定為Idle
+                  case "FirmwareStatusNotification":
+                    sessionStorage.setItem("LastAction", "FirmwareStatusNotification");
+                    var DT = JSON.stringify([
+                      2,
+                      id,
+                      "FirmwareStatusNotification",
+                      {
+                        status: "Idle"
+                      },
+                    ]);
+                    _websocket.send(DT);
+                    break;
                   default:
                     var error = JSON.stringify([4, id]);
                     _websocket.send(error);
+                    break;
                 }
 
                 break;
