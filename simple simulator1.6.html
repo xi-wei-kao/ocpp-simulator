@@ -1351,31 +1351,18 @@
 
     /**
      * 重啟前保存當前狀態
-     * 從 UI 元素中讀取當前的充電樁和充電槍狀態
+     * 充電槍必須從 connectorStatuses 讀取：UI 只有一組下拉框，只反映「目前選中的」connectorId，
+     * 若當前選中 connector 1，舊邏輯會漏掉 connector 2 並錯誤預設成 Preparing。
      */
     function saveStatusBeforeReset() {
       // 保存充電樁狀態 (connectorId=0)
       savedStatusBeforeReset.chargePointStatus = $("#ConnectorStatus").val();
 
-      // 根據 CUID-connector 的值來判斷是哪一隻充電槍
-      const currentConnectorId = parseInt($("#CUID-connector").val());
-      const currentConnectorStatus = $("#ConnectorStatus-connector").val();
-
-      // 保存當前設定的充電槍狀態
-      if (currentConnectorId === 1) {
-        savedStatusBeforeReset.connectorStatus = currentConnectorStatus;
-      } else if (currentConnectorId === 2) {
-        savedStatusBeforeReset.connector2Status = currentConnectorStatus;
-      }
-
-      // 為了支援兩隻充電槍，我們需要設定預設狀態
-      // 如果沒有設定第二隻充電槍的狀態，使用預設值
-      if (!savedStatusBeforeReset.connectorStatus) {
-        savedStatusBeforeReset.connectorStatus = "Available"; // 預設第一隻槍為 Available
-      }
-      if (!savedStatusBeforeReset.connector2Status) {
-        savedStatusBeforeReset.connector2Status = "Preparing"; // 預設第二隻槍為 Preparing
-      }
+      // 每支槍的權威狀態在 connectorStatuses（triggerStatus / 下拉變更 / 手動發送時會更新）
+      savedStatusBeforeReset.connectorStatus =
+        connectorStatuses[1] || $("#ConnectorStatus-connector").val() || "Available";
+      savedStatusBeforeReset.connector2Status =
+        connectorStatuses[2] || "Available";
 
       logMsg(`💾 已保存重啟前狀態:`);
       logMsg(`   充電樁 (connectorId=0): ${savedStatusBeforeReset.chargePointStatus}`);
@@ -1431,7 +1418,7 @@
 
       // 發送第二隻充電槍狀態 (connectorId=2) - 如果充電樁有兩隻槍
       if (connectorCount >= 2) {
-        const connector2Status = statusToRestore.connector2Status || "Preparing";
+        const connector2Status = statusToRestore.connector2Status || "Available";
         const connector2Payload = {
           connectorId: 2,
           status: connector2Status,
