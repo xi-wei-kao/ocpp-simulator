@@ -262,7 +262,7 @@
               <option value="ws://localhost:2020/">台灣(地端local):localhost</option>
               <option value="ws://10.2.67.109:2020/">台灣(地端DEV):10.2.67.109</option>
               <option value="ws://10.2.67.113:2020/">台灣(地端STAGE):10.2.67.113</option>
-              <option value="ws://192.168.157.100:2020/">台灣(IPC):192.168.157.100</option>
+              <option value="ws://192.168.157.101:2020/">台灣(IPC):192.168.157.101</option>
             </select>
             <input id="CP" type="text" value="1076875101" placeholder="Id Station" />
           </div>
@@ -275,8 +275,15 @@
           <h4>Actions - Core Profile(事件操作)</h4>
           <hr />
 
-          <div style="display: flex; gap: 1rem; align-items: center">
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
             <button id="heartbeat">Heartbeat</button>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="checkbox" id="heartbeat-enable" style="width: auto; margin: 0;" />
+              <label style="margin: 0; cursor: pointer;" for="heartbeat-enable">啟用定期發送 Heartbeat</label>
+              <label style="margin: 0;">間隔</label>
+              <input type="number" id="heartbeat-interval-sec" value="40" min="1" max="86400" style="max-width: 70px;" title="發送間隔（秒）" />
+              <span>秒</span>
+            </div>
             <label>充電樁時間慢幾秒?</label>
             <input type="number" id="latency-second" value="0" style="max-width: 80px;" />
             <!-- <button id="test-flow-btn">測試情境流程</button> -->
@@ -530,6 +537,9 @@
       1: null,  // 第一隻槍的定期發送 handler
       2: null   // 第二隻槍的定期發送 handler
     };
+    // Heartbeat 定時器 ID，用於取消定期發送（setTimeout）
+    var heartbeatTimerId = null;
+    var heartbeatRunning = false;
 
     // 多充電槍 MeterValues 數值追蹤：追蹤每隻槍的數值（獨立累加）
     var meterValues = {
@@ -649,6 +659,7 @@
 
         _websocket = new WebSocket(wsurl + CP, ["ocpp1.6", "ocpp1.5"], { connectorHeaders });
         _websocket.onopen = function (authorizationData) {
+          c = 0; // 每次新連線重置，讓第一則訊息觸發 c==1 並依目前設定啟動 Heartbeat
           /*
           // 握手成功後主動送出認證資訊
           const username = CP;
@@ -689,7 +700,9 @@
           if (c == 1) {
             var hb_interval = handleData(ddata);
             sessionStorage.setItem("Configuration", hb_interval);
-            startHB(hb_interval * 1000);
+            if ($("#heartbeat-enable").is(":checked")) {
+              startHB(getHeartbeatIntervalMs());
+            }
           }
 
           if (ddata[0] === 3) {
@@ -1097,6 +1110,7 @@
         };
 
         _websocket.onclose = function (evt) {
+          stopHB();
           $("#connect").text("Connect").css("background", "#369");
           if (evt.code == 3001) {
             logMsg("ws closed");
@@ -1360,31 +1374,18 @@
 
     /**
      * 重啟前保存當前狀態
-     * 從 UI 元素中讀取當前的充電樁和充電槍狀態
+     * 充電槍必須從 connectorStatuses 讀取：UI 只有一組下拉框，只反映「目前選中的」connectorId，
+     * 若當前選中 connector 1，舊邏輯會漏掉 connector 2 並錯誤預設成 Preparing。
      */
     function saveStatusBeforeReset() {
       // 保存充電樁狀態 (connectorId=0)
       savedStatusBeforeReset.chargePointStatus = $("#ConnectorStatus").val();
 
-      // 根據 CUID-connector 的值來判斷是哪一隻充電槍
-      const currentConnectorId = parseInt($("#CUID-connector").val());
-      const currentConnectorStatus = $("#ConnectorStatus-connector").val();
-
-      // 保存當前設定的充電槍狀態
-      if (currentConnectorId === 1) {
-        savedStatusBeforeReset.connectorStatus = currentConnectorStatus;
-      } else if (currentConnectorId === 2) {
-        savedStatusBeforeReset.connector2Status = currentConnectorStatus;
-      }
-
-      // 為了支援兩隻充電槍，我們需要設定預設狀態
-      // 如果沒有設定第二隻充電槍的狀態，使用預設值
-      if (!savedStatusBeforeReset.connectorStatus) {
-        savedStatusBeforeReset.connectorStatus = "Available"; // 預設第一隻槍為 Available
-      }
-      if (!savedStatusBeforeReset.connector2Status) {
-        savedStatusBeforeReset.connector2Status = "Preparing"; // 預設第二隻槍為 Preparing
-      }
+      // 每支槍的權威狀態在 connectorStatuses（triggerStatus / 下拉變更 / 手動發送時會更新）
+      savedStatusBeforeReset.connectorStatus =
+        connectorStatuses[1] || $("#ConnectorStatus-connector").val() || "Available";
+      savedStatusBeforeReset.connector2Status =
+        connectorStatuses[2] || "Available";
 
       logMsg(`💾 已保存重啟前狀態:`);
       logMsg(`   充電樁 (connectorId=0): ${savedStatusBeforeReset.chargePointStatus}`);
@@ -1440,7 +1441,7 @@
 
       // 發送第二隻充電槍狀態 (connectorId=2) - 如果充電樁有兩隻槍
       if (connectorCount >= 2) {
-        const connector2Status = statusToRestore.connector2Status || "Preparing";
+        const connector2Status = statusToRestore.connector2Status || "Available";
         const connector2Payload = {
           connectorId: 2,
           status: connector2Status,
@@ -1623,9 +1624,34 @@
       _websocket.send(BN);
     }
 
-    function startHB(interval) {
-      logMsg("Setting heartbeat interval to " + interval);
-      setInterval(send_heartbeat, interval);
+    function stopHB() {
+      heartbeatRunning = false;
+      if (heartbeatTimerId != null) {
+        clearTimeout(heartbeatTimerId);
+        heartbeatTimerId = null;
+        logMsg("已停止定期發送 Heartbeat");
+      }
+    }
+
+    function startHB(intervalMs) {
+      stopHB();
+      heartbeatRunning = true;
+      var intervalSec = intervalMs / 1000;
+      logMsg("設定 Heartbeat 間隔: " + intervalSec + " 秒（分頁在背景時瀏覽器可能節流為約 1 分鐘）");
+      function scheduleNext() {
+        if (!heartbeatRunning) return;
+        heartbeatTimerId = setTimeout(function () {
+          if (!heartbeatRunning) return;
+          send_heartbeat();
+          scheduleNext();
+        }, getHeartbeatIntervalMs());
+      }
+      scheduleNext();
+    }
+
+    function getHeartbeatIntervalMs() {
+      var sec = parseInt($("#heartbeat-interval-sec").val(), 10);
+      return (isNaN(sec) || sec < 1 ? 40 : sec) * 1000;
     }
 
     function send_heartbeat() {
@@ -1995,6 +2021,22 @@
 
       $("#heartbeat").click(function () {
         send_heartbeat();
+      });
+
+      $("#heartbeat-enable").on("change", function () {
+        if ($(this).is(":checked")) {
+          if (_websocket && _websocket.readyState === WebSocket.OPEN) {
+            startHB(getHeartbeatIntervalMs());
+          }
+        } else {
+          stopHB();
+        }
+      });
+
+      $("#heartbeat-interval-sec").on("change", function () {
+        if ($("#heartbeat-enable").is(":checked") && heartbeatTimerId != null && _websocket && _websocket.readyState === WebSocket.OPEN) {
+          startHB(getHeartbeatIntervalMs());
+        }
       });
 
       $("#ConnectorStatus").on("change", function () {
