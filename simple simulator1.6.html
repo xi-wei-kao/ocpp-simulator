@@ -240,19 +240,24 @@
           <!-- value="wss://yds-dev.beseye.com:443/ocpp/1076875101" -->
           <!-- value="wss://yds-stage.beseye.com:443/ocpp/C01AL2405004" -->
           <!-- value="wss://10.2.67.160:443/ocpp/CDCAA2ED2250001" -->
-          <!-- value="wss://yds-eks-stage.beseye.com:443/ocpp/SN2406010327" -->
+          <!-- value="wss://yds-eks-stage2.beseye.com:443/ocpp/SN2406010327" -->
           <!-- value="wss://chargingpoint-proxy.beseye.com:443/ocpp/titan/ac/1076875101" -->
           <div style="display: flex; gap: 0.5rem; align-items: center;">
             <select id="server-select" style="max-width: 30%;">
-              <option value="wss://int-alb.yds-eks-stage.beseye.com:443/ocpp/">台灣(eks-stage):yds-eks-stage.beseye.com
+              <option value="wss://int-alb.yds-eks-stage2.beseye.com:443/ocpp/noauth/">
+                台灣(eks-stage2):yds-eks-stage2.beseye.com
               </option>
-              <option value="wss://yds-dev.beseye.com:443/ocpp/">台灣(dev):yds-dev.beseye.com</option>
-              <option value="wss://yds-stage.beseye.com:443/ocpp/">台灣(stage):yds-stage.beseye.com</option>
-              <option value="wss://starcharger-yds.beseye.com:443/ocpp/">台灣(ms):starcharger-yds.beseye.com</option>
-              <option value="wss://10.2.67.160:443/ocpp/">台灣(RT):10.2.67.160</option>
+              <option value="wss://int-alb.gcsms.starcharger.com.tw:443/ocpp/noauth/">台灣(gcsms):gcsms.starcharger.com.tw
+              </option>
+              <option value="wss://yds-dev.beseye.com:443/ocpp/noauth/">台灣(dev):yds-dev.beseye.com</option>
+              <option value="wss://yds-stage.beseye.com:443/ocpp/noauth/">台灣(stage):yds-stage.beseye.com</option>
+              <option value="wss://starcharger-yds.beseye.com:443/ocpp/noauth/">台灣(ms):starcharger-yds.beseye.com
+              </option>
+              <option value="wss://10.2.67.161:443/ocpp/noauth/">台灣(RT-10.2.67.161):rt-yds.hdre-eomc.com</option>
+              <option value="wss://10.2.67.140:443/ocpp/noauth/">台灣(dev-10.2.67.140):dev-yds.hdre-eomc.com</option>
               <option value="/">---</option>
-              <option value="wss://yds-jp-dev.beseye.com:443/ocpp/">日本(dev):yds-jp-dev.beseye.com</option>
-              <option value="wss://yds-jp-stage.beseye.com:443/ocpp/">日本(stage):yds-jp-stage.beseye.com</option>
+              <option value="wss://yds-jp-dev.beseye.com:443/ocpp/noauth/">日本(dev):yds-jp-dev.beseye.com</option>
+              <option value="wss://yds-jp-stage.beseye.com:443/ocpp/noauth/">日本(stage):yds-jp-stage.beseye.com</option>
               <option value="/">---</option>
               <option value="ws://localhost:2020/">台灣(地端local):localhost</option>
               <option value="ws://10.2.67.109:2020/">台灣(地端DEV):10.2.67.109</option>
@@ -403,7 +408,7 @@
                   style="margin: 0; cursor: pointer; white-space: nowrap; font-size: 0.9rem; color: #27a3ac;">自動勾選</label>
               </div>
               <div style="display: flex; align-items: center; gap: 0.25rem">
-                <input type="number" id="meterValuesInterval" value="10" style="max-width: 120px;" />
+                <input type="number" id="meterValuesInterval" value="3" style="max-width: 120px;" />
                 <label style="min-width: 100px;">發送間隔(秒)</label>
                 <div>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" id="meterInterInfo"
@@ -975,9 +980,27 @@
                     _websocket.send(remStrt);
                     send_meterValue();
                     break;
+                  // 重新觸發 StatusNotification
+                  case "StatusNotification":
+                    $("#status").click();
+                    break;
+                  // 依照OCPP-1.6 回傳固定為Idle
+                  case "FirmwareStatusNotification":
+                    sessionStorage.setItem("LastAction", "FirmwareStatusNotification");
+                    var DT = JSON.stringify([
+                      2,
+                      id,
+                      "FirmwareStatusNotification",
+                      {
+                        status: "Idle"
+                      },
+                    ]);
+                    _websocket.send(DT);
+                    break;
                   default:
                     var error = JSON.stringify([4, id]);
                     _websocket.send(error);
+                    break;
                 }
 
                 break;
