@@ -273,7 +273,7 @@
           <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
             <button id="heartbeat">Heartbeat</button>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <input type="checkbox" id="heartbeat-enable" style="width: auto; margin: 0;" />
+              <input type="checkbox" id="heartbeat-enable" checked style="width: auto; margin: 0;" />
               <label style="margin: 0; cursor: pointer;" for="heartbeat-enable">啟用定期發送 Heartbeat</label>
               <label style="margin: 0;">間隔</label>
               <input type="number" id="heartbeat-interval-sec" value="40" min="1" max="86400" style="max-width: 70px;" title="發送間隔（秒）" />
@@ -575,6 +575,9 @@
 
     // 充電槍數量配置 (1 或 2)
     var connectorCount = 2;  // 設定為 2 隻槍
+
+    /** ChangeAvailability Inoperative 因尚有充電中而回 Scheduled 時，交易全結束後再廣播 Unavailable */
+    var scheduledInoperativeDisable = false;
 
     // 清除主控台
     $("#clear-console-btn").on("click", () => {
@@ -1039,27 +1042,39 @@
               // 禁用/解除禁用
               case "ChangeAvailability": {
                 const changeAvailConnectorId = ddata[3].connectorId;
-                // 檢查該 connectorId 的實際狀態
                 const connectorStatus = connectorStatuses[changeAvailConnectorId] || $("#ConnectorStatus-connector").val();
-                const isCharging = chargingStatus.includes(connectorStatus);
-                var CA = JSON.stringify([3, id, { status: isCharging ? "Rejected" : "Accepted" }]);
-                // 充電中暫時阻擋禁用(實際為進入"Scheduled")
-                if (isCharging) {
-                  _websocket.send(CA);
+                const isTargetInChargingState = chargingStatus.includes(connectorStatus);
+                const isOperative = ddata[3].type === "Operative";
+
+                if (isOperative) {
+                  if (isTargetInChargingState) {
+                    var CARejOp = JSON.stringify([3, id, { status: "Rejected" }]);
+                    _websocket.send(CARejOp);
+                    break;
+                  }
+                  scheduledInoperativeDisable = false;
+                  var CAOp = JSON.stringify([3, id, { status: "Accepted" }]);
+                  _websocket.send(CAOp);
+                  sendOperativeAvailabilityStatusNotifications();
+                  applyLocalAvailableAllConnectors();
+                  logMsg("📤 ChangeAvailability(Operative): 已回覆 Accepted 並廣播樁與各槍 Available");
                   break;
                 }
-                // 若為樁(ConnectorId="0")禁用, 則廣播狀態事件
-                const isOperative = ddata[3].type === "Operative";
-                if (changeAvailConnectorId === 0) {
-                  triggerStatusEVSE(isOperative ? "Available" : "Unavailable");
-                } else if (changeAvailConnectorId && changeAvailConnectorId > 0) {
-                  // 使用正確的 connectorId 來觸發狀態改變
-                  triggerStatus(isOperative ? "Available" : "Unavailable", changeAvailConnectorId);
-                } else {
-                  // 如果沒有指定 connectorId，使用當前選中的（向後兼容）
-                  triggerStatus(isOperative ? "Available" : "Unavailable");
+
+                // Inoperative（禁用）：任一支槍仍在充電中或仍有 transaction → Scheduled，待全數結束後廣播 Unavailable
+                if (anyGunActiveChargingSession()) {
+                  var CAScheduled = JSON.stringify([3, id, { status: "Scheduled" }]);
+                  _websocket.send(CAScheduled);
+                  scheduledInoperativeDisable = true;
+                  logMsg("📋 ChangeAvailability(Inoperative): 尚有槍在充電或交易進行中，已回覆 Scheduled，待全部結束後廣播 Unavailable");
+                  break;
                 }
-                _websocket.send(CA);
+
+                var CAIaccept = JSON.stringify([3, id, { status: "Accepted" }]);
+                _websocket.send(CAIaccept);
+                sendInoperativeAvailabilityStatusNotifications();
+                applyLocalUnavailableAllConnectors();
+                logMsg("📤 ChangeAvailability(Inoperative): 已回覆 Accepted 並廣播樁與各槍 Unavailable");
                 break;
               }
 
@@ -1282,6 +1297,133 @@
       $("#console").append("<li>" + err + "</li>");
     }
 
+    /**
+     * 是否有任一槍仍處於充電中（含 Suspended）或仍持有 transactionId（交易尚未結束）。
+     */
+    function anyGunActiveChargingSession() {
+      for (let c = 1; c <= connectorCount; c++) {
+        if (chargingStatus.includes(connectorStatuses[c])) return true;
+        const tid = transactionIds[c];
+        if (tid != null && tid !== "" && tid !== undefined) return true;
+      }
+      return false;
+    }
+
+    /**
+     * 排程禁用：當所有槍都已脫離充電中且無進行中 transactionId 時，廣播 Unavailable。
+     * 在發送 Finishing StatusNotification 之後呼叫（setTimeout 0 確保狀態已寫入）。
+     */
+    function tryApplyScheduledInoperativeDisable() {
+      if (!scheduledInoperativeDisable) return;
+      if (anyGunActiveChargingSession()) return;
+      scheduledInoperativeDisable = false;
+      sendInoperativeAvailabilityStatusNotifications();
+      applyLocalUnavailableAllConnectors();
+      logMsg("📤 排程禁用：全部槍已結束充電交易，已廣播樁與各槍 Unavailable StatusNotification");
+    }
+
+    /**
+     * 平台下發 ChangeAvailability Inoperative（禁用）且 Accepted 時，
+     * 廣播充電樁 (connectorId=0) 與各槍 (1..connectorCount) 的 Unavailable StatusNotification。
+     */
+    function sendInoperativeAvailabilityStatusNotifications() {
+      randomId();
+      const cpPayload = {
+        connectorId: 0,
+        status: "Unavailable",
+        errorCode: "NoError",
+        timestamp: getCurrentTimestamp().toISOString()
+      };
+      const cpVendor = $("#cp-vendorErrorCode").val();
+      if (cpVendor && cpVendor.trim() !== "") {
+        cpPayload.vendorErrorCode = cpVendor;
+      }
+      sendOcppRequest("StatusNotification", cpPayload);
+      logMsg(`📤 ChangeAvailability 禁用: StatusNotification 充電樁 connectorId=0, status=Unavailable`);
+
+      const gunVendor = $("#connector-vendorErrorCode").val();
+      for (let c = 1; c <= connectorCount; c++) {
+        randomId();
+        const payload = {
+          connectorId: c,
+          status: "Unavailable",
+          errorCode: "NoError",
+          timestamp: getCurrentTimestamp().toISOString()
+        };
+        if (gunVendor && gunVendor.trim() !== "") {
+          payload.vendorErrorCode = gunVendor;
+        }
+        sendOcppRequest("StatusNotification", payload);
+        logMsg(`📤 ChangeAvailability 禁用: StatusNotification 充電槍 connectorId=${c}, status=Unavailable`);
+      }
+    }
+
+    /**
+     * 禁用廣播後同步本地 UI / connectorStatuses（不再次觸發 StatusNotification）。
+     */
+    function applyLocalUnavailableAllConnectors() {
+      document.getElementById("ConnectorStatus").value = "Unavailable";
+      for (let c = 1; c <= connectorCount; c++) {
+        connectorStatuses[c] = "Unavailable";
+        stopPeriodicMeterValues(c);
+      }
+      const cur = parseInt($("#CUID-connector").val(), 10);
+      if (cur >= 1 && cur <= connectorCount) {
+        document.getElementById("ConnectorStatus-connector").value = "Unavailable";
+      }
+    }
+
+    /**
+     * ChangeAvailability Operative（取消禁用）且 Accepted 時，
+     * 廣播充電樁 (connectorId=0) 與各槍 (1..connectorCount) 的 Available StatusNotification。
+     */
+    function sendOperativeAvailabilityStatusNotifications() {
+      randomId();
+      const cpPayload = {
+        connectorId: 0,
+        status: "Available",
+        errorCode: "NoError",
+        timestamp: getCurrentTimestamp().toISOString()
+      };
+      const cpVendor = $("#cp-vendorErrorCode").val();
+      if (cpVendor && cpVendor.trim() !== "") {
+        cpPayload.vendorErrorCode = cpVendor;
+      }
+      sendOcppRequest("StatusNotification", cpPayload);
+      logMsg(`📤 ChangeAvailability 取消禁用: StatusNotification 充電樁 connectorId=0, status=Available`);
+
+      const gunVendor = $("#connector-vendorErrorCode").val();
+      for (let c = 1; c <= connectorCount; c++) {
+        randomId();
+        const payload = {
+          connectorId: c,
+          status: "Available",
+          errorCode: "NoError",
+          timestamp: getCurrentTimestamp().toISOString()
+        };
+        if (gunVendor && gunVendor.trim() !== "") {
+          payload.vendorErrorCode = gunVendor;
+        }
+        sendOcppRequest("StatusNotification", payload);
+        logMsg(`📤 ChangeAvailability 取消禁用: StatusNotification 充電槍 connectorId=${c}, status=Available`);
+      }
+    }
+
+    /**
+     * 取消禁用廣播後同步本地 UI / connectorStatuses（不再次觸發 StatusNotification）。
+     */
+    function applyLocalAvailableAllConnectors() {
+      document.getElementById("ConnectorStatus").value = "Available";
+      for (let c = 1; c <= connectorCount; c++) {
+        connectorStatuses[c] = "Available";
+        stopPeriodicMeterValues(c);
+      }
+      const cur = parseInt($("#CUID-connector").val(), 10);
+      if (cur >= 1 && cur <= connectorCount) {
+        document.getElementById("ConnectorStatus-connector").value = "Available";
+      }
+    }
+
     function triggerStatusEVSE(status) {
       const statusCheck = [
         "Available", "Unavailable", "Faulted"
@@ -1346,6 +1488,9 @@
 
         sendOcppRequest("StatusNotification", payload);
         logMsg(`📤 發送 StatusNotification (充電槍): connectorId=${connectorId}, status=${status}`);
+      }
+      if (status === "Finishing") {
+        setTimeout(() => tryApplyScheduledInoperativeDisable(), 0);
       }
     }
 
@@ -2126,6 +2271,10 @@
         } else {
           // 狀態為非 Charging，停止定期發送
           stopPeriodicMeterValues(connectorId);
+        }
+
+        if (status === "Finishing") {
+          setTimeout(() => tryApplyScheduledInoperativeDisable(), 0);
         }
       });
 
